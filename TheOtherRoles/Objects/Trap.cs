@@ -115,16 +115,16 @@ namespace TheOtherRoles.Objects
             Trap target = null;
             foreach (Trap trap in traps) {
                 if (trap.arrow.arrow.active) trap.arrow.Update();
-                if (trap.revealed || !trap.triggerable || trap.trappedPlayer.Contains(player.PlayerControl)) continue;
-                if (player.PlayerControl.inVent || !player.PlayerControl.CanMove) continue;
-                float distance = Vector2.Distance(trap.trap.transform.position, player.PlayerControl.GetTruePosition());
+                if (trap.revealed || !trap.triggerable || trap.trappedPlayer.Contains(player.Control)) continue;
+                if (player.Control.inVent || !player.Control.CanMove) continue;
+                float distance = Vector2.Distance(trap.trap.transform.position, player.Control.GetTruePosition());
                 if (distance <= ud && distance < closestDistance) {
                     closestDistance = distance;
                     target = trap;
                 }
             }
             if (target != null && player.PlayerId != Trapper.trapper.PlayerId && !player.Data.IsDead) {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.TriggerTrap, Hazel.SendOption.Reliable, -1);
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.TriggerTrap, Hazel.SendOption.Reliable, -1);
                 writer.Write(player.PlayerId);
                 writer.Write(target.instanceId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);

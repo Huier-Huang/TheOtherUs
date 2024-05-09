@@ -1,0 +1,20 @@
+using System;
+using System.Collections.Generic;
+
+namespace TheOtherRoles.Roles.Modifier;
+
+[RegisterRole]
+public class Torch : RoleBase
+{
+    public List<PlayerControl> torch = new();
+    public float vision = 1;
+
+    public override void ClearAndReload()
+    {
+        torch = new List<PlayerControl>();
+        vision = CustomOptionHolder.modifierTorchVision;
+    }
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
+}

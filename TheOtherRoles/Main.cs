@@ -13,6 +13,7 @@ using System.Text;
 using TheOtherRoles.Modules;
 using TheOtherRoles.Modules.CustomHats;
 using TheOtherRoles.Modules.Languages;
+using TheOtherRoles.Modules.Options;
 using UnityEngine;
 
 namespace TheOtherRoles
@@ -120,14 +121,22 @@ namespace TheOtherRoles
             }
 
             AddComponent<ModUpdater>();
-
-            EventUtility.Load();
+            
             SubmergedCompatibility.Initialize();
             MainMenuPatch.addSceneChangeCallbacks();
             _ = RoleInfo.loadReadme();
             AddToKillDistanceSetting.addKillDistance();
-            RPCListener.Register(typeof(Main).Assembly);
-            RPCMethod.Register(typeof(Main).Assembly);
+            TaskQueue.Instance.StartTask(() =>
+            {
+                AttributeManager.Instance
+                    .Init()
+                    .Set(Assembly.GetExecutingAssembly())
+                    .Add<RegisterRole>(_RoleManager)
+                    .Add<OnEvent>()
+                    .Add<RPCMethod>()
+                    .Add<RPCListener>()
+                    .Start();
+            }, "RegisterAttributes");
             
             Info("Loading TOR completed!");
         }
@@ -194,7 +203,7 @@ namespace TheOtherRoles
 
             // Terminate round
             if(AmongUsClient.Instance.AmHost && Helpers.gameStarted && Input.GetKeyDown(KeyCode.Return) && Input.GetKey(KeyCode.L) && Input.GetKey(KeyCode.LeftShift)) {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.ForceEnd, Hazel.SendOption.Reliable, -1);
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.ForceEnd, Hazel.SendOption.Reliable, -1);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 RPCProcedure.forceEnd();
             }

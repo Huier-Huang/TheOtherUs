@@ -255,7 +255,6 @@ namespace TheOtherRoles.Patches
             // Reset Settings
             if (TORMapOptions.gameMode == CustomGamemodes.HideNSeek ) ShipStatusPatch.resetVanillaSettings();
             RPCProcedure.resetVariables();
-            EventUtility.gameEndsUpdate();
         }
     }
 

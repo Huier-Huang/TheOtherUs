@@ -15,108 +15,8 @@ namespace TheOtherRoles
     [HarmonyPatch]
     public static class TheOtherRoles
     {
-        public static System.Random rnd = new System.Random((int)DateTime.Now.Ticks);
+        public static System.Random rnd = new((int)DateTime.Now.Ticks);
 
-        public static void clearAndReloadRoles() {
-            ResetButtonCooldown.clearAndReload();
-            Jester.clearAndReload();
-            Mayor.clearAndReload();
-            Portalmaker.clearAndReload();
-            Poucher.clearAndReload();
-            Mimic.clearAndReload();
-            Engineer.clearAndReload();
-            Sheriff.clearAndReload();
-            Cursed.clearAndReload();
-            Deputy.clearAndReload();
-            Amnisiac.clearAndReload();
-            Lighter.clearAndReload();
-            Godfather.clearAndReload();
-            Mafioso.clearAndReload();
-            Janitor.clearAndReload();
-            Detective.clearAndReload();
-            Werewolf.clearAndReload();
-            TimeMaster.clearAndReload();
-            BodyGuard.clearAndReload();
-            Veteren.clearAndReload();
-            Medic.clearAndReload();
-            PrivateInvestigator.clearAndReload();
-            Shifter.clearAndReload();
-            Swapper.clearAndReload();
-            Lovers.clearAndReload();
-            Seer.clearAndReload();
-            Morphling.clearAndReload();
-            Bomber2.clearAndReload();
-            Camouflager.clearAndReload();
-            Cultist.clearAndReload();
-            Hacker.clearAndReload();
-            Tracker.clearAndReload();
-            Vampire.clearAndReload();
-            Snitch.clearAndReload();
-            Jackal.clearAndReload();
-            Sidekick.clearAndReload();
-            Follower.clearAndReload();
-            Eraser.clearAndReload();
-            Spy.clearAndReload();
-            Trickster.clearAndReload();
-            Cleaner.clearAndReload();
-            Undertaker.clearAndReload();
-            Warlock.clearAndReload();
-            SecurityGuard.clearAndReload();
-            Arsonist.clearAndReload();
-            BountyHunter.clearAndReload();
-            Vulture.clearAndReload();
-            Medium.clearAndReload();
-            Lawyer.clearAndReload();
-            Pursuer.clearAndReload();
-            Witch.clearAndReload();
-            Jumper.clearAndReload();
-            Escapist.clearAndReload();
-            Ninja.clearAndReload();
-            Blackmailer.clearAndReload();
-            Thief.clearAndReload();
-            Miner.clearAndReload();
-            Trapper.clearAndReload();
-            Bomber.clearAndReload();
-            //Guesser.clearAndReload();
-            //Swooper.clearAndReload();
-
-            // Modifier
-            Bait.clearAndReload();
-            Bloody.clearAndReload();
-            AntiTeleport.clearAndReload();
-            Tiebreaker.clearAndReload();
-            Sunglasses.clearAndReload();
-            Torch.clearAndReload();
-            Blind.clearAndReload();
-            Watcher.clearAndReload();
-            Flash.clearAndReload();
-            Radar.clearAndReload();
-            Tunneler.clearAndReload();
-            Multitasker.clearAndReload();
-            Disperser.clearAndReload();
-            Mini.clearAndReload();
-            Indomitable.clearAndReload();
-            Slueth.clearAndReload();
-            Vip.clearAndReload();
-            Invert.clearAndReload();
-            Chameleon.clearAndReload();
-
-            // Gamemodes
-            HandleGuesser.clearAndReload();
-            HideNSeek.clearAndReload();
-            PropHunt.clearAndReload();
-
-        }
-        /*
-        public static class PreventTaskEnd
-        {
-            public static bool Enable = false;
-            public static void clearAndReload()
-            {
-                Enable = CustomOptionHolder.preventTaskEnd.getBool();
-            }
-        }
-        */
         public static class ResetButtonCooldown
         {
             public static float killCooldown;
@@ -242,7 +142,7 @@ namespace TheOtherRoles
             public static bool chatTarget2 = true;
             public static bool isCultistGame = false;
             public static bool needsFollower = true;
-            //public static PlayerControl currentFollower;
+            //public static Control currentFollower;
             public static Sprite buttonSprite;
 
 
@@ -527,7 +427,7 @@ namespace TheOtherRoles
                     playerId = CachedPlayer.LocalPlayer.PlayerId;
 
                 if (active && playerId == CachedPlayer.LocalPlayer.PlayerId) {
-                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.ShareGhostInfo, Hazel.SendOption.Reliable, -1);
+                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.ShareGhostInfo, Hazel.SendOption.Reliable, -1);
                     writer.Write(CachedPlayer.LocalPlayer.PlayerId);
                     writer.Write((byte)RPCProcedure.GhostInfoTypes.HandcuffNoticed);
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1103,7 +1003,7 @@ namespace TheOtherRoles
     }
     /*
     public static class Snitch {
-        public static PlayerControl snitch;
+        public static Control snitch;
         public static Color color = new Color32(184, 251, 79, byte.MaxValue);
         public enum Mode {
             Chat = 0,
@@ -1754,7 +1654,7 @@ namespace TheOtherRoles
         }
 
         public static bool dousedEveryoneAlive() {
-            return CachedPlayer.AllPlayers.All(x => { return x.PlayerControl == Arsonist.arsonist || x.Data.IsDead || x.Data.Disconnected || Arsonist.dousedPlayers.Any(y => y.PlayerId == x.PlayerId); });
+            return CachedPlayer.AllPlayers.All(x => { return x.Control == Arsonist.arsonist || x.Data.IsDead || x.Data.Disconnected || Arsonist.dousedPlayers.Any(y => y.PlayerId == x.PlayerId); });
         }
 
         public static void clearAndReload() {
@@ -1773,7 +1673,7 @@ namespace TheOtherRoles
 
     public static class Guesser {
         public static PlayerControl niceGuesser;
-        //public static PlayerControl evilGuesser;
+        //public static Control evilGuesser;
         public static List<PlayerControl> evilGuesser = new List<PlayerControl>();
         public static Color color = new Color32(255, 255, 0, byte.MaxValue);
 
@@ -2709,7 +2609,7 @@ namespace TheOtherRoles
         {
             AntiTeleport.setPosition();
             Helpers.showFlash(Cleaner.color);
-            if (AntiTeleport.antiTeleport.FindAll(x => x.PlayerId == CachedPlayer.LocalPlayer.PlayerControl.PlayerId)
+            if (AntiTeleport.antiTeleport.FindAll(x => x.PlayerId == CachedPlayer.LocalPlayer.Control.PlayerId)
                     .Count != 0 || CachedPlayer.LocalPlayer.Data.IsDead) return;
             
             if (MapBehaviour.Instance)

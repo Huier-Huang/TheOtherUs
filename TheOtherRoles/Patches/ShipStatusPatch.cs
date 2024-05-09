@@ -171,7 +171,7 @@ namespace TheOtherRoles.Patches
 /*
     [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.RepairSystem))]
         class RepairSystemPatch {
-            public static bool Prefix(ShipStatus __instance, [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] byte amount) {
+            public static bool Prefix(ShipStatus __instance, [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] Control player, [HarmonyArgument(2)] byte amount) {
 
                 // Mechanic expert repairs
                 if (Engineer.engineer != null && Engineer.engineer == player && Engineer.expertRepairs) {
@@ -214,7 +214,7 @@ namespace TheOtherRoles.Patches
         [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.RepairDamage))]
         class SwitchSystemRepairPatch
         {
-            public static void Postfix(SwitchSystem __instance, [HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] byte amount) {
+            public static void Postfix(SwitchSystem __instance, [HarmonyArgument(0)] Control player, [HarmonyArgument(1)] byte amount) {
                 
                 // Mechanic expert lights repairs
                 if (Engineer.engineer != null && Engineer.engineer == player && Engineer.expertRepairs) {

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using HarmonyLib;
 using Hazel;
 using InnerNet;
 using UnityEngine;
@@ -10,7 +9,7 @@ using UnityEngine;
 namespace TheOtherRoles.Helper;
 
 #nullable enable
-internal class FastRpcWriter
+public class FastRpcWriter
 {
     private readonly RPCSendMode _rpcSendMode;
     private byte CallId;
@@ -32,6 +31,10 @@ internal class FastRpcWriter
         _rpcSendMode = mode;
         SetTargetId(TargetId);
         SetTargetObjectId(ObjectId);
+    }
+
+    private FastRpcWriter()
+    {
     }
 
     private static FastRpcWriter StartNew(SendOption option = SendOption.Reliable,
@@ -164,8 +167,10 @@ internal class FastRpcWriter
         return this;
     }
 
-    public FastRpcWriter Write(byte[] value)
+    public FastRpcWriter Write(byte[] value, bool writeLength = false)
     {
+        if (writeLength)
+            writer?.WritePacked(value.Length);
         writer?.Write(value);
         return this;
     }
@@ -193,6 +198,38 @@ internal class FastRpcWriter
         writer?.Write(value.height);
         return this;
     }
+    
+    public FastRpcWriter Write(PlayerControl value)
+    {
+        writer?.Write(value.PlayerId);
+        return this;
+    }
+    
+    public FastRpcWriter Write(MessageWriter value, bool includeHeader)
+    {
+        writer?.Write(value, includeHeader);
+        return this;
+    }
+    
+    public FastRpcWriter WriteWriter(MessageWriter value, bool includeHeader)
+    {
+        Write(value.ToByteArray(includeHeader), true);
+        return this;
+    }
+    
+    public FastRpcWriter Write(Il2CppStructArray<byte> value, bool writeLength = false)
+    {
+        if (writeLength)
+            writer?.WritePacked(value.Length);
+        writer?.Write(value);
+        return this;
+    }
+    
+    public FastRpcWriter Write(Il2CppStructArray<byte> value, int offset, int length)
+    {
+        writer?.Write(value, offset, length);
+        return this;
+    }
 
     public FastRpcWriter Write(params object[]? objects)
     {
@@ -204,18 +241,23 @@ internal class FastRpcWriter
                 case byte _byte:
                     Write(_byte);
                     break;
+                
                 case string _string:
                     Write(_string);
                     break;
+                
                 case float _float:
                     Write(_float);
                     break;
+                
                 case int _int:
                     Write(_int);
                     break;
+                
                 case bool _bool:
                     Write(_bool);
                     break;
+                
                 case byte[] _bytes:
                     Write(_bytes);
                     break;
@@ -287,6 +329,9 @@ internal class FastRpcWriter
         AmongUsClient.Instance.SendOrDisconnect(writer);
         Recycle();
     }
+
+    public static implicit operator MessageWriter(FastRpcWriter writer) => writer.writer ??= MessageWriter.Get(writer.Option);
+    public static implicit operator FastRpcWriter(MessageWriter writer) => new() { writer = writer, Option =  writer.SendOption};
 }
 
 public static class FastRPCExtension
@@ -314,9 +359,26 @@ public static class FastRPCExtension
         var height = reader.ReadSingle();
         return new Rect(x, y, width, height);
     }
+    
+    public static PlayerControl ReadPlayer(this MessageReader reader)
+    {
+        var id = reader.ReadByte();
+        return CachedPlayer.AllPlayers.FirstOrDefault(n => n.PlayerId == id);
+    }
+    
+    public static Il2CppStructArray<byte> ReadBytesFormLength(this MessageReader reader)
+    {
+        var length = reader.ReadPackedInt32();
+        return reader.ReadBytes(length);
+    }
+    
+    public static MessageReader ReadReader(this MessageReader reader)
+    {
+        return MessageReader.Get(reader.ReadBytesFormLength());
+    }
 }
 
-internal enum RPCSendMode
+public enum RPCSendMode
 {
     SendToAll = 5,
     SendToPlayer = 6
@@ -325,7 +387,7 @@ internal enum RPCSendMode
 [Harmony]
 [MeansImplicitUse]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-internal class RPCListener : Attribute
+internal class RPCListener : RegisterAttribute
 {
     private static readonly List<RPCListener> _allListeners = [];
     public Action<MessageReader> OnRPC = null!;
@@ -394,7 +456,7 @@ internal class RPCListener : Attribute
 
 [MeansImplicitUse]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-internal class RPCMethod(CustomRPC rpc) : Attribute
+internal class RPCMethod(CustomRPC rpc) : RegisterAttribute
 {
     public static readonly List<RPCMethod> _AllRPCMethod =
         [];

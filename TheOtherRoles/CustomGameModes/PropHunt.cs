@@ -408,7 +408,7 @@ namespace TheOtherRoles.CustomGameModes
         public static void IntroCutsceneDestroyPatch(IntroCutscene __instance) {
             if (!isPropHuntGM || !PlayerControl.LocalPlayer.Data.Role.IsImpostor) return;
             PlayerControl.LocalPlayer.moveable = false;
-            MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.PropHuntStartTimer, Hazel.SendOption.Reliable, -1);
+            MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.PropHuntStartTimer, Hazel.SendOption.Reliable, -1);
             writer2.Write(true);
             AmongUsClient.Instance.FinishRpcImmediately(writer2);
             RPCProcedure.propHuntStartTimer(true);
@@ -423,7 +423,7 @@ namespace TheOtherRoles.CustomGameModes
             FastDestroyableSingleton<HudManager>.Instance.StartCoroutine(Effects.Lerp(initialBlackoutTime, new Action<float>((p) => {
                 if (p == 1f) {
                     // start timer
-                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.PropHuntStartTimer, Hazel.SendOption.Reliable, -1);
+                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.PropHuntStartTimer, Hazel.SendOption.Reliable, -1);
                     writer.Write(false);
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
                     RPCProcedure.propHuntStartTimer();
@@ -577,7 +577,7 @@ namespace TheOtherRoles.CustomGameModes
             if (__instance.currentTarget == null) {
                 PlayerControl.LocalPlayer.SetKillTimer(killCooldownMiss);
             } else {  // There is a target, execute kill!
-                MurderAttemptResult res = Helpers.checkMurderAttemptAndKill(CachedPlayer.LocalPlayer.PlayerControl, __instance.currentTarget);
+                MurderAttemptResult res = Helpers.checkMurderAttemptAndKill(CachedPlayer.LocalPlayer.Control, __instance.currentTarget);
                 __instance.SetTarget(null);
                 PlayerControl.LocalPlayer.SetKillTimer(killCooldownHit);
             }

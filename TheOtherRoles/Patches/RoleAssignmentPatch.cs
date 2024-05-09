@@ -47,7 +47,7 @@ namespace TheOtherRoles.Patches
         private static List<Tuple<byte, byte>> playerRoleMap = new List<Tuple<byte, byte>>();
         public static bool isGuesserGamemode { get { return TORMapOptions.gameMode == CustomGamemodes.Guesser; } }
         public static void Postfix() {
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.ResetVaribles, Hazel.SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.ResetVaribles, Hazel.SendOption.Reliable, -1);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
             RPCProcedure.resetVariables();
             if (TORMapOptions.gameMode == CustomGamemodes.HideNSeek || TORMapOptions.gameMode == CustomGamemodes.PropHunt || GameOptionsManager.Instance.currentGameOptions.GameMode == GameModes.HideNSeek) return; // Don't assign Roles in Hide N Seek
@@ -185,7 +185,7 @@ namespace TheOtherRoles.Patches
              if (data.impostors.Count < 2 && data.maxImpostorRoles < 2 && (rnd.Next(1, 101) <= CustomOptionHolder.cultistSpawnRate.getSelection() * 10))
              {
           //       var index = rnd.Next(0, data.impostors.Count);
-            //     PlayerControl playerControl = data.impostors[index];
+            //     Control playerControl = data.impostors[index];
 
              //    Helpers.turnToCrewmate(playerControl);
                 
@@ -437,12 +437,12 @@ namespace TheOtherRoles.Patches
                 }
                 
                 if (possibleTargets.Count == 0) {
-                    MessageWriter w = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.LawyerPromotesToPursuer, Hazel.SendOption.Reliable, -1);
+                    MessageWriter w = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.LawyerPromotesToPursuer, Hazel.SendOption.Reliable, -1);
                     AmongUsClient.Instance.FinishRpcImmediately(w);
                     RPCProcedure.lawyerPromotesToPursuer();
                 } else {
                     var target = possibleTargets[TheOtherRoles.rnd.Next(0, possibleTargets.Count)];
-                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.LawyerSetTarget, Hazel.SendOption.Reliable, -1);
+                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.LawyerSetTarget, Hazel.SendOption.Reliable, -1);
                     writer.Write(target.PlayerId);
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
                     RPCProcedure.lawyerSetTarget(target.PlayerId);
@@ -460,7 +460,7 @@ namespace TheOtherRoles.Patches
                 players.RemoveAll(x => GuesserGM.isGuesser(x.PlayerId));
 
             List<PlayerControl> impPlayer = new List<PlayerControl>(players);
-            //List<PlayerControl> neutralPlayer = new List<PlayerControl>(players);
+            //List<Control> neutralPlayer = new List<Control>(players);
             List<PlayerControl> impPlayerL = new List<PlayerControl>(players);
                 List<PlayerControl> crewPlayer = new List<PlayerControl>(players);
                 impPlayer.RemoveAll(x => !x.Data.Role.IsImpostor);
@@ -511,9 +511,9 @@ namespace TheOtherRoles.Patches
             if (rnd.Next(1, 101) <= CustomOptionHolder.modifierLover.getSelection() * 10) { // Assign lover
                 bool isEvilLover = rnd.Next(1, 101) <= CustomOptionHolder.modifierLoverImpLoverRate.getSelection() * 10;
                 byte firstLoverId;
-                //List<PlayerControl> impPlayer = new List<PlayerControl>(players);
-                //List<PlayerControl> impPlayerL = new List<PlayerControl>(players);
-                //List<PlayerControl> crewPlayer = new List<PlayerControl>(players);
+                //List<Control> impPlayer = new List<Control>(players);
+                //List<Control> impPlayerL = new List<Control>(players);
+                //List<Control> crewPlayer = new List<Control>(players);
                 impPlayer.RemoveAll(x => !x.Data.Role.IsImpostor);
                 impPlayerL.RemoveAll(x => !x.Data.Role.IsImpostor);
                 crewPlayer.RemoveAll(x => x.Data.Role.IsImpostor || x == Lawyer.lawyer);
@@ -616,7 +616,7 @@ namespace TheOtherRoles.Patches
                 byte playerId = playerList[index].PlayerId;
                 playerList.RemoveAt(index);
 
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.SetGuesserGm, Hazel.SendOption.Reliable, -1);
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.SetGuesserGm, Hazel.SendOption.Reliable, -1);
                 writer.Write(playerId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 RPCProcedure.setGuesserGm(playerId);
@@ -630,7 +630,7 @@ namespace TheOtherRoles.Patches
 
             playerRoleMap.Add(new Tuple<byte, byte>(playerId, roleId));
 
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.SetRole, Hazel.SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.SetRole, Hazel.SendOption.Reliable, -1);
             writer.Write(roleId);
             writer.Write(playerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -644,7 +644,7 @@ namespace TheOtherRoles.Patches
             byte playerId = playerList[index].PlayerId;
             playerList.RemoveAt(index);
 
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.SetModifier, Hazel.SendOption.Reliable, -1);
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.SetModifier, Hazel.SendOption.Reliable, -1);
             writer.Write(modifierId);
             writer.Write(playerId);
             writer.Write(flag);
@@ -703,7 +703,7 @@ namespace TheOtherRoles.Patches
             }
 /*
             if (modifiers.Contains(RoleId.Watcher)) {
-                List<PlayerControl> crewPlayerW = new List<PlayerControl>(playerList);
+                List<Control> crewPlayerW = new List<Control>(playerList);
                 crewPlayerW.RemoveAll(x => x.Data.Role.IsImpostor);
                 playerId = setModifierToRandomPlayer((byte)RoleId.Watcher, crewPlayerW);
                 playerList.RemoveAll(x => x.PlayerId == playerId);
@@ -847,7 +847,7 @@ namespace TheOtherRoles.Patches
             while (playerRoleMap.Any())
             {
                 byte amount = (byte)Math.Min(playerRoleMap.Count, 20);
-                var writer = AmongUsClient.Instance!.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.WorkaroundSetRoles, SendOption.Reliable, -1);
+                var writer = AmongUsClient.Instance!.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.WorkaroundSetRoles, SendOption.Reliable, -1);
                 writer.Write(amount);
                 for (int i = 0; i < amount; i++)
                 {

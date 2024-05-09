@@ -49,7 +49,7 @@ namespace TheOtherRoles.Objects
 
             bomb.SetActive(false);
             background.SetActive(false);
-            if (CachedPlayer.LocalPlayer.PlayerControl == Bomber.bomber) {
+            if (CachedPlayer.LocalPlayer.Control == Bomber.bomber) {
                 bomb.SetActive(true);
             }
             Bomber.bomb = this;
@@ -82,9 +82,9 @@ namespace TheOtherRoles.Objects
                 var position = b.bomb.transform.position;
                 var distance = Vector2.Distance(position, CachedPlayer.LocalPlayer.transform.position);  // every player only checks that for their own client (desynct with positions sucks)
                 if (distance < Bomber.destructionRange && !CachedPlayer.LocalPlayer.Data.IsDead) {
-                    Helpers.checkMurderAttemptAndKill(Bomber.bomber, CachedPlayer.LocalPlayer.PlayerControl, false, false, true, true);
+                    Helpers.checkMurderAttemptAndKill(Bomber.bomber, CachedPlayer.LocalPlayer.Control, false, false, true, true);
                     
-                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.ShareGhostInfo, Hazel.SendOption.Reliable, -1);
+                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.ShareGhostInfo, Hazel.SendOption.Reliable, -1);
                     writer.Write(CachedPlayer.LocalPlayer.PlayerId);
                     writer.Write((byte)RPCProcedure.GhostInfoTypes.DeathReasonAndKiller);
                     writer.Write(CachedPlayer.LocalPlayer.PlayerId);
@@ -111,7 +111,7 @@ namespace TheOtherRoles.Objects
                 Bomber.clearBomb();
             }
 
-            if (Vector2.Distance(CachedPlayer.LocalPlayer.PlayerControl.GetTruePosition(), Bomber.bomb.bomb.transform.position) > 1f) canDefuse = false;
+            if (Vector2.Distance(CachedPlayer.LocalPlayer.Control.GetTruePosition(), Bomber.bomb.bomb.transform.position) > 1f) canDefuse = false;
             else canDefuse = true;
         }
 

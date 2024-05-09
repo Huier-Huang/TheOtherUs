@@ -22,7 +22,7 @@ namespace TheOtherRoles.Patches
             PlayerControl result = null;
             float num = AmongUs.GameOptions.GameOptionsData.KillDistances[Mathf.Clamp(GameOptionsManager.Instance.currentNormalGameOptions.KillDistance, 0, 2)];
             if (!MapUtilities.CachedShipStatus) return result;
-            if (targetingPlayer == null) targetingPlayer = CachedPlayer.LocalPlayer.PlayerControl;
+            if (targetingPlayer == null) targetingPlayer = CachedPlayer.LocalPlayer.Control;
             if (targetingPlayer.Data.IsDead) return result;
 
             Vector2 truePosition = targetingPlayer.GetTruePosition();
@@ -68,10 +68,10 @@ namespace TheOtherRoles.Patches
                 Color color = Medic.shieldedColor;
                 if (!Helpers.isCamoComms() && Camouflager.camouflageTimer <= 0f && !Helpers.MushroomSabotageActive() && Medic.shielded != null && ((target == Medic.shielded && !isMorphedMorphling) || (isMorphedMorphling && Morphling.morphTarget == Medic.shielded))) {
                     hasVisibleShield = Medic.showShielded == 0 || Helpers.shouldShowGhostInfo() // Everyone or Ghost info
-                        || (Medic.showShielded == 1 && (CachedPlayer.LocalPlayer.PlayerControl == Medic.shielded || CachedPlayer.LocalPlayer.PlayerControl == Medic.medic)) // Shielded + Medic
-                        || (Medic.showShielded == 2 && CachedPlayer.LocalPlayer.PlayerControl == Medic.medic); // Medic only
+                        || (Medic.showShielded == 1 && (CachedPlayer.LocalPlayer.Control == Medic.shielded || CachedPlayer.LocalPlayer.Control == Medic.medic)) // Shielded + Medic
+                        || (Medic.showShielded == 2 && CachedPlayer.LocalPlayer.Control == Medic.medic); // Medic only
                     // Make shield invisible till after the next meeting if the option is set (the medic can already see the shield)
-                    hasVisibleShield = hasVisibleShield && (Medic.meetingAfterShielding || !Medic.showShieldAfterMeeting || CachedPlayer.LocalPlayer.PlayerControl == Medic.medic || Helpers.shouldShowGhostInfo());
+                    hasVisibleShield = hasVisibleShield && (Medic.meetingAfterShielding || !Medic.showShieldAfterMeeting || CachedPlayer.LocalPlayer.Control == Medic.medic || Helpers.shouldShowGhostInfo());
                 }
 
                 if (CachedPlayer.LocalPlayer.Data.IsDead && BodyGuard.guarded != null && target == BodyGuard.guarded) {
@@ -99,7 +99,7 @@ namespace TheOtherRoles.Patches
             foreach (var player in CachedPlayer.AllPlayers)
             {
                 bool playeralive = !player.Data.IsDead;
-                player.PlayerControl.cosmetics.SetPetVisible((localalive && playeralive) || !localalive);
+                player.Control.cosmetics.SetPetVisible((localalive && playeralive) || !localalive);
             }
         }
 
@@ -110,13 +110,13 @@ namespace TheOtherRoles.Patches
                     var next = localPlayerPositions[0];
                     if (next.Item2 == true) {
                         // Exit current vent if necessary
-                        if (CachedPlayer.LocalPlayer.PlayerControl.inVent) {
+                        if (CachedPlayer.LocalPlayer.Control.inVent) {
                             foreach (Vent vent in MapUtilities.CachedShipStatus.AllVents) {
                                 bool canUse;
                                 bool couldUse;
                                 vent.CanUse(CachedPlayer.LocalPlayer.Data, out canUse, out couldUse);
                                 if (canUse) {
-                                    CachedPlayer.LocalPlayer.PlayerPhysics.RpcExitVent(vent.Id);
+                                    CachedPlayer.LocalPlayer.Physics.RpcExitVent(vent.Id);
                                     vent.SetButtons(false);
                                 }
                             }
@@ -137,79 +137,79 @@ namespace TheOtherRoles.Patches
                 }
                 else {
                     TimeMaster.isRewinding = false;
-                    CachedPlayer.LocalPlayer.PlayerControl.moveable = true;
+                    CachedPlayer.LocalPlayer.Control.moveable = true;
                 }
             }
             else {
                 while (localPlayerPositions.Count >= Mathf.Round(TimeMaster.rewindTime / Time.fixedDeltaTime)) localPlayerPositions.RemoveAt(localPlayerPositions.Count - 1);
-                localPlayerPositions.Insert(0, new Tuple<Vector3, bool>(CachedPlayer.LocalPlayer.transform.position, CachedPlayer.LocalPlayer.PlayerControl.CanMove)); // CanMove = CanMove
+                localPlayerPositions.Insert(0, new Tuple<Vector3, bool>(CachedPlayer.LocalPlayer.transform.position, CachedPlayer.LocalPlayer.Control.CanMove)); // CanMove = CanMove
             }
         }
 
         static void medicSetTarget() {
-            if (Medic.medic == null || Medic.medic != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Medic.medic == null || Medic.medic != CachedPlayer.LocalPlayer.Control) return;
             Medic.currentTarget = setTarget();
             if (!Medic.usedShield) setPlayerOutline(Medic.currentTarget, Medic.shieldedColor);
         }
 
         static void bomber2SetTarget() {
             setBomber2BombTarget();
-            if (Bomber2.bomber2 == null || Bomber2.bomber2 != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Bomber2.bomber2 == null || Bomber2.bomber2 != CachedPlayer.LocalPlayer.Control) return;
             Bomber2.currentTarget = setTarget();
             if (Bomber2.hasBomb == null) setPlayerOutline(Bomber2.currentTarget, Bomber2.color);
         }
         
         static void setBomber2BombTarget() {
-            if (Bomber2.bomber2 == null || Bomber2.hasBomb != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Bomber2.bomber2 == null || Bomber2.hasBomb != CachedPlayer.LocalPlayer.Control) return;
             Bomber2.currentBombTarget = setTarget();
     //        if (Bomber2.hasBomb != null) setPlayerOutline(Bomber2.currentBombTarget, Bomber2.color);
         }
 
         static void bodyGuardSetTarget() {
-            if (BodyGuard.bodyguard == null || BodyGuard.bodyguard != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (BodyGuard.bodyguard == null || BodyGuard.bodyguard != CachedPlayer.LocalPlayer.Control) return;
             BodyGuard.currentTarget = setTarget();
             if (!BodyGuard.usedGuard) setPlayerOutline(Medic.currentTarget, Medic.shieldedColor);
         }
 
         static void werewolfSetTarget() {
-            if (Werewolf.werewolf == null || Werewolf.werewolf != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Werewolf.werewolf == null || Werewolf.werewolf != CachedPlayer.LocalPlayer.Control) return;
             Werewolf.currentTarget = setTarget();
         }
 
         static void blackMailerSetTarget() {
-            if (Blackmailer.blackmailer == null || Blackmailer.blackmailer != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Blackmailer.blackmailer == null || Blackmailer.blackmailer != CachedPlayer.LocalPlayer.Control) return;
             Blackmailer.currentTarget = setTarget();
             setPlayerOutline(Medic.currentTarget, Blackmailer.blackmailedColor);
         }
 
         static void shifterSetTarget() {
-            if (Shifter.shifter == null || Shifter.shifter != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Shifter.shifter == null || Shifter.shifter != CachedPlayer.LocalPlayer.Control) return;
             Shifter.currentTarget = setTarget();
             if (Shifter.futureShift == null) setPlayerOutline(Shifter.currentTarget, Color.yellow);
         }
 
 
         static void morphlingSetTarget() {
-            if (Morphling.morphling == null || Morphling.morphling != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Morphling.morphling == null || Morphling.morphling != CachedPlayer.LocalPlayer.Control) return;
             Morphling.currentTarget = setTarget();
             setPlayerOutline(Morphling.currentTarget, Morphling.color);
         }
 
         static void privateInvestigatorSetTarget() {
-            if (PrivateInvestigator.privateInvestigator == null || PrivateInvestigator.privateInvestigator != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (PrivateInvestigator.privateInvestigator == null || PrivateInvestigator.privateInvestigator != CachedPlayer.LocalPlayer.Control) return;
             PrivateInvestigator.currentTarget = setTarget();
             setPlayerOutline(PrivateInvestigator.currentTarget, PrivateInvestigator.color);
         }
 
         static void sheriffSetTarget() {
-            if (Sheriff.sheriff == null || Sheriff.sheriff != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Sheriff.sheriff == null || Sheriff.sheriff != CachedPlayer.LocalPlayer.Control) return;
             Sheriff.currentTarget = setTarget();
             setPlayerOutline(Sheriff.currentTarget, Sheriff.color);
         }
 
         static void deputySetTarget()
         {
-            if (Deputy.deputy == null || Deputy.deputy != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Deputy.deputy == null || Deputy.deputy != CachedPlayer.LocalPlayer.Control) return;
             Deputy.currentTarget = setTarget();
             setPlayerOutline(Deputy.currentTarget, Deputy.color);
         }
@@ -217,30 +217,30 @@ namespace TheOtherRoles.Patches
         public static void deputyCheckPromotion(bool isMeeting=false)
         {
             // If LocalPlayer is Deputy, the Sheriff is disconnected and Deputy promotion is enabled, then trigger promotion
-            if (Deputy.deputy == null || Deputy.deputy != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Deputy.deputy == null || Deputy.deputy != CachedPlayer.LocalPlayer.Control) return;
             if (Deputy.promotesToSheriff == 0 || Deputy.deputy.Data.IsDead == true || Deputy.promotesToSheriff == 2 && !isMeeting) return;
             if (Sheriff.sheriff == null || Sheriff.sheriff?.Data?.Disconnected == true || Sheriff.sheriff.Data.IsDead)
             {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.DeputyPromotes, Hazel.SendOption.Reliable, -1);
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.DeputyPromotes, Hazel.SendOption.Reliable, -1);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 RPCProcedure.deputyPromotes();
             }
         }
 
         static void trackerSetTarget() {
-            if (Tracker.tracker == null || Tracker.tracker != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Tracker.tracker == null || Tracker.tracker != CachedPlayer.LocalPlayer.Control) return;
             Tracker.currentTarget = setTarget();
             if (!Tracker.usedTracker) setPlayerOutline(Tracker.currentTarget, Tracker.color);
         }
 
         static void detectiveUpdateFootPrints() {
-            if (Detective.detective == null || Detective.detective != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Detective.detective == null || Detective.detective != CachedPlayer.LocalPlayer.Control) return;
 
             Detective.timer -= Time.fixedDeltaTime;
             if (Detective.timer <= 0f) {
                 Detective.timer = Detective.footprintIntervall;
                 foreach (PlayerControl player in CachedPlayer.AllPlayers) {
-                    if (player != null && player != CachedPlayer.LocalPlayer.PlayerControl && !player.Data.IsDead && !player.inVent) 
+                    if (player != null && player != CachedPlayer.LocalPlayer.Control && !player.Data.IsDead && !player.inVent) 
                     {
                         FootprintHolder.Instance.MakeFootprint(player);
                     }
@@ -249,7 +249,7 @@ namespace TheOtherRoles.Patches
         }
 
         static void vampireSetTarget() {
-            if (Vampire.vampire == null || Vampire.vampire != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Vampire.vampire == null || Vampire.vampire != CachedPlayer.LocalPlayer.Control) return;
 
             PlayerControl target = null;
             if (Spy.spy != null || Sidekick.wasSpy || Jackal.wasSpy) {
@@ -278,7 +278,7 @@ namespace TheOtherRoles.Patches
         }
 
         static void jackalSetTarget() {
-            if (Jackal.jackal == null || Jackal.jackal != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Jackal.jackal == null || Jackal.jackal != CachedPlayer.LocalPlayer.Control) return;
             var untargetablePlayers = new List<PlayerControl>();
             if (Jackal.canCreateSidekickFromImpostor) {
                 // Only exclude sidekick from beeing targeted if the jackal can create sidekicks from impostors
@@ -291,7 +291,7 @@ namespace TheOtherRoles.Patches
         }
 
         static void sidekickSetTarget() {
-            if (Sidekick.sidekick == null || Sidekick.sidekick != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Sidekick.sidekick == null || Sidekick.sidekick != CachedPlayer.LocalPlayer.Control) return;
             var untargetablePlayers = new List<PlayerControl>();
             if (Jackal.jackal != null) untargetablePlayers.Add(Jackal.jackal);
             if (Mini.mini != null && !Mini.isGrownUp()) untargetablePlayers.Add(Mini.mini); // Exclude Sidekick from targeting the Mini unless it has grown up
@@ -301,17 +301,17 @@ namespace TheOtherRoles.Patches
 
         static void sidekickCheckPromotion() {
             // If LocalPlayer is Sidekick, the Jackal is disconnected and Sidekick promotion is enabled, then trigger promotion
-            if (Sidekick.sidekick == null || Sidekick.sidekick != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Sidekick.sidekick == null || Sidekick.sidekick != CachedPlayer.LocalPlayer.Control) return;
             if (Sidekick.sidekick.Data.IsDead == true || !Sidekick.promotesToJackal) return;
             if (Jackal.jackal == null || Jackal.jackal?.Data?.Disconnected == true) {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.SidekickPromotes, Hazel.SendOption.Reliable, -1);
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.SidekickPromotes, Hazel.SendOption.Reliable, -1);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 RPCProcedure.sidekickPromotes();
             }
         }
 
         static void cultistSetFollower() {
-        if (Cultist.cultist == null || Cultist.cultist != CachedPlayer.LocalPlayer.PlayerControl) return;
+        if (Cultist.cultist == null || Cultist.cultist != CachedPlayer.LocalPlayer.Control) return;
             var untargetablePlayers = new List<PlayerControl>();
             if (Jackal.jackal != null && Jackal.isInvisable) untargetablePlayers.Add(Jackal.jackal);
             if (Mini.mini != null && !Mini.isGrownUp()) untargetablePlayers.Add(Mini.mini); // Exclude Jackal from targeting the Mini unless it has grown up
@@ -321,7 +321,7 @@ namespace TheOtherRoles.Patches
         }
 
         static void eraserSetTarget() {
-            if (Eraser.eraser == null || Eraser.eraser != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Eraser.eraser == null || Eraser.eraser != CachedPlayer.LocalPlayer.Control) return;
 
             List<PlayerControl> untargetables = new List<PlayerControl>();
             if (Spy.spy != null) untargetables.Add(Spy.spy);
@@ -333,7 +333,7 @@ namespace TheOtherRoles.Patches
 
         static void deputyUpdate()
         {
-            if (CachedPlayer.LocalPlayer.PlayerControl == null || !Deputy.handcuffedKnows.ContainsKey(CachedPlayer.LocalPlayer.PlayerId)) return;
+            if (CachedPlayer.LocalPlayer.Control == null || !Deputy.handcuffedKnows.ContainsKey(CachedPlayer.LocalPlayer.PlayerId)) return;
             
             if (Deputy.handcuffedKnows[CachedPlayer.LocalPlayer.PlayerId] <= 0)
             {
@@ -342,7 +342,7 @@ namespace TheOtherRoles.Patches
                 Deputy.setHandcuffedKnows(false);
                 
                 // Ghost info
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.ShareGhostInfo, Hazel.SendOption.Reliable, -1);
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.ShareGhostInfo, Hazel.SendOption.Reliable, -1);
                 writer.Write(CachedPlayer.LocalPlayer.PlayerId);
                 writer.Write((byte)RPCProcedure.GhostInfoTypes.HandcuffOver);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -351,7 +351,7 @@ namespace TheOtherRoles.Patches
         }
 
         static void engineerUpdate() {
-            bool jackalHighlight = Engineer.highlightForTeamJackal && (CachedPlayer.LocalPlayer.PlayerControl == Jackal.jackal || CachedPlayer.LocalPlayer.PlayerControl == Sidekick.sidekick);
+            bool jackalHighlight = Engineer.highlightForTeamJackal && (CachedPlayer.LocalPlayer.Control == Jackal.jackal || CachedPlayer.LocalPlayer.Control == Sidekick.sidekick);
             bool impostorHighlight = Engineer.highlightForImpostors && CachedPlayer.LocalPlayer.Data.Role.IsImpostor;
             if ((jackalHighlight || impostorHighlight) && MapUtilities.CachedShipStatus?.AllVents != null) {
                 foreach (Vent vent in MapUtilities.CachedShipStatus.AllVents) {
@@ -372,7 +372,7 @@ namespace TheOtherRoles.Patches
         }
 
         static void impostorSetTarget() {
-            if (!CachedPlayer.LocalPlayer.Data.Role.IsImpostor ||!CachedPlayer.LocalPlayer.PlayerControl.CanMove || CachedPlayer.LocalPlayer.Data.IsDead) { // !isImpostor || !canMove || isDead
+            if (!CachedPlayer.LocalPlayer.Data.Role.IsImpostor ||!CachedPlayer.LocalPlayer.Control.CanMove || CachedPlayer.LocalPlayer.Data.IsDead) { // !isImpostor || !canMove || isDead
                 FastDestroyableSingleton<HudManager>.Instance.KillButton.SetTarget(null);
                 return;
             }
@@ -394,7 +394,7 @@ namespace TheOtherRoles.Patches
         }
 
         static void warlockSetTarget() {
-            if (Warlock.warlock == null || Warlock.warlock != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Warlock.warlock == null || Warlock.warlock != CachedPlayer.LocalPlayer.Control) return;
             if (Warlock.curseVictim != null && (Warlock.curseVictim.Data.Disconnected || Warlock.curseVictim.Data.IsDead)) {
                 // If the cursed victim is disconnected or dead reset the curse so a new curse can be applied
                 Warlock.resetCurse();
@@ -411,9 +411,9 @@ namespace TheOtherRoles.Patches
 
         static void swooperUpdate()
         {
-            if (Jackal.isInvisable && Jackal.swoopTimer <= 0 && Jackal.jackal == CachedPlayer.LocalPlayer.PlayerControl)
+            if (Jackal.isInvisable && Jackal.swoopTimer <= 0 && Jackal.jackal == CachedPlayer.LocalPlayer.Control)
             {
-				MessageWriter invisibleWriter = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.SetSwoop, Hazel.SendOption.Reliable, -1);
+				MessageWriter invisibleWriter = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.SetSwoop, Hazel.SendOption.Reliable, -1);
 				invisibleWriter.Write(Jackal.jackal.PlayerId);
 				invisibleWriter.Write(byte.MaxValue);
 				AmongUsClient.Instance.FinishRpcImmediately(invisibleWriter);
@@ -421,7 +421,7 @@ namespace TheOtherRoles.Patches
             }/*
             if (Jackal.jackal != null && Jackal.canSwoop){
                 {
-				MessageWriter invisibleWriter = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.SetSwooper, Hazel.SendOption.Reliable, -1);
+				MessageWriter invisibleWriter = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.SetSwooper, Hazel.SendOption.Reliable, -1);
 				invisibleWriter.Write(Jackal.jackal.PlayerId);
 				invisibleWriter.Write(byte.MaxValue);
 				AmongUsClient.Instance.FinishRpcImmediately(invisibleWriter);
@@ -430,7 +430,7 @@ namespace TheOtherRoles.Patches
             }*/
             /*
             if ((Swooper.swooper = Jackal.jackal) && Jackal.canSwoop2){
-                foreach (PlayerControl player in CachedPlayer.AllPlayers) {
+                foreach (Control player in CachedPlayer.AllPlayers) {
                 Swooper.swooper = Jackal.jackal;
                 }
             }
@@ -439,9 +439,9 @@ namespace TheOtherRoles.Patches
 
         static void ninjaUpdate()
         {
-            if (Ninja.isInvisble && Ninja.invisibleTimer <= 0 && Ninja.ninja == CachedPlayer.LocalPlayer.PlayerControl)
+            if (Ninja.isInvisble && Ninja.invisibleTimer <= 0 && Ninja.ninja == CachedPlayer.LocalPlayer.Control)
             {
-                MessageWriter invisibleWriter = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.SetInvisible, Hazel.SendOption.Reliable, -1);
+                MessageWriter invisibleWriter = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.SetInvisible, Hazel.SendOption.Reliable, -1);
                 invisibleWriter.Write(Ninja.ninja.PlayerId);
                 invisibleWriter.Write(byte.MaxValue);
                 AmongUsClient.Instance.FinishRpcImmediately(invisibleWriter);
@@ -449,7 +449,7 @@ namespace TheOtherRoles.Patches
             }
             if (Ninja.arrow?.arrow != null)
             {
-                if (Ninja.ninja == null || Ninja.ninja != CachedPlayer.LocalPlayer.PlayerControl || !Ninja.knowsTargetLocation) {
+                if (Ninja.ninja == null || Ninja.ninja != CachedPlayer.LocalPlayer.Control || !Ninja.knowsTargetLocation) {
                     Ninja.arrow.arrow.SetActive(false);
                     return;
                 }
@@ -478,12 +478,12 @@ namespace TheOtherRoles.Patches
         static void trackerUpdate() {
             // Handle player tracking
             if (Tracker.arrow?.arrow != null) {
-                if (Tracker.tracker == null || CachedPlayer.LocalPlayer.PlayerControl != Tracker.tracker) {
+                if (Tracker.tracker == null || CachedPlayer.LocalPlayer.Control != Tracker.tracker) {
                     Tracker.arrow.arrow.SetActive(false);
                     return;
                 }
 
-                if (Tracker.tracker != null && Tracker.tracked != null && CachedPlayer.LocalPlayer.PlayerControl == Tracker.tracker && !Tracker.tracker.Data.IsDead) {
+                if (Tracker.tracker != null && Tracker.tracked != null && CachedPlayer.LocalPlayer.Control == Tracker.tracker && !Tracker.tracker.Data.IsDead) {
                     Tracker.timeUntilUpdate -= Time.fixedDeltaTime;
 
                     if (Tracker.timeUntilUpdate <= 0f) {
@@ -507,7 +507,7 @@ namespace TheOtherRoles.Patches
             }
 
             // Handle corpses tracking
-            if (Tracker.tracker != null && Tracker.tracker == CachedPlayer.LocalPlayer.PlayerControl && Tracker.corpsesTrackingTimer >= 0f && !Tracker.tracker.Data.IsDead) {
+            if (Tracker.tracker != null && Tracker.tracker == CachedPlayer.LocalPlayer.Control && Tracker.corpsesTrackingTimer >= 0f && !Tracker.tracker.Data.IsDead) {
                 bool arrowsCountChanged = Tracker.localArrows.Count != Tracker.deadBodyPositions.Count();
                 int index = 0;
 
@@ -580,7 +580,7 @@ namespace TheOtherRoles.Patches
                 {
                     var (playerCompleted, playerTotal) = TasksHandler.taskInfo(Snitch.snitch.Data);
                     int numberOfTasks = playerTotal - playerCompleted;
-                    bool completedSnitch = (Snitch.seeInMeeting && CachedPlayer.LocalPlayer.PlayerControl == Snitch.snitch && numberOfTasks == 0);
+                    bool completedSnitch = (Snitch.seeInMeeting && CachedPlayer.LocalPlayer.Control == Snitch.snitch && numberOfTasks == 0);
                     bool forImpTeam = p.Data.Role.IsImpostor;
                     bool forKillerTeam = Snitch.Team == Snitch.includeNeutralTeam.KillNeutral && Helpers.isKiller(p);
                     bool forEvilTeam = Snitch.Team == Snitch.includeNeutralTeam.EvilNeutral && Helpers.isEvil(p);
@@ -588,7 +588,7 @@ namespace TheOtherRoles.Patches
                     snitchFlag = completedSnitch && (p == (forImpTeam || forKillerTeam || forEvilTeam || forNeutraTeam));
                 }
 
-                if (snitchFlag || (Lawyer.lawyerKnowsRole && CachedPlayer.LocalPlayer.PlayerControl == Lawyer.lawyer && p == Lawyer.target) || p == CachedPlayer.LocalPlayer.PlayerControl || CachedPlayer.LocalPlayer.Data.IsDead || (CachedPlayer.LocalPlayer.PlayerControl == Slueth.slueth && Slueth.reported.Any(x => x.PlayerId == p.PlayerId)) || TORMapOptions.impostorSeeRoles && Spy.spy == null && CachedPlayer.LocalPlayer.Data.Role.IsImpostor && !CachedPlayer.LocalPlayer.Data.IsDead && p == (p.Data.Role.IsImpostor && !p.Data.IsDead) || (CachedPlayer.LocalPlayer.PlayerControl == Poucher.poucher && Poucher.killed.Any(x => x.PlayerId == p.PlayerId))) {
+                if (snitchFlag || (Lawyer.lawyerKnowsRole && CachedPlayer.LocalPlayer.Control == Lawyer.lawyer && p == Lawyer.target) || p == CachedPlayer.LocalPlayer.Control || CachedPlayer.LocalPlayer.Data.IsDead || (CachedPlayer.LocalPlayer.Control == Slueth.slueth && Slueth.reported.Any(x => x.PlayerId == p.PlayerId)) || TORMapOptions.impostorSeeRoles && Spy.spy == null && CachedPlayer.LocalPlayer.Data.Role.IsImpostor && !CachedPlayer.LocalPlayer.Data.IsDead && p == (p.Data.Role.IsImpostor && !p.Data.IsDead) || (CachedPlayer.LocalPlayer.Control == Poucher.poucher && Poucher.killed.Any(x => x.PlayerId == p.PlayerId))) {
                     Transform playerInfoTransform = p.cosmetics.nameText.transform.parent.FindChild("Info");
                     TMPro.TextMeshPro playerInfo = playerInfoTransform != null ? playerInfoTransform.GetComponent<TMPro.TextMeshPro>() : null;
                     if (playerInfo == null) {
@@ -621,7 +621,7 @@ namespace TheOtherRoles.Patches
 
                     string playerInfoText = "";
                     string meetingInfoText = "";                    
-                    if (p == CachedPlayer.LocalPlayer.PlayerControl || (TORMapOptions.impostorSeeRoles && Spy.spy == null && CachedPlayer.LocalPlayer.Data.Role.IsImpostor && !CachedPlayer.LocalPlayer.Data.IsDead && p == (p.Data.Role.IsImpostor && !p.Data.IsDead))) {
+                    if (p == CachedPlayer.LocalPlayer.Control || (TORMapOptions.impostorSeeRoles && Spy.spy == null && CachedPlayer.LocalPlayer.Data.Role.IsImpostor && !CachedPlayer.LocalPlayer.Data.IsDead && p == (p.Data.Role.IsImpostor && !p.Data.IsDead))) {
                         if (p.Data.IsDead) roleNames = roleText;
                         playerInfoText = $"{roleNames}";
                         if (p == Swapper.swapper) playerInfoText = $"{roleNames}" + Helpers.cs(Swapper.color, $" ({Swapper.charges})");
@@ -639,7 +639,7 @@ namespace TheOtherRoles.Patches
                         playerInfoText = $"{taskInfo}".Trim();
                         meetingInfoText = playerInfoText;
                     }
-                    else if (TORMapOptions.ghostsSeeRoles || (Lawyer.lawyerKnowsRole && CachedPlayer.LocalPlayer.PlayerControl == Lawyer.lawyer && p == Lawyer.target)) {
+                    else if (TORMapOptions.ghostsSeeRoles || (Lawyer.lawyerKnowsRole && CachedPlayer.LocalPlayer.Control == Lawyer.lawyer && p == Lawyer.target)) {
                         playerInfoText = $"{roleText}";
                         meetingInfoText = playerInfoText;
                     }
@@ -652,10 +652,10 @@ namespace TheOtherRoles.Patches
         }
 
         public static void securityGuardSetTarget() {
-            if (SecurityGuard.securityGuard == null || SecurityGuard.securityGuard != CachedPlayer.LocalPlayer.PlayerControl || MapUtilities.CachedShipStatus == null || MapUtilities.CachedShipStatus.AllVents == null) return;
+            if (SecurityGuard.securityGuard == null || SecurityGuard.securityGuard != CachedPlayer.LocalPlayer.Control || MapUtilities.CachedShipStatus == null || MapUtilities.CachedShipStatus.AllVents == null) return;
 
             Vent target = null;
-            Vector2 truePosition = CachedPlayer.LocalPlayer.PlayerControl.GetTruePosition();
+            Vector2 truePosition = CachedPlayer.LocalPlayer.Control.GetTruePosition();
             float closestDistance = float.MaxValue;
             for (int i = 0; i < MapUtilities.CachedShipStatus.AllVents.Length; i++) {
                 Vent vent = MapUtilities.CachedShipStatus.AllVents[i];
@@ -671,7 +671,7 @@ namespace TheOtherRoles.Patches
         }
 
         public static void securityGuardUpdate() {
-            if (SecurityGuard.securityGuard == null || CachedPlayer.LocalPlayer.PlayerControl != SecurityGuard.securityGuard || SecurityGuard.securityGuard.Data.IsDead) return;
+            if (SecurityGuard.securityGuard == null || CachedPlayer.LocalPlayer.Control != SecurityGuard.securityGuard || SecurityGuard.securityGuard.Data.IsDead) return;
             var (playerCompleted, _) = TasksHandler.taskInfo(SecurityGuard.securityGuard.Data);
             if (playerCompleted == SecurityGuard.rechargedTasks) {
                 SecurityGuard.rechargedTasks += SecurityGuard.rechargeTasksNumber;
@@ -680,7 +680,7 @@ namespace TheOtherRoles.Patches
         }
 
         public static void arsonistSetTarget() {
-            if (Arsonist.arsonist == null || Arsonist.arsonist != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Arsonist.arsonist == null || Arsonist.arsonist != CachedPlayer.LocalPlayer.Control) return;
             List<PlayerControl> untargetables;
             if (Arsonist.douseTarget != null)
             {
@@ -710,7 +710,7 @@ namespace TheOtherRoles.Patches
             int numberOfTasks = playerTotal - playerCompleted;
 
             var snitchIsDead = Snitch.snitch.Data.IsDead;
-            var local = CachedPlayer.LocalPlayer.PlayerControl;
+            var local = CachedPlayer.LocalPlayer.Control;
 
             bool forImpTeam = local.Data.Role.IsImpostor;
             bool forKillerTeam = Snitch.Team == Snitch.includeNeutralTeam.KillNeutral && Helpers.isKiller(local);
@@ -772,7 +772,7 @@ namespace TheOtherRoles.Patches
             int numberOfTasks = playerTotal - playerCompleted;
 
             var snitchIsDead = Snitch.snitch.Data.IsDead;
-            var local = CachedPlayer.LocalPlayer.PlayerControl;
+            var local = CachedPlayer.LocalPlayer.Control;
 
             bool forImpTeam = local.Data.Role.IsImpostor;
             bool forKillerTeam = Snitch.Team == Snitch.includeNeutralTeam.KillNeutral && Helpers.isKiller(local);
@@ -809,7 +809,7 @@ namespace TheOtherRoles.Patches
         }
 
         static void bountyHunterUpdate() {
-            if (BountyHunter.bountyHunter == null || CachedPlayer.LocalPlayer.PlayerControl != BountyHunter.bountyHunter) return;
+            if (BountyHunter.bountyHunter == null || CachedPlayer.LocalPlayer.Control != BountyHunter.bountyHunter) return;
 
             if (BountyHunter.bountyHunter.Data.IsDead) {
                 if (BountyHunter.arrow != null || BountyHunter.arrow.arrow != null) UnityEngine.Object.Destroy(BountyHunter.arrow.arrow);
@@ -839,7 +839,7 @@ namespace TheOtherRoles.Patches
                 if (BountyHunter.bounty == null) return;
 
                 // Ghost Info
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.ShareGhostInfo, Hazel.SendOption.Reliable, -1);
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.ShareGhostInfo, Hazel.SendOption.Reliable, -1);
                 writer.Write(CachedPlayer.LocalPlayer.PlayerId);
                 writer.Write((byte)RPCProcedure.GhostInfoTypes.BountyTarget);
                 writer.Write(BountyHunter.bounty.PlayerId);
@@ -875,7 +875,7 @@ namespace TheOtherRoles.Patches
         }
 
         static void vultureUpdate() {
-            if (Vulture.vulture == null || CachedPlayer.LocalPlayer.PlayerControl != Vulture.vulture || Vulture.localArrows == null || !Vulture.showArrows) return;
+            if (Vulture.vulture == null || CachedPlayer.LocalPlayer.Control != Vulture.vulture || Vulture.localArrows == null || !Vulture.showArrows) return;
             if (Vulture.vulture.Data.IsDead) {
                 foreach (Arrow arrow in Vulture.localArrows) UnityEngine.Object.Destroy(arrow.arrow);
                 Vulture.localArrows = new List<Arrow>();
@@ -902,7 +902,7 @@ namespace TheOtherRoles.Patches
         }
 
         static void amnisiacUpdate() {
-            if (Amnisiac.amnisiac == null || CachedPlayer.LocalPlayer.PlayerControl != Amnisiac.amnisiac || Amnisiac.localArrows == null || !Amnisiac.showArrows) return;
+            if (Amnisiac.amnisiac == null || CachedPlayer.LocalPlayer.Control != Amnisiac.amnisiac || Amnisiac.localArrows == null || !Amnisiac.showArrows) return;
             if (Amnisiac.amnisiac.Data.IsDead) {
                 foreach (Arrow arrow in Amnisiac.localArrows) UnityEngine.Object.Destroy(arrow.arrow);
                 Amnisiac.localArrows = new List<Arrow>();
@@ -929,7 +929,7 @@ namespace TheOtherRoles.Patches
         }
 
         static void radarUpdate() {
-            if (Radar.radar == null || CachedPlayer.LocalPlayer.PlayerControl != Radar.radar || Radar.localArrows == null || !Radar.showArrows) return;
+            if (Radar.radar == null || CachedPlayer.LocalPlayer.Control != Radar.radar || Radar.localArrows == null || !Radar.showArrows) return;
             if (Radar.radar.Data.IsDead) {
                 foreach (Arrow arrow in Radar.localArrows) UnityEngine.Object.Destroy(arrow.arrow);
                 Radar.localArrows = new List<Arrow>();
@@ -1022,10 +1022,10 @@ namespace TheOtherRoles.Patches
         }
 
         public static void mediumSetTarget() {
-            if (Medium.medium == null || Medium.medium != CachedPlayer.LocalPlayer.PlayerControl || Medium.medium.Data.IsDead || Medium.deadBodies == null || MapUtilities.CachedShipStatus?.AllVents == null) return;
+            if (Medium.medium == null || Medium.medium != CachedPlayer.LocalPlayer.Control || Medium.medium.Data.IsDead || Medium.deadBodies == null || MapUtilities.CachedShipStatus?.AllVents == null) return;
 
             DeadPlayer target = null;
-            Vector2 truePosition = CachedPlayer.LocalPlayer.PlayerControl.GetTruePosition();
+            Vector2 truePosition = CachedPlayer.LocalPlayer.Control.GetTruePosition();
             float closestDistance = float.MaxValue;
             float usableDistance = MapUtilities.CachedShipStatus.AllVents.FirstOrDefault().UsableDistance;
             foreach ((DeadPlayer dp, Vector3 ps) in Medium.deadBodies) {
@@ -1044,7 +1044,7 @@ namespace TheOtherRoles.Patches
             if (!mushroomSaboWasActive) mushroomSaboWasActive = mushRoomSaboIsActive;
 
             if (Helpers.isCamoComms() && !Helpers.isActiveCamoComms()) {
-				MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.CamouflagerCamouflage, Hazel.SendOption.Reliable, -1);
+				MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.CamouflagerCamouflage, Hazel.SendOption.Reliable, -1);
 				writer.Write(0);
 				AmongUsClient.Instance.FinishRpcImmediately(writer);
 				RPCProcedure.camouflagerCamouflage(0);
@@ -1090,11 +1090,11 @@ namespace TheOtherRoles.Patches
         }
 
         public static void lawyerUpdate() {
-            if (Lawyer.lawyer == null || Lawyer.lawyer != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Lawyer.lawyer == null || Lawyer.lawyer != CachedPlayer.LocalPlayer.Control) return;
 
             // Promote to Pursuer
             if (Lawyer.target != null && Lawyer.target.Data.Disconnected && !Lawyer.lawyer.Data.IsDead) {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.LawyerPromotesToPursuer, Hazel.SendOption.Reliable, -1);
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.LawyerPromotesToPursuer, Hazel.SendOption.Reliable, -1);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 RPCProcedure.lawyerPromotesToPursuer();
                 return;
@@ -1102,7 +1102,7 @@ namespace TheOtherRoles.Patches
         }
 
         public static void hackerUpdate() {
-            if (Hacker.hacker == null || CachedPlayer.LocalPlayer.PlayerControl != Hacker.hacker || Hacker.hacker.Data.IsDead) return;
+            if (Hacker.hacker == null || CachedPlayer.LocalPlayer.Control != Hacker.hacker || Hacker.hacker.Data.IsDead) return;
             var (playerCompleted, _) = TasksHandler.taskInfo(Hacker.hacker.Data);
             if (playerCompleted == Hacker.rechargedTasks) {
                 Hacker.rechargedTasks += Hacker.rechargeTasksNumber;
@@ -1113,7 +1113,7 @@ namespace TheOtherRoles.Patches
 
         // For swapper swap charges        
         public static void swapperUpdate() {
-            if (Swapper.swapper == null || CachedPlayer.LocalPlayer.PlayerControl != Swapper.swapper || CachedPlayer.LocalPlayer.Data.IsDead) return;
+            if (Swapper.swapper == null || CachedPlayer.LocalPlayer.Control != Swapper.swapper || CachedPlayer.LocalPlayer.Data.IsDead) return;
             var (playerCompleted, _) = TasksHandler.taskInfo(CachedPlayer.LocalPlayer.Data);
             if (playerCompleted == Swapper.rechargedTasks) {
                 Swapper.rechargedTasks += Swapper.rechargeTasksNumber;
@@ -1122,13 +1122,13 @@ namespace TheOtherRoles.Patches
         }
 
         static void pursuerSetTarget() {
-            if (Pursuer.pursuer == null || Pursuer.pursuer != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Pursuer.pursuer == null || Pursuer.pursuer != CachedPlayer.LocalPlayer.Control) return;
             Pursuer.target = setTarget();
             setPlayerOutline(Pursuer.target, Pursuer.color);
         }
 
         static void witchSetTarget() {
-            if (Witch.witch == null || Witch.witch != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Witch.witch == null || Witch.witch != CachedPlayer.LocalPlayer.Control) return;
             List<PlayerControl> untargetables;
             if (Witch.spellCastingTarget != null)
                 untargetables = PlayerControl.AllPlayerControls.ToArray().Where(x => x.PlayerId != Witch.spellCastingTarget.PlayerId).ToList(); // Don't switch the target from the the one you're currently casting a spell on
@@ -1144,7 +1144,7 @@ namespace TheOtherRoles.Patches
 
         static void ninjaSetTarget()
         {
-            if (Ninja.ninja == null || Ninja.ninja != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Ninja.ninja == null || Ninja.ninja != CachedPlayer.LocalPlayer.Control) return;
             List<PlayerControl> untargetables = new List<PlayerControl>();
             if (Spy.spy != null && !Spy.impostorsCanKillAnyone) untargetables.Add(Spy.spy);
             if (Mini.mini != null && !Mini.isGrownUp()) untargetables.Add(Mini.mini);
@@ -1155,7 +1155,7 @@ namespace TheOtherRoles.Patches
         }
 
         static void thiefSetTarget() {
-            if (Thief.thief == null || Thief.thief != CachedPlayer.LocalPlayer.PlayerControl) return;
+            if (Thief.thief == null || Thief.thief != CachedPlayer.LocalPlayer.Control) return;
             List<PlayerControl> untargetables = new List<PlayerControl>();
             if (Mini.mini != null && !Mini.isGrownUp()) untargetables.Add(Mini.mini);
             Thief.currentTarget = setTarget(onlyCrewmates: false, untargetablePlayers: untargetables);
@@ -1178,7 +1178,7 @@ namespace TheOtherRoles.Patches
                         Helpers.handleBomber2ExplodeOnBodyReport(); // Manually call Vampire handling, since the CmdReportDeadBody Prefix won't be called
                         RPCProcedure.uncheckedCmdReportDeadBody(entry.Key.killerIfExisting.PlayerId, entry.Key.player.PlayerId);
 
-                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.UncheckedCmdReportDeadBody, Hazel.SendOption.Reliable, -1);
+                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.UncheckedCmdReportDeadBody, Hazel.SendOption.Reliable, -1);
                         writer.Write(entry.Key.killerIfExisting.PlayerId);
                         writer.Write(entry.Key.player.PlayerId);
                         AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1204,7 +1204,7 @@ namespace TheOtherRoles.Patches
 
         // Mini set adapted button cooldown for Vampire, Sheriff, Jackal, Sidekick, Warlock, Cleaner
         public static void miniCooldownUpdate() {
-            if (Mini.mini != null && CachedPlayer.LocalPlayer.PlayerControl == Mini.mini) {
+            if (Mini.mini != null && CachedPlayer.LocalPlayer.Control == Mini.mini) {
                 var multiplier = Mini.isGrownUp() ? 0.66f : 2f;
                 HudManagerStartPatch.sheriffKillButton.MaxTimer = Sheriff.cooldown * multiplier;
                 HudManagerStartPatch.vampireKillButton.MaxTimer = Vampire.cooldown * multiplier;
@@ -1219,7 +1219,7 @@ namespace TheOtherRoles.Patches
         }
 
         public static void trapperUpdate() {
-            if (Trapper.trapper == null || CachedPlayer.LocalPlayer.PlayerControl != Trapper.trapper || Trapper.trapper.Data.IsDead) return;
+            if (Trapper.trapper == null || CachedPlayer.LocalPlayer.Control != Trapper.trapper || Trapper.trapper.Data.IsDead) return;
             var (playerCompleted, _) = TasksHandler.taskInfo(Trapper.trapper.Data);
             if (playerCompleted == Trapper.rechargedTasks) {
                 Trapper.rechargedTasks += Trapper.rechargeTasksNumber;
@@ -1259,7 +1259,7 @@ namespace TheOtherRoles.Patches
                 var (playerCompleted, playerTotal) = TasksHandler.taskInfo(CachedPlayer.LocalPlayer.Data);
                 int numberOfTasks = playerTotal - playerCompleted;
                 if (numberOfTasks == 0) {
-                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.ShareTimer, Hazel.SendOption.Reliable, -1);
+                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.ShareTimer, Hazel.SendOption.Reliable, -1);
                     writer.Write(HideNSeek.taskPunish);
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
                     RPCProcedure.shareTimer(HideNSeek.taskPunish);
@@ -1297,7 +1297,7 @@ namespace TheOtherRoles.Patches
             if (Cultist.cultist == null || Cultist.cultist.Data.IsDead) return;
 
 
-            if (CachedPlayer.LocalPlayer.PlayerControl == Cultist.cultist) {
+            if (CachedPlayer.LocalPlayer.Control == Cultist.cultist) {
                 int arrowIndex = 0;
                 foreach (PlayerControl p in CachedPlayer.AllPlayers)
                 {
@@ -1324,7 +1324,7 @@ namespace TheOtherRoles.Patches
             if (Follower.follower == null || Follower.follower.Data.IsDead) return;
 
 
-            if (CachedPlayer.LocalPlayer.PlayerControl == Follower.follower) {
+            if (CachedPlayer.LocalPlayer.Control == Follower.follower) {
                 int arrowIndex = 0;
                 foreach (PlayerControl p in CachedPlayer.AllPlayers)
                 {
@@ -1354,7 +1354,7 @@ namespace TheOtherRoles.Patches
                 //pc.cosmetics.colorBlindText.gameObject.transform.localPosition = new Vector3(0, 0, -0.0001f);
             }
             
-            if (CachedPlayer.LocalPlayer.PlayerControl == __instance) {
+            if (CachedPlayer.LocalPlayer.Control == __instance) {
                 // Update player outlines
                 setBasePlayerOutlines();
 
@@ -1504,15 +1504,15 @@ namespace TheOtherRoles.Patches
         }
     }
 
-    [HarmonyPatch(typeof(PlayerControl), nameof(CachedPlayer.LocalPlayer.PlayerControl.CmdReportDeadBody))]
+    [HarmonyPatch(typeof(PlayerControl), nameof(CachedPlayer.LocalPlayer.Control.CmdReportDeadBody))]
     class BodyReportPatch
     {
         static void Postfix(PlayerControl __instance, [HarmonyArgument(0)]GameData.PlayerInfo target)
         {
             // Medic or Detective report
-            bool isMedicReport = Medic.medic != null && Medic.medic == CachedPlayer.LocalPlayer.PlayerControl && __instance.PlayerId == Medic.medic.PlayerId;
-            bool isDetectiveReport = Detective.detective != null && Detective.detective == CachedPlayer.LocalPlayer.PlayerControl && __instance.PlayerId == Detective.detective.PlayerId;
-            bool isSluethReport = Slueth.slueth != null && Slueth.slueth == CachedPlayer.LocalPlayer.PlayerControl && __instance.PlayerId == Slueth.slueth.PlayerId;
+            bool isMedicReport = Medic.medic != null && Medic.medic == CachedPlayer.LocalPlayer.Control && __instance.PlayerId == Medic.medic.PlayerId;
+            bool isDetectiveReport = Detective.detective != null && Detective.detective == CachedPlayer.LocalPlayer.Control && __instance.PlayerId == Detective.detective.PlayerId;
+            bool isSluethReport = Slueth.slueth != null && Slueth.slueth == CachedPlayer.LocalPlayer.Control && __instance.PlayerId == Slueth.slueth.PlayerId;
             if (isMedicReport || isDetectiveReport)
             {
                 DeadPlayer deadPlayer = deadPlayers?.Where(x => x.player?.PlayerId == target?.PlayerId)?.FirstOrDefault();
@@ -1538,10 +1538,10 @@ namespace TheOtherRoles.Patches
                     {   
                         if (AmongUsClient.Instance.AmClient && FastDestroyableSingleton<HudManager>.Instance)
                         {
-                            FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(CachedPlayer.LocalPlayer.PlayerControl, msg);
+                            FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(CachedPlayer.LocalPlayer.Control, msg);
 
                             // Ghost Info
-                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.ShareGhostInfo, Hazel.SendOption.Reliable, -1);
+                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.ShareGhostInfo, Hazel.SendOption.Reliable, -1);
                             writer.Write(CachedPlayer.LocalPlayer.PlayerId);
                             writer.Write((byte)RPCProcedure.GhostInfoTypes.DetectiveOrMedicInfo);
                             writer.Write(msg);
@@ -1603,25 +1603,25 @@ namespace TheOtherRoles.Patches
             }
 
             // Sidekick promotion trigger on murder
-            if (Sidekick.promotesToJackal && Sidekick.sidekick != null && !Sidekick.sidekick.Data.IsDead && target == Jackal.jackal && Jackal.jackal == CachedPlayer.LocalPlayer.PlayerControl) {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.SidekickPromotes, Hazel.SendOption.Reliable, -1);
+            if (Sidekick.promotesToJackal && Sidekick.sidekick != null && !Sidekick.sidekick.Data.IsDead && target == Jackal.jackal && Jackal.jackal == CachedPlayer.LocalPlayer.Control) {
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.SidekickPromotes, Hazel.SendOption.Reliable, -1);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 RPCProcedure.sidekickPromotes();
             }
 
             // Pursuer promotion trigger on murder (the host sends the call such that everyone recieves the update before a possible game End)
             if (target == Lawyer.target && AmongUsClient.Instance.AmHost && Lawyer.lawyer != null) {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.LawyerPromotesToPursuer, Hazel.SendOption.Reliable, -1);
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.LawyerPromotesToPursuer, Hazel.SendOption.Reliable, -1);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 RPCProcedure.lawyerPromotesToPursuer();
                 
             // Undertaker Button Sync
-            if (Undertaker.undertaker!= null && CachedPlayer.LocalPlayer.PlayerControl == Undertaker.undertaker && __instance == Undertaker.undertaker && HudManagerStartPatch.undertakerDragButton != null)
+            if (Undertaker.undertaker!= null && CachedPlayer.LocalPlayer.Control == Undertaker.undertaker && __instance == Undertaker.undertaker && HudManagerStartPatch.undertakerDragButton != null)
                 HudManagerStartPatch.undertakerDragButton.Timer = Undertaker.dragingDelaiAfterKill;
             }
 
             // Seer show flash and add dead player position
-            if (Seer.seer != null && (CachedPlayer.LocalPlayer.PlayerControl == Seer.seer || Helpers.shouldShowGhostInfo()) && !Seer.seer.Data.IsDead && Seer.seer != target && Seer.mode <= 1) {
+            if (Seer.seer != null && (CachedPlayer.LocalPlayer.Control == Seer.seer || Helpers.shouldShowGhostInfo()) && !Seer.seer.Data.IsDead && Seer.seer != target && Seer.mode <= 1) {
                 Helpers.showFlash(new Color(42f / 255f, 187f / 255f, 245f / 255f), message : "Seer Info: Someone Died");
             }
             if (Seer.deadBodyPositions != null) Seer.deadBodyPositions.Add(target.transform.position);
@@ -1635,7 +1635,7 @@ namespace TheOtherRoles.Patches
             }
 
             // Set bountyHunter cooldown
-            if (BountyHunter.bountyHunter != null && CachedPlayer.LocalPlayer.PlayerControl == BountyHunter.bountyHunter && __instance == BountyHunter.bountyHunter) {
+            if (BountyHunter.bountyHunter != null && CachedPlayer.LocalPlayer.Control == BountyHunter.bountyHunter && __instance == BountyHunter.bountyHunter) {
                 if (target == BountyHunter.bounty) {
                     BountyHunter.bountyHunter.SetKillTimer(BountyHunter.bountyKillCooldown);
                     BountyHunter.bountyUpdateTimer = 0f; // Force bounty update
@@ -1645,28 +1645,28 @@ namespace TheOtherRoles.Patches
             }
 
             // Mini Set Impostor Mini kill timer (Due to mini being a modifier, all "SetKillTimers" must have happened before this!)
-            if (Mini.mini != null && __instance == Mini.mini && __instance == CachedPlayer.LocalPlayer.PlayerControl) {
+            if (Mini.mini != null && __instance == Mini.mini && __instance == CachedPlayer.LocalPlayer.Control) {
                 float multiplier = 1f;
-                if (Mini.mini != null && CachedPlayer.LocalPlayer.PlayerControl == Mini.mini) multiplier = Mini.isGrownUp() ? 0.66f : 2f;
+                if (Mini.mini != null && CachedPlayer.LocalPlayer.Control == Mini.mini) multiplier = Mini.isGrownUp() ? 0.66f : 2f;
                 Mini.mini.SetKillTimer(__instance.killTimer * multiplier);
             }
 
             // Cleaner Button Sync
-            if (Cleaner.cleaner != null && CachedPlayer.LocalPlayer.PlayerControl == Cleaner.cleaner && __instance == Cleaner.cleaner && HudManagerStartPatch.cleanerCleanButton != null)
+            if (Cleaner.cleaner != null && CachedPlayer.LocalPlayer.Control == Cleaner.cleaner && __instance == Cleaner.cleaner && HudManagerStartPatch.cleanerCleanButton != null)
                 HudManagerStartPatch.cleanerCleanButton.Timer = Cleaner.cleaner.killTimer;
 
             // Witch Button Sync
-            if (Witch.triggerBothCooldowns && Witch.witch != null && CachedPlayer.LocalPlayer.PlayerControl == Witch.witch && __instance == Witch.witch && HudManagerStartPatch.witchSpellButton != null)
+            if (Witch.triggerBothCooldowns && Witch.witch != null && CachedPlayer.LocalPlayer.Control == Witch.witch && __instance == Witch.witch && HudManagerStartPatch.witchSpellButton != null)
                 HudManagerStartPatch.witchSpellButton.Timer = HudManagerStartPatch.witchSpellButton.MaxTimer;
 
             // Warlock Button Sync
-            if (Warlock.warlock != null && CachedPlayer.LocalPlayer.PlayerControl == Warlock.warlock && __instance == Warlock.warlock && HudManagerStartPatch.warlockCurseButton != null) {
+            if (Warlock.warlock != null && CachedPlayer.LocalPlayer.Control == Warlock.warlock && __instance == Warlock.warlock && HudManagerStartPatch.warlockCurseButton != null) {
                 if (Warlock.warlock.killTimer > HudManagerStartPatch.warlockCurseButton.Timer) {
                     HudManagerStartPatch.warlockCurseButton.Timer = Warlock.warlock.killTimer;
                 }
             }
             // Ninja Button Sync
-            if (Ninja.ninja != null && CachedPlayer.LocalPlayer.PlayerControl == Ninja.ninja && __instance == Ninja.ninja && HudManagerStartPatch.ninjaButton != null)
+            if (Ninja.ninja != null && CachedPlayer.LocalPlayer.Control == Ninja.ninja && __instance == Ninja.ninja && HudManagerStartPatch.ninjaButton != null)
                 HudManagerStartPatch.ninjaButton.Timer = HudManagerStartPatch.ninjaButton.MaxTimer;
 
             // Bait
@@ -1674,12 +1674,12 @@ namespace TheOtherRoles.Patches
                 float reportDelay = (float) rnd.Next((int)Bait.reportDelayMin, (int)Bait.reportDelayMax + 1);
                 Bait.active.Add(deadPlayer, reportDelay);
 
-                if (Bait.showKillFlash && __instance == CachedPlayer.LocalPlayer.PlayerControl) Helpers.showFlash(new Color(204f / 255f, 102f / 255f, 0f / 255f));
+                if (Bait.showKillFlash && __instance == CachedPlayer.LocalPlayer.Control) Helpers.showFlash(new Color(204f / 255f, 102f / 255f, 0f / 255f));
             }
 
             // Add Bloody Modifier
             if (Bloody.bloody.FindAll(x => x.PlayerId == target.PlayerId).Count > 0) {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.Bloody, Hazel.SendOption.Reliable, -1);
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.Bloody, Hazel.SendOption.Reliable, -1);
                 writer.Write(__instance.PlayerId);
                 writer.Write(target.PlayerId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -1730,8 +1730,8 @@ namespace TheOtherRoles.Patches
             if (GameOptionsManager.Instance.currentNormalGameOptions.KillCooldown <= 0f) return false;
             float multiplier = 1f;
             float addition = 0f;
-            if (Mini.mini != null && CachedPlayer.LocalPlayer.PlayerControl == Mini.mini) multiplier = Mini.isGrownUp() ? 0.66f : 2f;
-            if (BountyHunter.bountyHunter != null && CachedPlayer.LocalPlayer.PlayerControl == BountyHunter.bountyHunter) addition = BountyHunter.punishmentTime;
+            if (Mini.mini != null && CachedPlayer.LocalPlayer.Control == Mini.mini) multiplier = Mini.isGrownUp() ? 0.66f : 2f;
+            if (BountyHunter.bountyHunter != null && CachedPlayer.LocalPlayer.Control == BountyHunter.bountyHunter) addition = BountyHunter.punishmentTime;
 
             __instance.killTimer = Mathf.Clamp(time, 0f, GameOptionsManager.Instance.currentNormalGameOptions.KillCooldown * multiplier + addition);
             FastDestroyableSingleton<HudManager>.Instance.KillButton.SetCoolDown(__instance.killTimer, GameOptionsManager.Instance.currentNormalGameOptions.KillCooldown * multiplier + addition);
@@ -1790,8 +1790,8 @@ namespace TheOtherRoles.Patches
 
             }            
             // Sidekick promotion trigger on exile
-            if (Sidekick.promotesToJackal && Sidekick.sidekick != null && !Sidekick.sidekick.Data.IsDead && __instance == Jackal.jackal && Jackal.jackal == CachedPlayer.LocalPlayer.PlayerControl) {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.SidekickPromotes, Hazel.SendOption.Reliable, -1);
+            if (Sidekick.promotesToJackal && Sidekick.sidekick != null && !Sidekick.sidekick.Data.IsDead && __instance == Jackal.jackal && Jackal.jackal == CachedPlayer.LocalPlayer.Control) {
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.SidekickPromotes, Hazel.SendOption.Reliable, -1);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 RPCProcedure.sidekickPromotes();
             }
@@ -1800,7 +1800,7 @@ namespace TheOtherRoles.Patches
             if (Lawyer.lawyer != null && __instance == Lawyer.target) {
                 PlayerControl lawyer = Lawyer.lawyer;
                 if (AmongUsClient.Instance.AmHost && ((Lawyer.target != Jester.jester && !Lawyer.isProsecutor) || Lawyer.targetWasGuessed)) {
-                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.LawyerPromotesToPursuer, Hazel.SendOption.Reliable, -1);
+                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.LawyerPromotesToPursuer, Hazel.SendOption.Reliable, -1);
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
                     RPCProcedure.lawyerPromotesToPursuer();
                 }
@@ -1809,7 +1809,7 @@ namespace TheOtherRoles.Patches
                     if (Lawyer.lawyer != null) Lawyer.lawyer.Exiled();
                     if (Pursuer.pursuer != null) Pursuer.pursuer.Exiled();
 
-                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.ShareGhostInfo, Hazel.SendOption.Reliable, -1);
+                    MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.ShareGhostInfo, Hazel.SendOption.Reliable, -1);
                     writer.Write(CachedPlayer.LocalPlayer.PlayerId);
                     writer.Write((byte)RPCProcedure.GhostInfoTypes.DeathReasonAndKiller);
                     writer.Write(lawyer.PlayerId);

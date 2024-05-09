@@ -1,67 +1,60 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using UnityEngine;
 
 namespace TheOtherRoles.Utilities;
 
-public class CachedPlayer
-{
-    public static readonly Dictionary<IntPtr, CachedPlayer> PlayerPtrs = new();
-    public static readonly List<CachedPlayer> AllPlayers = new();
-    public static CachedPlayer LocalPlayer;
 
-    public Transform transform;
-    public PlayerControl PlayerControl;
-    public PlayerPhysics PlayerPhysics;
-    public CustomNetworkTransform NetTransform;
-    public GameData.PlayerInfo Data;
-    public byte PlayerId;
+public sealed class CachedPlayer
+{
+    private bool Equals(CachedPlayer other)
+    {
+        return Equals(transform, other.transform) && Equals(Control, other.Control) && Equals(Physics, other.Physics) && Equals(NetTransform, other.NetTransform) && Equals(Data, other.Data) && PlayerId == other.PlayerId;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return ReferenceEquals(this, obj) || obj is CachedPlayer other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(transform, Control, Physics, NetTransform);
+    }
+
+    public static readonly Dictionary<IntPtr, CachedPlayer> PlayerPtrs = new();
+    public static readonly List<CachedPlayer> AllPlayers = [];
+    public static CachedPlayer LocalPlayer => PlayerControl.LocalPlayer;
+    
+    public Transform transform { get; init; }
+    public PlayerControl Control { get; init; }
+    public PlayerPhysics Physics { get; init; }
+    public CustomNetworkTransform NetTransform { get; init; }
+    public GameData.PlayerInfo Data { get; set; }
+    public byte PlayerId { get; set; }
 
     public static implicit operator bool(CachedPlayer player)
     {
-        return player != null && player.PlayerControl;
+        return player != null && player.Control;
     }
 
-    public static implicit operator PlayerControl(CachedPlayer player) => player.PlayerControl;
-    public static implicit operator PlayerPhysics(CachedPlayer player) => player.PlayerPhysics;
+    public static implicit operator PlayerControl(CachedPlayer player) => player.Control;
+    public static implicit operator PlayerPhysics(CachedPlayer player) => player.Physics;
+    
+    public static implicit operator CachedPlayer(PlayerControl player) => AllPlayers.FirstOrDefault(n => n.Control == player);
+    public static implicit operator CachedPlayer(PlayerPhysics player) => AllPlayers.FirstOrDefault(n => n.Physics == player);
+    
+    public static bool operator ==(CachedPlayer cache, PlayerControl player) => cache != null && player != null && cache.Control == player;
 
+    public static bool operator !=(CachedPlayer cache, PlayerControl player) => cache == null || player == null || cache.Control != player;
+    
 }
 
 [HarmonyPatch]
 public static class CachedPlayerPatches
 {
-    [HarmonyPatch]
-    private class CacheLocalPlayerPatch
-    {
-        [HarmonyTargetMethod]
-        public static MethodBase TargetMethod()
-        {
-            var type = typeof(PlayerControl).GetNestedTypes(AccessTools.all).FirstOrDefault(t => t.Name.Contains("Start"));
-            return AccessTools.Method(type, nameof(IEnumerator.MoveNext));
-        }
-
-        [HarmonyPostfix]
-        public static void SetLocalPlayer()
-        {
-            var localPlayer = PlayerControl.LocalPlayer;
-            if (!localPlayer)
-            {
-                CachedPlayer.LocalPlayer = null;
-                return;
-            }
-
-            var cached = CachedPlayer.AllPlayers.FirstOrDefault(p => p.PlayerControl.Pointer == localPlayer.Pointer);
-            if (cached != null)
-            {
-                CachedPlayer.LocalPlayer = cached;
-                return;
-            }
-        }
-    }
-
+    
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Awake))]
     [HarmonyPostfix]
     public static void CachePlayerPatch(PlayerControl __instance)
@@ -70,22 +63,12 @@ public static class CachedPlayerPatches
         var player = new CachedPlayer
         {
             transform = __instance.transform,
-            PlayerControl = __instance,
-            PlayerPhysics = __instance.MyPhysics,
+            Control = __instance,
+            Physics = __instance.MyPhysics,
             NetTransform = __instance.NetTransform
         };
         CachedPlayer.AllPlayers.Add(player);
         CachedPlayer.PlayerPtrs[__instance.Pointer] = player;
-
-#if DEBUG
-        foreach (var cachedPlayer in CachedPlayer.AllPlayers)
-        {
-            if (!cachedPlayer.PlayerControl || !cachedPlayer.PlayerPhysics || !cachedPlayer.NetTransform || !cachedPlayer.transform)
-            {
-                Error($"CachedPlayer {cachedPlayer.PlayerControl.name} has null fields");
-            }
-        }
-#endif
     }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.OnDestroy))]
@@ -93,7 +76,7 @@ public static class CachedPlayerPatches
     public static void RemoveCachedPlayerPatch(PlayerControl __instance)
     {
         if (__instance.notRealPlayer) return;
-        CachedPlayer.AllPlayers.RemoveAll(p => p.PlayerControl.Pointer == __instance.Pointer);
+        CachedPlayer.AllPlayers.RemoveAll(p => p.Control.Pointer == __instance.Pointer);
         CachedPlayer.PlayerPtrs.Remove(__instance.Pointer);
     }
 
@@ -101,10 +84,10 @@ public static class CachedPlayerPatches
     [HarmonyPostfix]
     public static void AddCachedDataOnDeserialize()
     {
-        foreach (CachedPlayer cachedPlayer in CachedPlayer.AllPlayers)
+        foreach (var cachedPlayer in CachedPlayer.AllPlayers)
         {
-            cachedPlayer.Data = cachedPlayer.PlayerControl.Data;
-            cachedPlayer.PlayerId = cachedPlayer.PlayerControl.PlayerId;
+            cachedPlayer.Data = cachedPlayer.Control.Data;
+            cachedPlayer.PlayerId = cachedPlayer.Control.PlayerId;
         }
     }
 
@@ -112,10 +95,10 @@ public static class CachedPlayerPatches
     [HarmonyPostfix]
     public static void AddCachedDataOnAddPlayer()
     {
-        foreach (CachedPlayer cachedPlayer in CachedPlayer.AllPlayers)
+        foreach (var cachedPlayer in CachedPlayer.AllPlayers)
         {
-            cachedPlayer.Data = cachedPlayer.PlayerControl.Data;
-            cachedPlayer.PlayerId = cachedPlayer.PlayerControl.PlayerId;
+            cachedPlayer.Data = cachedPlayer.Control.Data;
+            cachedPlayer.PlayerId = cachedPlayer.Control.PlayerId;
         }
     }
 

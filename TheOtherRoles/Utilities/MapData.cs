@@ -206,18 +206,18 @@ public class MapData
     private static List<Vector3>? VentSpawnPositions;
     private static byte mapId;
 
-    public static List<Vector3> FindVentSpawnPositions()
+    public static List<Vector3> FindVentPositions()
     {
         if (VentSpawnPositions != null && mapId == GameOptionsManager.Instance.currentNormalGameOptions.MapId) return VentSpawnPositions;
 
-        var poss = (from vent in DestroyableSingleton<ShipStatus>.Instance.AllVents select vent.transform into Transform select Transform.position into position select new Vector3(position.x, position.y + 0.2f, position.z - 50)).ToList();
+        var poss = (from vent in DestroyableSingleton<ShipStatus>.Instance.AllVents select vent.transform into Transform select Transform.position into position select new Vector3(position.x, position.y, position.z)).ToList();
         mapId = GameOptionsManager.Instance.currentNormalGameOptions.MapId;
         VentSpawnPositions = poss;
         return poss;
     }
 
     public static void RandomSpawnAllPlayers() =>
-        RandomSpawnPlayers(CachedPlayer.AllPlayers.Select(n => n.PlayerControl));
+        RandomSpawnPlayers(CachedPlayer.AllPlayers.Select(n => n.Control));
     public static void RandomSpawnPlayers(IEnumerable<PlayerControl> spawnPlayers)
     {
         if (CustomOptionHolder.randomGameStartToVents.getBool())
@@ -253,12 +253,12 @@ public class MapData
     
     public static void RandomSpawnToVent(IEnumerable<PlayerControl> spawnPlayer)
     {
-        var newPositions = FindVentSpawnPositions();
+        var newPositions = FindVentPositions();
                 
         foreach (var player in spawnPlayer)
         {
             var defPos = player.transform.position;
-            var newPos = newPositions.Any() ? newPositions.Random() :  defPos; 
+            var newPos = newPositions.Any() ? newPositions.Random() - (Vector3)player.Collider.offset :  defPos; 
             player.NetTransform.RpcSnapTo(newPos);
         }
     }

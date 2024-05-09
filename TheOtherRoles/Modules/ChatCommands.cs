@@ -59,7 +59,7 @@ namespace TheOtherRoles.Modules
                         } 
                         else 
                         {
-                            __instance.AddChat(CachedPlayer.LocalPlayer.PlayerControl, "Nice try, but you have to be the host to use this feature");
+                            __instance.AddChat(CachedPlayer.LocalPlayer.Control, "Nice try, but you have to be the host to use this feature");
                         }
                         handled = true;
                     }
@@ -67,18 +67,18 @@ namespace TheOtherRoles.Modules
                 
                 if (AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay) {
                     if (text.ToLower().Equals("/murder")) {
-                        CachedPlayer.LocalPlayer.PlayerControl.Exiled();
+                        CachedPlayer.LocalPlayer.Control.Exiled();
                         FastDestroyableSingleton<HudManager>.Instance.KillOverlay.ShowKillAnimation(CachedPlayer.LocalPlayer.Data, CachedPlayer.LocalPlayer.Data);
                         handled = true;
                     } else if (text.ToLower().StartsWith("/color ")) {
                         handled = true;
                         int col;
                         if (!Int32.TryParse(text.Substring(7), out col)) {
-                            __instance.AddChat(CachedPlayer.LocalPlayer.PlayerControl, "Unable to parse color id\nUsage: /color {id}");
+                            __instance.AddChat(CachedPlayer.LocalPlayer.Control, "Unable to parse color id\nUsage: /color {id}");
                         }
                         col = Math.Clamp(col, 0, Palette.PlayerColors.Length - 1);
-                        CachedPlayer.LocalPlayer.PlayerControl.SetColor(col);
-                        __instance.AddChat(CachedPlayer.LocalPlayer.PlayerControl, "Changed color succesfully");;
+                        CachedPlayer.LocalPlayer.Control.SetColor(col);
+                        __instance.AddChat(CachedPlayer.LocalPlayer.Control, "Changed color succesfully");;
                     } 
                 }
 
@@ -91,13 +91,13 @@ namespace TheOtherRoles.Modules
                     }
                 }
 
-                if (text.ToLower().StartsWith("/team") && CachedPlayer.LocalPlayer.PlayerControl.isLover() && CachedPlayer.LocalPlayer.PlayerControl.isTeamCultist())
+                if (text.ToLower().StartsWith("/team") && CachedPlayer.LocalPlayer.Control.isLover() && CachedPlayer.LocalPlayer.Control.isTeamCultist())
                 {
-                    if (Cultist.cultist == CachedPlayer.LocalPlayer.PlayerControl)
+                    if (Cultist.cultist == CachedPlayer.LocalPlayer.Control)
                     {
                         Cultist.chatTarget = Helpers.flipBitwise(Cultist.chatTarget);
                     }
-                    if (Follower.follower == CachedPlayer.LocalPlayer.PlayerControl)
+                    if (Follower.follower == CachedPlayer.LocalPlayer.Control)
                     {
                         Follower.chatTarget = Helpers.flipBitwise(Follower.chatTarget);
                     }
@@ -105,10 +105,10 @@ namespace TheOtherRoles.Modules
                 }
 
                 if (text.ToLower().StartsWith("/role")) {
-                    RoleInfo localRole = RoleInfo.getRoleInfoForPlayer(CachedPlayer.LocalPlayer.PlayerControl, false).FirstOrDefault();
+                    RoleInfo localRole = RoleInfo.getRoleInfoForPlayer(CachedPlayer.LocalPlayer.Control, false).FirstOrDefault();
                     if (localRole != RoleInfo.impostor && localRole != RoleInfo.crewmate) {
                         string info = RoleInfo.GetRoleDescription(localRole);
-                        __instance.AddChat(CachedPlayer.LocalPlayer.PlayerControl, info);
+                        __instance.AddChat(CachedPlayer.LocalPlayer.Control, info);
                         handled = true;
                     }
                 }
@@ -123,7 +123,7 @@ namespace TheOtherRoles.Modules
         [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
         public static class EnableChat {
             public static void Postfix(HudManager __instance) {
-                if (!__instance.Chat.isActiveAndEnabled && (AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay || (CachedPlayer.LocalPlayer.PlayerControl.isLover() && Lovers.enableChat) || CachedPlayer.LocalPlayer.PlayerControl.isTeamCultist()))
+                if (!__instance.Chat.isActiveAndEnabled && (AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay || (CachedPlayer.LocalPlayer.Control.isLover() && Lovers.enableChat) || CachedPlayer.LocalPlayer.Control.isTeamCultist()))
                 {
                     __instance.Chat.SetVisible(true);
                 }
@@ -157,7 +157,7 @@ namespace TheOtherRoles.Modules
         public static class AddChat {
             public static bool Prefix(ChatController __instance, [HarmonyArgument(0)] PlayerControl sourcePlayer)
 		{
-			PlayerControl playerControl = CachedPlayer.LocalPlayer.PlayerControl;
+			PlayerControl playerControl = CachedPlayer.LocalPlayer.Control;
 			bool flag = MeetingHud.Instance != null || LobbyBehaviour.Instance != null || playerControl.Data.IsDead || sourcePlayer.PlayerId == CachedPlayer.LocalPlayer.PlayerId;
 			if (__instance != FastDestroyableSingleton<HudManager>.Instance.Chat)
 			{

@@ -28,9 +28,9 @@ namespace TheOtherRoles.Patches
         static void UseVitalsTime()
         {
             // Don't waste network traffic if we're out of time.
-            if (TORMapOptions.restrictDevices > 0 && TORMapOptions.restrictVitalsTime > 0f && CachedPlayer.LocalPlayer.PlayerControl.isAlive() && CachedPlayer.LocalPlayer.PlayerControl != Hacker.hacker)
+            if (TORMapOptions.restrictDevices > 0 && TORMapOptions.restrictVitalsTime > 0f && CachedPlayer.LocalPlayer.Control.isAlive() && CachedPlayer.LocalPlayer.Control != Hacker.hacker)
             {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.PlayerControl.NetId, (byte)CustomRPC.UseVitalsTime, Hazel.SendOption.Reliable, -1);
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.UseVitalsTime, Hazel.SendOption.Reliable, -1);
                 writer.Write(vitalsTimer);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 RPCProcedure.useVitalsTime(vitalsTimer);
@@ -45,7 +45,7 @@ namespace TheOtherRoles.Patches
             {
                 vitalsTimer = 0f;
 
-                if (Hacker.hacker != null && CachedPlayer.LocalPlayer.PlayerControl == Hacker.hacker)
+                if (Hacker.hacker != null && CachedPlayer.LocalPlayer.Control == Hacker.hacker)
                 {
                     hackerTexts = new List<TMPro.TextMeshPro>();
                     foreach (VitalsPanel panel in __instance.vitals)
@@ -83,7 +83,7 @@ namespace TheOtherRoles.Patches
                         TimeRemaining.color = Palette.White;
                     }
 
-                    if (TORMapOptions.restrictVitalsTime <= 0f && CachedPlayer.LocalPlayer.PlayerControl != Hacker.hacker && !CachedPlayer.LocalPlayer.Data.IsDead)
+                    if (TORMapOptions.restrictVitalsTime <= 0f && CachedPlayer.LocalPlayer.Control != Hacker.hacker && !CachedPlayer.LocalPlayer.Data.IsDead)
                     {
                         __instance.Close();
                         return false;
@@ -100,7 +100,7 @@ namespace TheOtherRoles.Patches
             private static void Postfix(VitalsMinigame __instance)
             {
                 // Hacker show time since death
-                if (Hacker.hacker != null && Hacker.hacker == CachedPlayer.LocalPlayer.PlayerControl &&
+                if (Hacker.hacker != null && Hacker.hacker == CachedPlayer.LocalPlayer.Control &&
                     Hacker.hackerTimer > 0)
                     for (var k = 0; k < __instance.vitals.Length; k++)
                     {
