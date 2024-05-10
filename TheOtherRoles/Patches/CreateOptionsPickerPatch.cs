@@ -16,26 +16,26 @@ internal class CreateOptionsPickerPatch
     {
         if (mode <= GameModes.HideNSeek)
         {
-            TORMapOptions.gameMode = CustomGamemodes.Classic;
+            TORMapOptions.gameMode = Helper.CustomGameModes.Classic;
             return true;
         }
 
         __instance.SetGameMode(GameModes.Normal);
-        var gm = (CustomGamemodes)((int)mode - 2);
-        if (gm == CustomGamemodes.Guesser)
+        var gm = (Helper.CustomGameModes)((int)mode - 2);
+        if (gm == Helper.CustomGameModes.Guesser)
         {
             __instance.GameModeText.text = "TOR Guesser";
-            TORMapOptions.gameMode = CustomGamemodes.Guesser;
+            TORMapOptions.gameMode = Helper.CustomGameModes.Guesser;
         }
-        else if (gm == CustomGamemodes.HideNSeek)
+        else if (gm == Helper.CustomGameModes.HideNSeek)
         {
             __instance.GameModeText.text = "TOR Hide N Seek";
-            TORMapOptions.gameMode = CustomGamemodes.HideNSeek;
+            TORMapOptions.gameMode = Helper.CustomGameModes.HideNSeek;
         }
-        else if (gm == CustomGamemodes.PropHunt)
+        else if (gm == Helper.CustomGameModes.PropHunt)
         {
             __instance.GameModeText.text = "TOR Prop Hunt";
-            TORMapOptions.gameMode = CustomGamemodes.PropHunt;
+            TORMapOptions.gameMode = Helper.CustomGameModes.PropHunt;
         }
 
         return false;
@@ -45,11 +45,11 @@ internal class CreateOptionsPickerPatch
     [HarmonyPatch(typeof(CreateOptionsPicker), nameof(CreateOptionsPicker.Refresh))]
     public static void Postfix(CreateOptionsPicker __instance)
     {
-        if (TORMapOptions.gameMode == CustomGamemodes.Guesser)
+        if (TORMapOptions.gameMode == Helper.CustomGameModes.Guesser)
             __instance.GameModeText.text = "TOR Guesser";
-        else if (TORMapOptions.gameMode == CustomGamemodes.HideNSeek)
+        else if (TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek)
             __instance.GameModeText.text = "TOR Hide N Seek";
-        else if (TORMapOptions.gameMode == CustomGamemodes.PropHunt) __instance.GameModeText.text = "TOR Prop Hunt";
+        else if (TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt) __instance.GameModeText.text = "TOR Prop Hunt";
     }
 }
 
@@ -88,11 +88,11 @@ internal class GameModeMenuPatch
                 chatLanguageButton.Button.OnClick.RemoveAllListeners();
                 chatLanguageButton.Button.OnClick.AddListener((Action)delegate { __instance.ChooseOption(entry); });
 
-                var isCurrentMode = i <= 2 && TORMapOptions.gameMode == CustomGamemodes.Classic
+                var isCurrentMode = i <= 2 && TORMapOptions.gameMode == Helper.CustomGameModes.Classic
                     ? (long)entry == gameMode
-                    : (i == 3 && TORMapOptions.gameMode == CustomGamemodes.Guesser) ||
-                      (i == 4 && TORMapOptions.gameMode == CustomGamemodes.HideNSeek) ||
-                      (i == 5 && TORMapOptions.gameMode == CustomGamemodes.PropHunt);
+                    : (i == 3 && TORMapOptions.gameMode == Helper.CustomGameModes.Guesser) ||
+                      (i == 4 && TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek) ||
+                      (i == 5 && TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt);
                 chatLanguageButton.SetSelected(isCurrentMode);
                 __instance.controllerSelectable.Add(chatLanguageButton.Button);
                 if (isCurrentMode) __instance.defaultButtonSelected = chatLanguageButton.Button;

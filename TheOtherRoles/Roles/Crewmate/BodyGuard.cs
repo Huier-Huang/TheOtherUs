@@ -1,6 +1,7 @@
 using System;
 using Hazel;
 using TheOtherRoles.Objects;
+using TheOtherRoles.Options;
 using UnityEngine;
 
 namespace TheOtherRoles.Roles.Crewmate;
@@ -43,7 +44,7 @@ public class BodyGuard : RoleBase
 
     public override void OptionCreate()
     {
-        bodyGuardSpawnRate =
+        bodyGuardSpawnRate = new CustomRoleOption()
             new CustomOption(8820, "Bodyguard".ColorString(color), CustomOptionHolder.rates, null, true);
         bodyGuardResetTargetAfterMeeting = new CustomOption(8821, "Reset Target After Meeting", true,
             bodyGuardSpawnRate);
@@ -77,7 +78,7 @@ public class BodyGuard : RoleBase
                 if (reset) resetGuarded();
             },
             guardButtonSprite,
-            CustomButton.ButtonPositions.lowerRowRight, //brb
+            DefButtonPositions.lowerRowRight, //brb
             _hudManager,
             KeyCode.F
         );

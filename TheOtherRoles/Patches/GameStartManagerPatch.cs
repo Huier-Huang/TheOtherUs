@@ -246,14 +246,14 @@ public class GameStartManagerPatch
             var continueStart = !HandshakeHelper.CurrentMismatch;
 
             if (continueStart &&
-                (TORMapOptions.gameMode == CustomGamemodes.HideNSeek ||
-                 TORMapOptions.gameMode == CustomGamemodes.PropHunt) &&
+                (TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek ||
+                 TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt) &&
                 GameOptionsManager.Instance.CurrentGameOptions.MapId != 6)
             {
                 byte mapId = TORMapOptions.gameMode switch
                 {
-                    CustomGamemodes.HideNSeek => (byte)CustomOptionHolder.hideNSeekMap.getSelection(),
-                    CustomGamemodes.PropHunt => (byte)CustomOptionHolder.propHuntMap.getSelection(),
+                    Helper.CustomGameModes.HideNSeek => (byte)CustomOptionHolder.hideNSeekMap.getSelection(),
+                    Helper.CustomGameModes.PropHunt => (byte)CustomOptionHolder.propHuntMap.getSelection(),
                     _ => 0
                 };
                 if (mapId >= 3) mapId++;

@@ -156,13 +156,13 @@ public class ShipStatusPatch
         originalNumShortTasksOption = GameOptionsManager.Instance.currentNormalGameOptions.NumShortTasks;
         originalNumLongTasksOption = GameOptionsManager.Instance.currentNormalGameOptions.NumLongTasks;
 
-        if (TORMapOptions.gameMode != CustomGamemodes.HideNSeek)
+        if (TORMapOptions.gameMode != Helper.CustomGameModes.HideNSeek)
         {
             var commonTaskCount = __instance.CommonTasks.Count;
             var normalTaskCount = __instance.ShortTasks.Count;
             var longTaskCount = __instance.LongTasks.Count;
 
-            if (TORMapOptions.gameMode == CustomGamemodes.PropHunt)
+            if (TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt)
                 commonTaskCount = normalTaskCount = longTaskCount = 0;
 
 

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using TheOtherRoles.Options;
 
 namespace TheOtherRoles.Modules.Options;
 

@@ -14,6 +14,10 @@ using Reactor.Utilities.Extensions;
 using TheOtherRoles.CustomGameModes;
 using TheOtherRoles.Objects;
 using TheOtherRoles.Patches;
+using TheOtherRoles.Roles.Crewmate;
+using TheOtherRoles.Roles.Impostor;
+using TheOtherRoles.Roles.Modifier;
+using TheOtherRoles.Roles.Neutral;
 using UnityEngine;
 using Object = Il2CppSystem.Object;
 
@@ -39,7 +43,7 @@ public enum SabatageTypes
     None
 }
 
-public enum CustomGamemodes
+public enum CustomGameModes
 {
     Classic,
     Guesser,
@@ -936,16 +940,15 @@ public static class Helpers
 
         // Kill the Body Guard and the killer if the target is guarded
 
-        if (BodyGuard.bodyguard != null && target == BodyGuard.guarded && BodyGuard.bodyguard.isAlive())
+        
+        if (RoleIsAlive<BodyGuard>() && target.Is<BodyGuard>() && PlayerIsAlive<BodyGuard>())
         {
-            if (Medic.shielded != null && Medic.shielded == target)
-            {
-                var writer = AmongUsClient.Instance.StartRpcImmediately(killer.NetId,
-                    (byte)CustomRPC.ShieldedMurderAttempt, SendOption.Reliable);
-                writer.Write(target.PlayerId);
-                AmongUsClient.Instance.FinishRpcImmediately(writer);
-                RPCProcedure.shieldedMurderAttempt(killer.PlayerId);
-            }
+            if (Get<Medic>().shielded == null || Get<Medic>().shielded != target) 
+                return MurderAttemptResult.BodyGuardKill;
+            FastRpcWriter.StartNewRpcWriter(CustomRPC.ShieldedMurderAttempt, targetObjectId: killer.NetId)
+                .Write(target.PlayerId)
+                .RPCSend();
+            RPCProcedure.shieldedMurderAttempt(killer.PlayerId);
 
             return MurderAttemptResult.BodyGuardKill;
         }
@@ -1105,34 +1108,39 @@ public static class Helpers
             })));
         }
 
-        if (murder == MurderAttemptResult.BodyGuardKill)
+        switch (murder)
         {
-            // Kill the Killer
-            var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
-                (byte)CustomRPC.UncheckedMurderPlayer, SendOption.Reliable);
-            writer.Write(killer.PlayerId);
-            writer.Write(killer.PlayerId);
-            writer.Write(showAnimation ? byte.MaxValue : 0);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-            RPCProcedure.uncheckedMurderPlayer(BodyGuard.bodyguard.PlayerId, killer.PlayerId, 0);
+            case MurderAttemptResult.BodyGuardKill:
+            {
+                // Kill the Killer
+                var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+                    (byte)CustomRPC.UncheckedMurderPlayer, SendOption.Reliable);
+                writer.Write(killer.PlayerId);
+                writer.Write(killer.PlayerId);
+                writer.Write(showAnimation ? byte.MaxValue : 0);
+                AmongUsClient.Instance.FinishRpcImmediately(writer);
+                RPCProcedure.uncheckedMurderPlayer(GetPlayer<BodyGuard>().PlayerId, killer.PlayerId, 0);
 
-            // Kill the BodyGuard
-            var writer2 = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
-                (byte)CustomRPC.UncheckedMurderPlayer, SendOption.Reliable);
-            writer2.Write(BodyGuard.bodyguard.PlayerId);
-            writer2.Write(BodyGuard.bodyguard.PlayerId);
-            writer2.Write(showAnimation ? byte.MaxValue : 0);
-            AmongUsClient.Instance.FinishRpcImmediately(writer2);
-            RPCProcedure.uncheckedMurderPlayer(BodyGuard.bodyguard.PlayerId, BodyGuard.bodyguard.PlayerId, 0);
+                // Kill the BodyGuard
+                var writer2 = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+                    (byte)CustomRPC.UncheckedMurderPlayer, SendOption.Reliable);
+                writer2.Write(GetPlayer<BodyGuard>().PlayerId);
+                writer2.Write(GetPlayer<BodyGuard>().PlayerId);
+                writer2.Write(showAnimation ? byte.MaxValue : 0);
+                AmongUsClient.Instance.FinishRpcImmediately(writer2);
+                RPCProcedure.uncheckedMurderPlayer(GetPlayer<BodyGuard>().PlayerId, GetPlayer<BodyGuard>().PlayerId, 0);
 
 
-            var writer3 = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
-                (byte)CustomRPC.ShowBodyGuardFlash, SendOption.Reliable);
-            AmongUsClient.Instance.FinishRpcImmediately(writer3);
-            RPCProcedure.showBodyGuardFlash();
+                var writer3 = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+                    (byte)CustomRPC.ShowBodyGuardFlash, SendOption.Reliable);
+                AmongUsClient.Instance.FinishRpcImmediately(writer3);
+                RPCProcedure.showBodyGuardFlash();
+                break;
+            }
+            case MurderAttemptResult.ReverseKill:
+                checkMuderAttemptAndKill(target, killer, isMeetingStart);
+                break;
         }
-
-        if (murder == MurderAttemptResult.ReverseKill) checkMuderAttemptAndKill(target, killer, isMeetingStart);
 
         return murder;
     }

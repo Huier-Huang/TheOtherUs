@@ -45,7 +45,7 @@ public static class HideNSeek
 
     public static void clearAndReload()
     {
-        isHideNSeekGM = TORMapOptions.gameMode == CustomGamemodes.HideNSeek;
+        isHideNSeekGM = TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek;
         if (timerText != null) Object.Destroy(timerText);
         timerText = null;
         if (polusVent != null) Object.Destroy(polusVent);

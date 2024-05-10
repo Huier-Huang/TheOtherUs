@@ -67,15 +67,15 @@ public static class ChatCommands
                 else if (text.ToLower().StartsWith("/gm"))
                 {
                     var gm = text[4..].ToLower();
-                    var gameMode = CustomGamemodes.Classic;
+                    var gameMode = Helper.CustomGameModes.Classic;
                     if (gm.StartsWith("prop") || gm.StartsWith("ph"))
-                        gameMode = CustomGamemodes.PropHunt;
+                        gameMode = Helper.CustomGameModes.PropHunt;
 
                     if (gm.StartsWith("guess") || gm.StartsWith("gm"))
-                        gameMode = CustomGamemodes.Guesser;
+                        gameMode = Helper.CustomGameModes.Guesser;
 
                     if (gm.StartsWith("hide") || gm.StartsWith("hn"))
-                        gameMode = CustomGamemodes.HideNSeek;
+                        gameMode = Helper.CustomGameModes.HideNSeek;
                     // else its classic!
 
                     if (AmongUsClient.Instance.AmHost)

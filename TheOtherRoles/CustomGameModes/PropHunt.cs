@@ -80,7 +80,7 @@ internal class PropHunt
     public static void clearAndReload()
     {
         remainingShots.Clear();
-        isPropHuntGM = TORMapOptions.gameMode == CustomGamemodes.PropHunt;
+        isPropHuntGM = TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt;
         numberOfHunters = CustomOptionHolder.propHuntNumberOfHunters.getQuantity();
         initialBlackoutTime = CustomOptionHolder.hunterInitialBlackoutTime.getFloat();
         //maxMissesBeforeDeath = CustomOptionHolder.hunterMaxMissesBeforeDeath.getQuantity();
@@ -625,14 +625,14 @@ internal class PropHunt
     public static void MapSetPostfix()
     {
         // Make sure the map in the settings is in sync with the map from li
-        if ((TORMapOptions.gameMode != CustomGamemodes.PropHunt &&
-             TORMapOptions.gameMode != CustomGamemodes.HideNSeek) || AmongUsClient.Instance.IsGameStarted) return;
+        if ((TORMapOptions.gameMode != Helper.CustomGameModes.PropHunt &&
+             TORMapOptions.gameMode != Helper.CustomGameModes.HideNSeek) || AmongUsClient.Instance.IsGameStarted) return;
         int map = GameOptionsManager.Instance.currentGameOptions.MapId;
         if (map > 3) map--;
-        if (TORMapOptions.gameMode == CustomGamemodes.HideNSeek)
+        if (TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek)
             if (CustomOptionHolder.hideNSeekMap.OptionSelection != map)
                 CustomOptionHolder.hideNSeekMap.updateSelection(map);
-        if (TORMapOptions.gameMode == CustomGamemodes.PropHunt)
+        if (TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt)
             if (CustomOptionHolder.propHuntMap.OptionSelection != map)
                 CustomOptionHolder.propHuntMap.updateSelection(map);
     }

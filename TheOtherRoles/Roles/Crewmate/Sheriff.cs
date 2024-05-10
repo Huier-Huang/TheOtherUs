@@ -1,5 +1,6 @@
 using System;
 using TheOtherRoles.Objects;
+using TheOtherRoles.Options;
 using TheOtherRoles.Roles.Modifier;
 using TheOtherRoles.Roles.Neutral;
 using UnityEngine;

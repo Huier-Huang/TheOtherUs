@@ -383,8 +383,8 @@ internal class HudManagerUpdatePatch
 
     private static void updateSabotageButton(HudManager __instance)
     {
-        if (MeetingHud.Instance || TORMapOptions.gameMode == CustomGamemodes.HideNSeek ||
-            TORMapOptions.gameMode == CustomGamemodes.PropHunt) __instance.SabotageButton.Hide();
+        if (MeetingHud.Instance || TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek ||
+            TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt) __instance.SabotageButton.Hide();
     }
 
     private static void updateMapButton(HudManager __instance)

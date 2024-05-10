@@ -10,6 +10,8 @@ public static class MeetingData
     public static readonly List<MeetingVote> meetingVotes = [];
     public static int CurrentMeetingHudId { get; private set; }
 
+    public static int ClearRounding { get; set; } = 0;
+
     public static List<MeetingVote> PlayerVotes(this PlayerControl player, bool isSrc)
     {
         return meetingVotes.Where(n =>
@@ -33,12 +35,15 @@ public static class MeetingData
     private static void MeetingHud_ServerStart()
     {
         CurrentMeetingHudId++;
+        if(ClearRounding == 0) return;
+        meetingVotes.RemoveAll(n => CurrentMeetingHudId - n.MeetingId > ClearRounding);
     }
 
     [OnEvent("OnGameEnd")]
     private static void OnGameEnd()
     {
         meetingVotes.Clear();
+        CurrentMeetingHudId = 0;
     }
 
     public static MeetingVote Get(this PlayerControl player, int MeetingIndex = 0)

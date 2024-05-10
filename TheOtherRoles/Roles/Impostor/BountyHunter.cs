@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using TheOtherRoles.Objects;
+using TheOtherRoles.Options;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;

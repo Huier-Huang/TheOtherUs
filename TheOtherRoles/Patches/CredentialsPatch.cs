@@ -66,9 +66,9 @@ Design by <color=#FCCE03FF>Bavari</color>";
             {
                 var gameModeText = TORMapOptions.gameMode switch
                 {
-                    CustomGamemodes.HideNSeek => "Hide 'N Seek",
-                    CustomGamemodes.Guesser => "Guesser",
-                    CustomGamemodes.PropHunt => "Prop Hunt",
+                    Helper.CustomGameModes.HideNSeek => "Hide 'N Seek",
+                    Helper.CustomGameModes.Guesser => "Guesser",
+                    Helper.CustomGameModes.PropHunt => "Prop Hunt",
                     _ => string.Empty
                 };
                 if (gameModeText != "") gameModeText = Helpers.cs(Color.yellow, gameModeText) + "\n";

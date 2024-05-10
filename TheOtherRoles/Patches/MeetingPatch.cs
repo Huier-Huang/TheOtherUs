@@ -4,6 +4,7 @@ using System.Linq;
 using Hazel;
 using Reactor.Utilities;
 using TheOtherRoles.Objects;
+using TheOtherRoles.Options;
 using TMPro;
 using UnityEngine;
 using static TheOtherRoles.TORMapOptions;

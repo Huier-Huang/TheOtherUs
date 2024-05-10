@@ -492,13 +492,13 @@ public class RoleInfo
         if (infos.Count == count)
         {
             if (p.Data.Role.IsImpostor)
-                infos.Add(TORMapOptions.gameMode == CustomGamemodes.HideNSeek ||
-                          TORMapOptions.gameMode == CustomGamemodes.PropHunt
+                infos.Add(TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek ||
+                          TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt
                     ? hunter
                     : impostor);
             else
-                infos.Add(TORMapOptions.gameMode == CustomGamemodes.HideNSeek ? hunted :
-                    TORMapOptions.gameMode == CustomGamemodes.PropHunt ? prop : crewmate);
+                infos.Add(TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek ? hunted :
+                    TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt ? prop : crewmate);
         }
 
         return infos;

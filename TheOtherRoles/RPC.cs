@@ -9,6 +9,7 @@ using InnerNet;
 using PowerTools;
 using TheOtherRoles.CustomGameModes;
 using TheOtherRoles.Objects;
+using TheOtherRoles.Options;
 using TheOtherRoles.Patches;
 using TMPro;
 using UnityEngine;
@@ -183,7 +184,7 @@ public static class RPCProcedure
 
     public static void shareGamemode(byte gm)
     {
-        gameMode = (CustomGamemodes)gm;
+        gameMode = (Helper.CustomGameModes)gm;
     }
 
     public static void stopStart(byte playerId)

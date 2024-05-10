@@ -1,6 +1,7 @@
 using System;
 using Hazel;
 using TheOtherRoles.Objects;
+using TheOtherRoles.Options;
 using UnityEngine;
 
 namespace TheOtherRoles.Roles.Impostor;

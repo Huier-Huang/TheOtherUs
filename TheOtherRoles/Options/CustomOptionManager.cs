@@ -6,7 +6,7 @@ using System.Text.Json;
 using Hazel;
 using UnityEngine;
 
-namespace TheOtherRoles.Modules.Options;
+namespace TheOtherRoles.Options;
 
 public class CustomOptionManager : ManagerBase<CustomOptionManager>
 {
@@ -17,6 +17,7 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
     // 分配选项Id
     private int LastId;
     public List<CustomOption> options = [];
+    public List<CustomRoleOption> roleOptions = [];
 
     public int OptionSplit = 35;
 
@@ -28,12 +29,20 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
     {
         option.optionInfo.Id = assignOptionId();
         options.Add(option);
+        if (option is CustomRoleOption roleOption)
+        {
+            roleOptions.Add(roleOption);
+        }
     }
 
     public void UnRegister(CustomOption option)
     {
         releaseOptionId(option);
         options.Remove(option);
+        if (option is CustomRoleOption roleOption)
+        {
+            roleOptions.Remove(roleOption);
+        }
     }
 
     // 获取选项

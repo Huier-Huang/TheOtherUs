@@ -34,7 +34,7 @@ internal static class TORMapOptions
     public static bool disableCamsRoundOne;
     public static bool isRoundOne = true;
     public static bool camoComms;
-    public static CustomGamemodes gameMode = CustomGamemodes.Classic;
+    public static Helper.CustomGameModes gameMode = Helper.CustomGameModes.Classic;
 
     // Updating values
     public static int meetingsCount;

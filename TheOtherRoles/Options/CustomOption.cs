@@ -7,13 +7,15 @@ using System.Text.Json.Serialization;
 using AmongUs.GameOptions;
 using Hazel;
 using Reactor.Utilities.Extensions;
-using TheOtherRoles.Options;
+using TheOtherRoles.Roles.Crewmate;
+using TheOtherRoles.Roles.Modifier;
+using TheOtherRoles.Roles.Neutral;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
-namespace TheOtherRoles.Modules.Options;
+namespace TheOtherRoles.Options;
 
 public enum OptionTypes
 {
@@ -22,26 +24,36 @@ public enum OptionTypes
     Mode
 }
 
-public class CustomRoleOption(string Title, OptionTypes type, OptionSelection selection, CustomOption Parent = default)
-    : CustomOption(Title, type, selection, Parent)
+public class CustomRoleOption(RoleBase @base, string Title)
+    : CustomOption(Title, OptionTypes.Role, new StringOptionSelection(0, roleRateStrings))
 {
-    private static OptionSelection roleRateSelection = new BoolOptionSelection()
-    public RoleBase roleBase;
+    public static readonly string[] roleRateStrings = ["0%","10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"];
+    public int Rate => 10 * OptionSelection.Selection;
+    public RoleBase roleBase = @base;
+}
+
+public class CustomModeOption(Helper.CustomGameModes mode, string Title, OptionSelectionBase selection)
+    : CustomOption(Title, OptionTypes.Mode, selection)
+{
+    public Helper.CustomGameModes mode = mode;
 }
 
 public class CustomOption
 {
-    [JsonIgnore] public OptionBehaviour optionBehaviour;
+    [JsonIgnore] 
+    public OptionBehaviour optionBehaviour;
 
 
-    public CustomOption(string Title, OptionTypes type, OptionSelection selection, CustomOption Parent = default)
+    public CustomOption(string Title, OptionTypes type, OptionSelectionBase selection, CustomOption Parent = default)
     {
         optionType = type;
-        OptionSelection = selection;
+        selection.option = this;
         optionInfo = new OptionInfo
         {
-            Title = Title
+            Title = Title,
+            option = selection.option = this
         };
+
         if (Parent != null)
         {
             optionInfo.Parent = Parent.optionInfo;
@@ -53,7 +65,8 @@ public class CustomOption
 
     public OptionTypes optionType { get; set; }
 
-    [JsonIgnore] public OptionEvent optionEvent { get; }
+    [JsonIgnore] 
+    public OptionEvent optionEvent { get; } = new();
 
     public OptionSelection OptionSelection { get; set; }
     public OptionInfo optionInfo { get; set; }
@@ -85,6 +98,8 @@ public class CustomOption
             .Write(OptionSelection.Selection)
             .RPCSend();
     }
+
+    public string Title => EnabledTranslate ? optionInfo.Title.Translate() : optionInfo.Title;
 
 
     // Getter
@@ -140,16 +155,16 @@ internal class GameOptionsMenuStartPatch
     {
         switch (TORMapOptions.gameMode)
         {
-            case CustomGamemodes.Classic:
+            case Helper.CustomGameModes.Classic:
                 createClassicTabs(__instance);
                 break;
-            case CustomGamemodes.Guesser:
+            case Helper.CustomGameModes.Guesser:
                 createGuesserTabs(__instance);
                 break;
-            case CustomGamemodes.HideNSeek:
+            case Helper.CustomGameModes.HideNSeek:
                 createHideNSeekTabs(__instance);
                 break;
-            case CustomGamemodes.PropHunt:
+            case Helper.CustomGameModes.PropHunt:
                 createPropHuntTabs(__instance);
                 break;
         }
@@ -751,59 +766,34 @@ internal class GameOptionsMenuStartPatch
     }
 }
 
-[HarmonyPatch(typeof(StringOption), nameof(StringOption.OnEnable))]
-public class StringOptionEnablePatch
+[Harmony]
+public class StringOptionPatches
 {
-    public static bool Prefix(StringOption __instance)
+    [HarmonyPatch(typeof(StringOption), nameof(StringOption.OnEnable))]
+    private static bool StringOption_OnEnable(StringOption __instance)
     {
-        CustomOption option = CustomOption.options.FirstOrDefault(option => option.optionBehaviour == __instance);
-        if (option == null) return true;
-
+        if (!CustomOptionManager.Instance.TryGetOption(__instance, out var option)) return true;
         __instance.OnValueChanged = new Action<OptionBehaviour>(o => { });
-        __instance.TitleText.text = option.name;
+        __instance.TitleText.text = option.Title;
         __instance.Value = __instance.oldValue = option.OptionSelection;
-        __instance.ValueText.text = option.selections[option.OptionSelection].ToString();
+        __instance.ValueText.text = option.OptionSelection.GetString();
 
         return false;
     }
-}
 
-[HarmonyPatch(typeof(StringOption), nameof(StringOption.Increase))]
-public class StringOptionIncreasePatch
-{
-    public static bool Prefix(StringOption __instance)
+    [HarmonyPatch(typeof(StringOption), nameof(StringOption.Increase))]
+    private static bool StringOption_Increase(StringOption __instance)
     {
-        CustomOption option = CustomOption.options.FirstOrDefault(option => option.optionBehaviour == __instance);
-        if (option == null) return true;
-        option.updateSelection(option.OptionSelection + 1);
-        if (CustomOptionHolder.isMapSelectionOption(option))
-        {
-            var currentGameOptions = GameOptionsManager.Instance.CurrentGameOptions;
-            currentGameOptions.SetByte(ByteOptionNames.MapId, (byte)option.OptionSelection);
-            GameOptionsManager.Instance.GameHostOptions = GameOptionsManager.Instance.CurrentGameOptions;
-            GameManager.Instance.LogicOptions.SyncOptions();
-        }
-
+        if (!CustomOptionManager.Instance.TryGetOption(__instance, out var option)) return true;
+        option.OptionSelection.Increase();
         return false;
     }
-}
-
-[HarmonyPatch(typeof(StringOption), nameof(StringOption.Decrease))]
-public class StringOptionDecreasePatch
-{
-    public static bool Prefix(StringOption __instance)
+    
+    [HarmonyPatch(typeof(StringOption), nameof(StringOption.Decrease))]
+    private static bool StringOption_Decrease(StringOption __instance)
     {
-        CustomOption option = CustomOption.options.FirstOrDefault(option => option.optionBehaviour == __instance);
-        if (option == null) return true;
-        option.updateSelection(option.OptionSelection - 1);
-        if (CustomOptionHolder.isMapSelectionOption(option))
-        {
-            var currentGameOptions = GameOptionsManager.Instance.CurrentGameOptions;
-            currentGameOptions.SetByte(ByteOptionNames.MapId, (byte)option.OptionSelection);
-            GameOptionsManager.Instance.GameHostOptions = GameOptionsManager.Instance.CurrentGameOptions;
-            GameManager.Instance.LogicOptions.SyncOptions();
-        }
-
+        if (!CustomOptionManager.Instance.TryGetOption(__instance, out var option)) return true;
+        option.OptionSelection.Decrease();
         return false;
     }
 }
@@ -830,7 +820,7 @@ public class RpcSyncSettingsPatch
 {
     public static void Postfix()
     {
-        CustomOptionManager.Instance.ShareAllOption();
+        CustomOptionManager.Instance.ShareAllOptionSelection();
         CustomOptionManager.Instance.saveVanillaOptions();
     }
 }
@@ -936,7 +926,7 @@ internal class GameOptionsDataPatch
     {
         var sb = new StringBuilder("\n");
         var options = CustomOption.options.Where(o => o.type == type);
-        if (TORMapOptions.gameMode == CustomGamemodes.Guesser)
+        if (TORMapOptions.gameMode == Helper.CustomGameModes.Guesser)
         {
             if (type == CustomOption.CustomOptionType.General)
                 options = CustomOption.options.Where(o =>
@@ -944,18 +934,18 @@ internal class GameOptionsDataPatch
             List<int> remove = [308, 310, 311, 312, 313, 314, 315, 316, 317, 318];
             options = options.Where(x => !remove.Contains(x.id));
         }
-        else if (TORMapOptions.gameMode == CustomGamemodes.Classic)
+        else if (TORMapOptions.gameMode == Helper.CustomGameModes.Classic)
         {
             options = options.Where(x =>
                 !(x.type == CustomOption.CustomOptionType.Guesser || x == CustomOptionHolder.crewmateRolesFill));
         }
-        else if (TORMapOptions.gameMode == CustomGamemodes.HideNSeek)
+        else if (TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek)
         {
             options = options.Where(x =>
                 x.type == CustomOption.CustomOptionType.HideNSeekMain ||
                 x.type == CustomOption.CustomOptionType.HideNSeekRoles);
         }
-        else if (TORMapOptions.gameMode == CustomGamemodes.PropHunt)
+        else if (TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt)
         {
             options = options.Where(x => x.type == CustomOption.CustomOptionType.PropHunt);
         }
@@ -989,9 +979,9 @@ internal class GameOptionsDataPatch
 
         foreach (CustomOption option in options)
         {
-            if (TORMapOptions.gameMode == CustomGamemodes.HideNSeek && option.type != CustomOptionType.HideNSeekMain &&
+            if (TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek && option.type != CustomOptionType.HideNSeekMain &&
                 option.type != CustomOptionType.HideNSeekRoles) continue;
-            if (TORMapOptions.gameMode == CustomGamemodes.PropHunt &&
+            if (TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt &&
                 option.type != CustomOptionType.PropHunt) continue;
             if (option.parent != null)
             {
@@ -1085,7 +1075,7 @@ internal class GameOptionsDataPatch
             ? Helpers.cs(DateTime.Now.Second % 2 == 0 ? Color.white : Color.red, "(Use scroll wheel if necessary)\n\n")
             : "";
 
-        if (TORMapOptions.gameMode == CustomGamemodes.HideNSeek)
+        if (TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek)
         {
             if (TheOtherRolesPlugin.optionsPage > 1) TheOtherRolesPlugin.optionsPage = 0;
             maxPage = 2;
@@ -1101,7 +1091,7 @@ internal class GameOptionsDataPatch
                     break;
             }
         }
-        else if (TORMapOptions.gameMode == CustomGamemodes.PropHunt)
+        else if (TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt)
         {
             maxPage = 1;
             switch (counter)

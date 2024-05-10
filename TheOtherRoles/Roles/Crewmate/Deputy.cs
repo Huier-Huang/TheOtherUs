@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Hazel;
 using TheOtherRoles.Objects;
+using TheOtherRoles.Options;
 using TheOtherRoles.Roles.Neutral;
 using TMPro;
 using UnityEngine;

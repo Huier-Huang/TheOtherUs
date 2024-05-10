@@ -300,7 +300,7 @@ public class OnGameEndPatch
             .TotalMilliseconds / 1000;
 
         // Reset Settings
-        if (TORMapOptions.gameMode == CustomGamemodes.HideNSeek) ShipStatusPatch.resetVanillaSettings();
+        if (TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek) ShipStatusPatch.resetVanillaSettings();
         RPCProcedure.resetVariables();
     }
 }

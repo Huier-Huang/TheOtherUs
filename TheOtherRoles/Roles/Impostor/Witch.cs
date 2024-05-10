@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Hazel;
 using TheOtherRoles.Objects;
+using TheOtherRoles.Options;
 using TheOtherRoles.Patches;
 using TheOtherRoles.Roles.Modifier;
 using TheOtherRoles.Roles.Neutral;

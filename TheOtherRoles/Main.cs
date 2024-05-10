@@ -13,6 +13,7 @@ using Reactor.Networking;
 using Reactor.Networking.Attributes;
 using TheOtherRoles.Modules.CustomHats;
 using TheOtherRoles.Modules.Languages;
+using TheOtherRoles.Options;
 using TheOtherRoles.Patches;
 using UnityEngine;
 using Object = UnityEngine.Object;

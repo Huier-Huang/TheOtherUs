@@ -10,6 +10,16 @@ public static class RoleHelper
 {
     public static readonly CustomRoleManager _RoleManager = CustomRoleManager.Instance;
 
+    public static bool PlayerIsAlive<T>() where T : RoleBase
+    {
+        return GetPlayer<T>().isAlive();
+    }
+
+    public static bool RoleIsAlive<T>() where T : RoleBase
+    {
+        return _RoleManager._AllActiveRole.Contains(Get<T>());
+    }
+
     public static bool Is<T>(this PlayerControl player) where T : RoleBase
     {
         return _RoleManager.PlayerAndRoles[Get<T>()].Contains(player);
@@ -33,6 +43,11 @@ public static class RoleHelper
     public static Color GetColor<T>() where T : RoleBase
     {
         return Roles.RoleInfo.AllRoleInfo.FirstOrDefault(n => n.RoleClassType == typeof(T))!.Color;
+    }
+
+    public static PlayerControl GetPlayer<T>() where T : RoleBase
+    {
+        return _RoleManager.PlayerAndRoles[Get<T>()].First();
     }
 
     public static RoleBase GetRole(this PlayerControl player)
