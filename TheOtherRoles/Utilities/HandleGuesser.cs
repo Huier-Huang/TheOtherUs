@@ -1,7 +1,4 @@
-﻿using TheOtherRoles.CustomGameModes;
-using UnityEngine;
-
-namespace TheOtherRoles.Utilities;
+﻿namespace TheOtherRoles.Utilities;
 
 /*public static class HandleGuesser {
     private static Sprite targetSprite;

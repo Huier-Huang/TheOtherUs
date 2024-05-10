@@ -22,13 +22,13 @@ public class GameStartManagerPatch
         return __instance.GameStartText.text.Contains(
             FastDestroyableSingleton<TranslationController>.Instance.GetString(StringNames.GameStarting, array));
     }
-    
+
     [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnGameEnd))]
     public class AmongUsClientOnGameEndPatch
     {
         public static void Postfix(AmongUsClient __instance)
         {
-            if (AmongUsClient.Instance.AmHost) 
+            if (AmongUsClient.Instance.AmHost)
                 HandshakeHelper.ShareGameMode();
         }
     }
@@ -38,7 +38,7 @@ public class GameStartManagerPatch
     {
         public static void Postfix(AmongUsClient __instance)
         {
-            if (AmongUsClient.Instance.AmHost) 
+            if (AmongUsClient.Instance.AmHost)
                 HandshakeHelper.ShareGameMode();
 
             HandshakeHelper.shareGameVersion();

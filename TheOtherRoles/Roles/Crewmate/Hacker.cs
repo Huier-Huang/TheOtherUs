@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace TheOtherRoles.Roles.Crewmate;
@@ -27,6 +26,9 @@ public class Hacker : RoleBase
     public float toolsNumber = 5f;
     public Minigame vitals;
     private Sprite vitalsSprite;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public Sprite getButtonSprite()
     {
@@ -90,7 +92,4 @@ public class Hacker : RoleBase
         chargesAdminTable = Mathf.RoundToInt(CustomOptionHolder.hackerToolsNumber.getFloat()) / 2;
         cantMove = CustomOptionHolder.hackerNoMove.getBool();
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

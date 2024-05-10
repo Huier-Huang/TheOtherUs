@@ -5,12 +5,13 @@ namespace TheOtherRoles.Modules.Languages;
 
 public class ExcelLoader : LanguageLoaderBase
 {
+    private bool Seted;
+
     public ExcelLoader()
     {
         Filter = [".excel", ".xls", ".xlsx"];
     }
 
-    private bool Seted;
     private void Set()
     {
         if (Seted) return;
@@ -30,13 +31,9 @@ public class ExcelLoader : LanguageLoaderBase
             {
                 var key = worksheet.Cells[r, worksheet.Columns.StartColumn].Text;
                 var value = worksheet.Cells[r, c].Text;
-                if (key.IsNullOrWhiteSpace() || value.IsNullOrWhiteSpace())
-                {
-                    break;
-                }
+                if (key.IsNullOrWhiteSpace() || value.IsNullOrWhiteSpace()) break;
                 _manager.AddToMap(lang, key, value, nameof(ExcelLoader));
             }
         }
     }
-    
 }

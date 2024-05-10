@@ -60,8 +60,9 @@ public class FastRpcWriter
         writer.StartRPCMessage();
         return writer;
     }
-    
-    internal static FastRpcWriter StartNewRpcWriter(CustomRPC rpc, InnerNetObject obNetObject, SendOption option = SendOption.Reliable,
+
+    internal static FastRpcWriter StartNewRpcWriter(CustomRPC rpc, InnerNetObject obNetObject,
+        SendOption option = SendOption.Reliable,
         RPCSendMode mode = RPCSendMode.SendToAll, int TargetId = -1)
     {
         var writer = StartNewRpcWriter(rpc, option, mode, TargetId, obNetObject.NetId);
@@ -198,25 +199,25 @@ public class FastRpcWriter
         writer?.Write(value.height);
         return this;
     }
-    
+
     public FastRpcWriter Write(PlayerControl value)
     {
         writer?.Write(value.PlayerId);
         return this;
     }
-    
+
     public FastRpcWriter Write(MessageWriter value, bool includeHeader)
     {
         writer?.Write(value, includeHeader);
         return this;
     }
-    
+
     public FastRpcWriter WriteWriter(MessageWriter value, bool includeHeader)
     {
         Write(value.ToByteArray(includeHeader), true);
         return this;
     }
-    
+
     public FastRpcWriter Write(Il2CppStructArray<byte> value, bool writeLength = false)
     {
         if (writeLength)
@@ -224,7 +225,7 @@ public class FastRpcWriter
         writer?.Write(value);
         return this;
     }
-    
+
     public FastRpcWriter Write(Il2CppStructArray<byte> value, int offset, int length)
     {
         writer?.Write(value, offset, length);
@@ -241,23 +242,23 @@ public class FastRpcWriter
                 case byte _byte:
                     Write(_byte);
                     break;
-                
+
                 case string _string:
                     Write(_string);
                     break;
-                
+
                 case float _float:
                     Write(_float);
                     break;
-                
+
                 case int _int:
                     Write(_int);
                     break;
-                
+
                 case bool _bool:
                     Write(_bool);
                     break;
-                
+
                 case byte[] _bytes:
                     Write(_bytes);
                     break;
@@ -330,8 +331,15 @@ public class FastRpcWriter
         Recycle();
     }
 
-    public static implicit operator MessageWriter(FastRpcWriter writer) => writer.writer ??= MessageWriter.Get(writer.Option);
-    public static implicit operator FastRpcWriter(MessageWriter writer) => new() { writer = writer, Option =  writer.SendOption};
+    public static implicit operator MessageWriter(FastRpcWriter writer)
+    {
+        return writer.writer ??= MessageWriter.Get(writer.Option);
+    }
+
+    public static implicit operator FastRpcWriter(MessageWriter writer)
+    {
+        return new FastRpcWriter { writer = writer, Option = writer.SendOption };
+    }
 }
 
 public static class FastRPCExtension
@@ -359,19 +367,19 @@ public static class FastRPCExtension
         var height = reader.ReadSingle();
         return new Rect(x, y, width, height);
     }
-    
+
     public static PlayerControl ReadPlayer(this MessageReader reader)
     {
         var id = reader.ReadByte();
         return CachedPlayer.AllPlayers.FirstOrDefault(n => n.PlayerId == id);
     }
-    
+
     public static Il2CppStructArray<byte> ReadBytesFormLength(this MessageReader reader)
     {
         var length = reader.ReadPackedInt32();
         return reader.ReadBytes(length);
     }
-    
+
     public static MessageReader ReadReader(this MessageReader reader)
     {
         return MessageReader.Get(reader.ReadBytesFormLength());
@@ -390,8 +398,8 @@ public enum RPCSendMode
 internal class RPCListener : RegisterAttribute
 {
     private static readonly List<RPCListener> _allListeners = [];
-    public Action<MessageReader> OnRPC = null!;
     private readonly CustomRPC RPCId;
+    public Action<MessageReader> OnRPC = null!;
 
     public RPCListener(CustomRPC rpc)
     {
@@ -413,7 +421,8 @@ internal class RPCListener : RegisterAttribute
         });
     }
 
-    [HarmonyPatch(typeof(InnerNetClient._HandleGameDataInner_d__39), nameof(InnerNetClient._HandleGameDataInner_d__39.MoveNext))]
+    [HarmonyPatch(typeof(InnerNetClient._HandleGameDataInner_d__39),
+        nameof(InnerNetClient._HandleGameDataInner_d__39.MoveNext))]
     [HarmonyPrefix]
     private static void InnerNet_ReaderPath(InnerNetClient._HandleGameDataInner_d__39 __instance)
     {
@@ -422,7 +431,7 @@ internal class RPCListener : RegisterAttribute
         var reader = __instance.reader;
 
         if (__instance.__1__state != 0) return;
-        
+
         var HandleReader = MessageReader.Get(reader);
         HandleReader.Position = 0;
         var tag = reader.Tag;
@@ -430,7 +439,7 @@ internal class RPCListener : RegisterAttribute
             goto recycle;
         var objetId = HandleReader.ReadPackedUInt32();
         var callId = HandleReader.ReadByte();
-        if (_allListeners.All(n => n.RPCId != (CustomRPC)callId)) 
+        if (_allListeners.All(n => n.RPCId != (CustomRPC)callId))
             goto recycle;
         try
         {
@@ -446,11 +455,10 @@ internal class RPCListener : RegisterAttribute
         {
             HandleReader.Recycle();
         }
-        
+
         return;
         recycle:
-          HandleReader.Recycle();
-          return;
+        HandleReader.Recycle();
     }
 }
 

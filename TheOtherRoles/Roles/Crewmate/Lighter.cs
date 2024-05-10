@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace TheOtherRoles.Roles.Crewmate;
@@ -14,6 +13,9 @@ public class Lighter : RoleBase
     public static float lighterModeLightsOffVision = 0.75f;
     public static float flashlightWidth = 0.75f;
 
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
+
     public override void ClearAndReload()
     {
         lighter = null;
@@ -21,7 +23,4 @@ public class Lighter : RoleBase
         lighterModeLightsOnVision = CustomOptionHolder.lighterModeLightsOnVision.getFloat();
         lighterModeLightsOffVision = CustomOptionHolder.lighterModeLightsOffVision.getFloat();
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

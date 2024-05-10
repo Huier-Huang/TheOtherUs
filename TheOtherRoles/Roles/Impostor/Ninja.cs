@@ -1,43 +1,44 @@
 using System;
-using System.Collections.Generic;
 using Hazel;
-using TheOtherRoles.Modules.Options;
 using TheOtherRoles.Objects;
 using TheOtherRoles.Patches;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace TheOtherRoles.Roles.Impostor;
 
 [RegisterRole]
 public class Ninja : RoleBase
 {
-    public PlayerControl ninja;
+    public Arrow arrow = new(Color.black);
     public Color color = Palette.ImpostorRed;
 
-    public PlayerControl ninjaMarked;
-    public PlayerControl currentTarget;
-
     public float cooldown = 30f;
-    public float traceTime = 1f;
-
-    public bool knowsTargetLocation;
+    public PlayerControl currentTarget;
     public float invisibleDuration = 5f;
 
     public float invisibleTimer;
     public bool isInvisble;
+    private readonly ResourceSprite KillButtonSprite = new("NinjaAssassinateButton.png");
 
-    private ResourceSprite MarkButtonSprite = new("NinjaMarkButton.png");
-    private ResourceSprite KillButtonSprite = new("NinjaAssassinateButton.png");
-    
-    public Arrow arrow = new(Color.black);
+    public bool knowsTargetLocation;
+
+    private readonly ResourceSprite MarkButtonSprite = new("NinjaMarkButton.png");
+    public PlayerControl ninja;
+    public CustomButton ninjaButton;
+    public CustomOption ninjaCooldown;
+    public CustomOption ninjaInvisibleDuration;
+    public CustomOption ninjaKnowsTargetLocation;
+
+    public PlayerControl ninjaMarked;
 
     public CustomOption ninjaSpawnRate;
-    public CustomOption ninjaCooldown;
-    public CustomOption ninjaKnowsTargetLocation;
-    public CustomOption ninjaTraceTime;
     public CustomOption ninjaTraceColorTime;
-    public CustomOption ninjaInvisibleDuration;
-    public CustomButton ninjaButton;
+    public CustomOption ninjaTraceTime;
+    public float traceTime = 1f;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public override void ClearAndReload()
     {
@@ -49,22 +50,22 @@ public class Ninja : RoleBase
         invisibleDuration = ninjaInvisibleDuration.getFloat();
         invisibleTimer = 0f;
         isInvisble = false;
-        if (arrow?.arrow != null) UnityEngine.Object.Destroy(arrow.arrow);
+        if (arrow?.arrow != null) Object.Destroy(arrow.arrow);
         arrow = new Arrow(Color.black);
         if (arrow.arrow != null) arrow.arrow.SetActive(false);
     }
 
     public override void OptionCreate()
     {
-
         ninjaSpawnRate = new CustomOption(380, "Ninja".ColorString(color), CustomOptionHolder.rates, null, true);
         ninjaCooldown = new CustomOption(381, "Ninja Mark Cooldown", 30f, 10f, 120f, 5f, ninjaSpawnRate);
         ninjaKnowsTargetLocation = new CustomOption(382, "Ninja Knows Location Of Target", true, ninjaSpawnRate);
         ninjaTraceTime = new CustomOption(383, "Trace Duration", 5f, 1f, 20f, 0.5f, ninjaSpawnRate);
-        ninjaTraceColorTime = new CustomOption(384, "Time Till Trace Color Has Faded", 2f, 0f, 20f, 0.5f, ninjaSpawnRate);
+        ninjaTraceColorTime =
+            new CustomOption(384, "Time Till Trace Color Has Faded", 2f, 0f, 20f, 0.5f, ninjaSpawnRate);
         ninjaInvisibleDuration = new CustomOption(385, "Time The Ninja Is Invisible", 3f, 0f, 20f, 1f, ninjaSpawnRate);
-
     }
+
     public override void ButtonCreate(HudManager _hudManager)
     {
         // Ninja mark and assassinate button 
@@ -173,8 +174,8 @@ public class Ninja : RoleBase
                     ? KillButtonSprite
                     : MarkButtonSprite;
                 return (currentTarget != null || (ninjaMarked != null &&
-                                                        !TransportationToolPatches.isUsingTransportation(
-                                                            ninjaMarked))) && CachedPlayer.LocalPlayer
+                                                  !TransportationToolPatches.isUsingTransportation(
+                                                      ninjaMarked))) && CachedPlayer.LocalPlayer
                     .PlayerControl.CanMove;
             },
             () =>
@@ -189,12 +190,9 @@ public class Ninja : RoleBase
             KeyCode.F
         );
     }
+
     public override void ResetCustomButton()
     {
         ninjaButton.MaxTimer = cooldown;
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
-    
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace TheOtherRoles.Roles.Neutral;
@@ -7,19 +6,24 @@ namespace TheOtherRoles.Roles.Neutral;
 [RegisterRole]
 public class Lawyer : RoleBase
 {
-    public PlayerControl lawyer;
-    public PlayerControl target;
-    public Color color = new Color32(134, 153, 25, byte.MaxValue);
-    /*public ResourceSprite targetSprite;*/
-    public bool triggerProsecutorWin;
-    public bool isProsecutor;
     public bool canCallEmergency = true;
+    public Color color = new Color32(134, 153, 25, byte.MaxValue);
+    public bool isProsecutor;
+    public PlayerControl lawyer;
+    public bool lawyerKnowsRole;
+    public PlayerControl target;
+    public bool targetCanBeJester;
     public bool targetKnows;
 
-    public float vision = 1f;
-    public bool lawyerKnowsRole;
-    public bool targetCanBeJester;
     public bool targetWasGuessed;
+
+    /*public ResourceSprite targetSprite;*/
+    public bool triggerProsecutorWin;
+
+    public float vision = 1f;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     /*public static Sprite getTargetSprite()
     {
@@ -40,7 +44,4 @@ public class Lawyer : RoleBase
         targetCanBeJester = CustomOptionHolder.lawyerTargetCanBeJester.getBool();
         canCallEmergency = CustomOptionHolder.lawyerCanCallEmergency.getBool();
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

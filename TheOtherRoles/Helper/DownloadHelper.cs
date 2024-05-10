@@ -10,21 +10,19 @@ public static class DownloadHelper
 
     public static bool IsCN()
     {
-        return RegionInfo.CurrentRegion.ThreeLetterISORegionName == "CHN" 
-               || 
+        return RegionInfo.CurrentRegion.ThreeLetterISORegionName == "CHN"
+               ||
                (SupportedLangs)LegacySaveManager.LastLanguage == SupportedLangs.SChinese
-               || 
+               ||
                LanguageManager.Instance.CurrentLang == SupportedLangs.SChinese;
     }
 
     public static string GithubUrl(this string url)
     {
         if (IsCN() && !url.Contains(FastUrl))
-        {
             return url
                 .Replace("https://github.com", $"{FastUrl}/https://github.com")
                 .Replace("https://raw.githubusercontent.com", $"{FastUrl}/https://raw.githubusercontent.com");
-        }
 
         return url;
     }

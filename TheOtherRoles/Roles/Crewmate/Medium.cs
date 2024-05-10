@@ -10,23 +10,26 @@ namespace TheOtherRoles.Roles.Crewmate;
 [RegisterRole]
 public class Medium : RoleBase
 {
-    public PlayerControl medium;
-    public DeadPlayer target;
-    public DeadPlayer soulTarget;
+    public float chanceAdditionalInfo;
     public Color color = new Color32(98, 120, 115, byte.MaxValue);
-    public List<Tuple<DeadPlayer, Vector3>> deadBodies = [];
-    public List<Tuple<DeadPlayer, Vector3>> futureDeadBodies = [];
-    public List<SpriteRenderer> souls = [];
-    public DateTime meetingStartTime = DateTime.UtcNow;
 
     public float cooldown = 30f;
+    public List<Tuple<DeadPlayer, Vector3>> deadBodies = [];
     public float duration = 3f;
+    public List<Tuple<DeadPlayer, Vector3>> futureDeadBodies = [];
+    public PlayerControl medium;
+    public DateTime meetingStartTime = DateTime.UtcNow;
     public bool oneTimeUse;
-    public float chanceAdditionalInfo;
 
-    private ResourceSprite soulSprite = new ("Soul.png", 500f);
+    private ResourceSprite question = new("MediumButton.png");
+    public List<SpriteRenderer> souls = [];
 
-    private ResourceSprite question = new ("MediumButton.png");
+    private ResourceSprite soulSprite = new("Soul.png", 500f);
+    public DeadPlayer soulTarget;
+    public DeadPlayer target;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public override void ClearAndReload()
     {
@@ -42,9 +45,6 @@ public class Medium : RoleBase
         oneTimeUse = CustomOptionHolder.mediumOneTimeUse.getBool();
         chanceAdditionalInfo = CustomOptionHolder.mediumChanceAdditionalInfo.getSelection() / 10f;
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 
     public string getInfo(PlayerControl target, PlayerControl killer)
     {
@@ -113,7 +113,7 @@ public class Medium : RoleBase
             var randomNumber = ListHelper.Random(4);
             var typeOfColor = Helpers.isLighterColor(this.target.killerIfExisting) ? "lighter" : "darker";
             var timeSinceDeath = (float)(meetingStartTime - this.target.timeOfDeath).TotalMilliseconds;
-            var roleString = global::TheOtherRoles.RoleInfo.GetRolesString(this.target.player, false);
+            var roleString = TheOtherRoles.RoleInfo.GetRolesString(this.target.player, false);
             if (randomNumber == 0)
             {
                 if (!roleString.Contains("Impostor") && !roleString.Contains("Crewmate"))
@@ -133,7 +133,7 @@ public class Medium : RoleBase
             else
             {
                 msg = "It seems like my killer is the " +
-                      global::TheOtherRoles.RoleInfo.GetRolesString(this.target.killerIfExisting, false, false, true) + ".";
+                      TheOtherRoles.RoleInfo.GetRolesString(this.target.killerIfExisting, false, false, true) + ".";
             }
         }
 
@@ -146,8 +146,15 @@ public class Medium : RoleBase
             {
                 case 0:
                     count = alivePlayersList.Count(pc => pc.Data.Role.IsImpostor ||
-                                                         new List<global::TheOtherRoles.RoleInfo> { global::TheOtherRoles.RoleInfo.jackal, global::TheOtherRoles.RoleInfo.sidekick, global::TheOtherRoles.RoleInfo.sheriff, global::TheOtherRoles.RoleInfo.thief }
-                                                             .Contains(global::TheOtherRoles.RoleInfo.getRoleInfoForPlayer(pc, false).FirstOrDefault()));
+                                                         new List<TheOtherRoles.RoleInfo>
+                                                             {
+                                                                 TheOtherRoles.RoleInfo.jackal,
+                                                                 TheOtherRoles.RoleInfo.sidekick,
+                                                                 TheOtherRoles.RoleInfo.sheriff,
+                                                                 TheOtherRoles.RoleInfo.thief
+                                                             }
+                                                             .Contains(TheOtherRoles.RoleInfo
+                                                                 .getRoleInfoForPlayer(pc, false).FirstOrDefault()));
                     condition = "killer" + (count == 1 ? "" : "s");
                     break;
                 case 1:

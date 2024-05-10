@@ -8,29 +8,29 @@ namespace TheOtherRoles.Roles.Neutral;
 [RegisterRole]
 public class Guesser : RoleBase
 {
-    public PlayerControl niceGuesser;
+    public bool assassinKillsThroughShield = true;
+    public bool assassinMultipleShotsPerMeeting;
+    public Color color = new Color32(255, 255, 0, byte.MaxValue);
 
     //public static PlayerControl evilGuesser;
     public List<PlayerControl> evilGuesser = [];
-    public Color color = new Color32(255, 255, 0, byte.MaxValue);
+    public bool evilGuesserCanGuessCrewmate = true;
+    public bool evilGuesserCanGuessSpy = true;
+    public bool guesserCantGuessSnitch;
+    public bool hasMultipleShotsPerMeeting;
+    public bool killsThroughShield = true;
+    public PlayerControl niceGuesser;
 
     public int remainingShotsEvilGuesser = 2;
     public int remainingShotsNiceGuesser = 2;
-    public bool hasMultipleShotsPerMeeting;
-    public bool assassinMultipleShotsPerMeeting;
     public bool showInfoInGhostChat = true;
-    public bool killsThroughShield = true;
-    public bool assassinKillsThroughShield = true;
-    public bool evilGuesserCanGuessSpy = true;
-    public bool guesserCantGuessSnitch;
-    public bool evilGuesserCanGuessCrewmate = true;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public bool isGuesser(byte playerId)
     {
-        if (evilGuesser.Any(item => item.PlayerId == playerId && evilGuesser != null))
-        {
-            return true;
-        }
+        if (evilGuesser.Any(item => item.PlayerId == playerId && evilGuesser != null)) return true;
         return niceGuesser != null && niceGuesser.PlayerId == playerId;
     }
 
@@ -72,7 +72,4 @@ public class Guesser : RoleBase
         evilGuesserCanGuessSpy = CustomOptionHolder.guesserEvilCanKillSpy.getBool();
         evilGuesserCanGuessCrewmate = CustomOptionHolder.guesserEvilCanKillCrewmate.getBool();
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

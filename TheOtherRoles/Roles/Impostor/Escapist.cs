@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using Hazel;
-using TheOtherRoles.Modules.Options;
 using TheOtherRoles.Objects;
 using UnityEngine;
 
@@ -10,28 +8,32 @@ namespace TheOtherRoles.Roles.Impostor;
 [RegisterRole]
 public class Escapist : RoleBase
 {
-    public PlayerControl escapist;
-    public Color color = Palette.ImpostorRed;
-    public float EscapeTime = 30f;
     public float ChargesOnPlace = 1f;
-    public bool resetPlaceAfterMeeting;
-    //public float escapistChargesGainOnMeeting = 2f;
-    //public float escapistMaxCharges = 3f;
-    public float escapistCharges = 1f;
+    public Color color = Palette.ImpostorRed;
+    private readonly ResourceSprite escapeButtonSprite = new("Recall.png");
     public Vector3 escapeLocation;
 
-    private ResourceSprite escapeMarkButtonSprite = new ("Mark.png");
-    private ResourceSprite escapeButtonSprite = new ("Recall.png");
-    public bool usedPlace;
+    private readonly ResourceSprite escapeMarkButtonSprite = new("Mark.png");
+    public float EscapeTime = 30f;
 
-    public CustomOption escapistSpawnRate;
-    public CustomOption escapistEscapeTime;
-    public CustomOption escapistChargesOnPlace;
-    public CustomOption escapistResetPlaceAfterMeeting;
+    public PlayerControl escapist;
     //public CustomOption escapistChargesGainOnMeeting;
     //public CustomOption escapistMaxCharges;
 
     private CustomButton escapistButton;
+
+    //public float escapistChargesGainOnMeeting = 2f;
+    //public float escapistMaxCharges = 3f;
+    public float escapistCharges = 1f;
+    public CustomOption escapistChargesOnPlace;
+    public CustomOption escapistEscapeTime;
+    public CustomOption escapistResetPlaceAfterMeeting;
+
+    public CustomOption escapistSpawnRate;
+    public bool resetPlaceAfterMeeting;
+    public bool usedPlace;
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public void resetPlaces()
     {
@@ -53,18 +55,20 @@ public class Escapist : RoleBase
         //escapistMaxCharges = escapistMaxCharges.getFloat();
         usedPlace = false;
     }
+
     public override void OptionCreate()
     {
-        escapistSpawnRate = new CustomOption(905000, "Escapist".ColorString(color), CustomOptionHolder.rates, null, true);
+        escapistSpawnRate =
+            new CustomOption(905000, "Escapist".ColorString(color), CustomOptionHolder.rates, null, true);
         escapistEscapeTime = new CustomOption(905100, "Mark and Escape Cooldown", 30, 0, 60, 5, escapistSpawnRate);
         escapistChargesOnPlace = new CustomOption(905200, "Charges On Place", 1, 1, 10, 1, escapistSpawnRate);
         //escapistResetPlaceAfterMeeting = new CustomOption(9052, "Reset Places After Meeting", true, jumperSpawnRate);
         //escapistChargesGainOnMeeting = new CustomOption(9053, "Charges Gained After Meeting", 2, 0, 10, 1, jumperSpawnRate);
         //escapistMaxCharges = new CustomOption(905400, "Maximum Charges", 3, 0, 10, 1, escapistSpawnRate);
     }
+
     public override void ButtonCreate(HudManager _hudManager)
     {
-
         // Escapist Escape
         escapistButton = new CustomButton(
             () =>
@@ -123,12 +127,9 @@ public class Escapist : RoleBase
             KeyCode.F
         );
     }
+
     public override void ResetCustomButton()
     {
         escapistButton.MaxTimer = escapistEscapeTime;
-
     }
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
-    
 }

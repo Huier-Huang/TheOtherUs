@@ -6,17 +6,20 @@ namespace TheOtherRoles.Modules.Options;
 
 public class OptionPreset
 {
-    [JsonInclude]
-    public HashSet<CustomOption> options = [];
+    [JsonInclude] public HashSet<CustomOption> options = [];
 
-    [JsonInclude]
-    public string PresetName { get; set; }
-    
-    [JsonInclude]
-    public int PresetId { get; set; }
+    [JsonInclude] public string PresetName { get; set; }
 
-    public static OptionPreset Load(string preset) => JsonSerializer.Deserialize<OptionPreset>(preset);
+    [JsonInclude] public int PresetId { get; set; }
+
+    public static OptionPreset Load(string preset)
+    {
+        return JsonSerializer.Deserialize<OptionPreset>(preset);
+    }
 
 
-    public string Serialize() => JsonSerializer.Serialize(this);
+    public string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
+    }
 }

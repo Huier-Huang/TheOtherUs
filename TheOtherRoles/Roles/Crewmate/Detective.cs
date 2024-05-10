@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using TheOtherRoles.Modules.Options;
 using UnityEngine;
 
 namespace TheOtherRoles.Roles.Crewmate;
@@ -11,19 +9,22 @@ public class Detective : RoleBase
     public bool anonymousFootprints;
     public Color color = new Color32(8, 180, 180, byte.MaxValue);
     public PlayerControl detective;
+    public CustomOption detectiveAnonymousFootprints;
+    public CustomOption detectiveFootprintDuration;
+    public CustomOption detectiveFootprintIntervall;
+    public CustomOption detectiveReportColorDuration;
+    public CustomOption detectiveReportNameDuration;
+
+    public CustomOption detectiveSpawnRate;
     public float footprintDuration = 1f;
 
     public float footprintIntervall = 1f;
     public float reportColorDuration = 20f;
     public float reportNameDuration;
     public float timer = 6.2f;
-    
-    public CustomOption detectiveSpawnRate;
-    public CustomOption detectiveAnonymousFootprints;
-    public CustomOption detectiveFootprintIntervall;
-    public CustomOption detectiveFootprintDuration;
-    public CustomOption detectiveReportNameDuration;
-    public CustomOption detectiveReportColorDuration;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public override void ClearAndReload()
     {
@@ -51,7 +52,4 @@ public class Detective : RoleBase
         detectiveReportColorDuration = new CustomOption(125,
             "Time Where Investigator Reports Will Have Color Type", 20, 0, 120, 2.5f, detectiveSpawnRate);
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

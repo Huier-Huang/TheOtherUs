@@ -1,22 +1,20 @@
 using System;
 using System.Collections.Generic;
-using Hazel;
-using TheOtherRoles.Modules.Options;
-using TheOtherRoles.Objects;
 using UnityEngine;
-
 
 namespace TheOtherRoles.Roles.Impostor;
 
 [RegisterRole]
 public class Mimic : RoleBase
 {
-    public PlayerControl mimic;
-    public bool hasMimic;
     public Color color = Palette.ImpostorRed;
+    public bool hasMimic;
     public List<PlayerControl> killed = [];
+    public PlayerControl mimic;
 
-    public  CustomOption mimicSpawnRate;
+    public CustomOption mimicSpawnRate;
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
 
     public override void ClearAndReload()
@@ -30,7 +28,4 @@ public class Mimic : RoleBase
     {
         mimicSpawnRate = new CustomOption(8835, "Mimic".ColorString(color), CustomOptionHolder.rates, null, true);
     }
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
-    
 }

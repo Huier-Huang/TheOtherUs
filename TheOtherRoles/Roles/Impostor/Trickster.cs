@@ -1,7 +1,5 @@
-using Hazel;
 using System;
-using System.Collections.Generic;
-using TheOtherRoles.Modules.Options;
+using Hazel;
 using TheOtherRoles.Objects;
 using UnityEngine;
 
@@ -10,24 +8,29 @@ namespace TheOtherRoles.Roles.Impostor;
 [RegisterRole]
 public class Trickster : RoleBase
 {
-    public PlayerControl trickster;
     public Color color = Palette.ImpostorRed;
-    public float placeBoxCooldown = 30f;
+    private readonly ResourceSprite lightOutButtonSprite = new("LightsOutButton.png");
+    private CustomButton lightsOutButton;
     public float lightsOutCooldown = 30f;
     public float lightsOutDuration = 10f;
     public float lightsOutTimer;
 
-    public CustomOption tricksterSpawnRate;
-    public CustomOption tricksterPlaceBoxCooldown;
-    public CustomOption tricksterLightsOutCooldown;
-    public CustomOption tricksterLightsOutDuration;
-
-    private ResourceSprite placeBoxButtonSprite = new("PlaceJackInTheBoxButton.png");
-    private ResourceSprite lightOutButtonSprite = new("LightsOutButton.png");
-    private ResourceSprite tricksterVentButtonSprite = new("TricksterVentButton.png");
+    private readonly ResourceSprite placeBoxButtonSprite = new("PlaceJackInTheBoxButton.png");
+    public float placeBoxCooldown = 30f;
 
     private CustomButton placeJackInTheBoxButton;
-    private CustomButton lightsOutButton;
+    public PlayerControl trickster;
+    public CustomOption tricksterLightsOutCooldown;
+    public CustomOption tricksterLightsOutDuration;
+    public CustomOption tricksterPlaceBoxCooldown;
+
+    public CustomOption tricksterSpawnRate;
+    private ResourceSprite tricksterVentButtonSprite = new("TricksterVentButton.png");
+
+    public override RoleInfo RoleInfo { get; protected set; }
+
+    public override Type RoleType { get; protected set; }
+        = typeof(Tracker);
 
 
     public override void ClearAndReload()
@@ -39,6 +42,7 @@ public class Trickster : RoleBase
         lightsOutDuration = tricksterLightsOutDuration.getFloat();
         JackInTheBox.UpdateStates(); // if the role is erased, we might have to update the state of the created objects
     }
+
     public override void OptionCreate()
     {
         tricksterSpawnRate =
@@ -54,30 +58,30 @@ public class Trickster : RoleBase
     public override void ButtonCreate(HudManager _hudManager)
     {
         placeJackInTheBoxButton = new CustomButton(
-        () =>
-        {
-            placeJackInTheBoxButton.Timer = placeJackInTheBoxButton.MaxTimer;
+            () =>
+            {
+                placeJackInTheBoxButton.Timer = placeJackInTheBoxButton.MaxTimer;
 
-            var pos = CachedPlayer.LocalPlayer.transform.position;
-            var buff = new byte[sizeof(float) * 2];
-            Buffer.BlockCopy(BitConverter.GetBytes(pos.x), 0, buff, 0 * sizeof(float), sizeof(float));
-            Buffer.BlockCopy(BitConverter.GetBytes(pos.y), 0, buff, 1 * sizeof(float), sizeof(float));
+                var pos = CachedPlayer.LocalPlayer.transform.position;
+                var buff = new byte[sizeof(float) * 2];
+                Buffer.BlockCopy(BitConverter.GetBytes(pos.x), 0, buff, 0 * sizeof(float), sizeof(float));
+                Buffer.BlockCopy(BitConverter.GetBytes(pos.y), 0, buff, 1 * sizeof(float), sizeof(float));
 
-            var writer = AmongUsClient.Instance.StartRpc(CachedPlayer.LocalPlayer.Control.NetId,
-                (byte)CustomRPC.PlaceJackInTheBox);
-            writer.WriteBytesAndSize(buff);
-            writer.EndMessage();
-            RPCProcedure.placeJackInTheBox(buff);
-            SoundEffectsManager.play("tricksterPlaceBox");
-        },
-        () => trickster != null && trickster == CachedPlayer.LocalPlayer.Control &&
-              !CachedPlayer.LocalPlayer.Data.IsDead && !JackInTheBox.hasJackInTheBoxLimitReached(),
-        () => CachedPlayer.LocalPlayer.Control.CanMove && !JackInTheBox.hasJackInTheBoxLimitReached(),
-        () => { placeJackInTheBoxButton.Timer = placeJackInTheBoxButton.MaxTimer; },
-        placeBoxButtonSprite,
-        CustomButton.ButtonPositions.upperRowLeft,
-        _hudManager,
-        KeyCode.F
+                var writer = AmongUsClient.Instance.StartRpc(CachedPlayer.LocalPlayer.Control.NetId,
+                    (byte)CustomRPC.PlaceJackInTheBox);
+                writer.WriteBytesAndSize(buff);
+                writer.EndMessage();
+                RPCProcedure.placeJackInTheBox(buff);
+                SoundEffectsManager.play("tricksterPlaceBox");
+            },
+            () => trickster != null && trickster == CachedPlayer.LocalPlayer.Control &&
+                  !CachedPlayer.LocalPlayer.Data.IsDead && !JackInTheBox.hasJackInTheBoxLimitReached(),
+            () => CachedPlayer.LocalPlayer.Control.CanMove && !JackInTheBox.hasJackInTheBoxLimitReached(),
+            () => { placeJackInTheBoxButton.Timer = placeJackInTheBoxButton.MaxTimer; },
+            placeBoxButtonSprite,
+            CustomButton.ButtonPositions.upperRowLeft,
+            _hudManager,
+            KeyCode.F
         );
 
         lightsOutButton = new CustomButton(
@@ -120,9 +124,4 @@ public class Trickster : RoleBase
         placeJackInTheBoxButton.MaxTimer = placeBoxCooldown;
         lightsOutButton.MaxTimer = lightsOutCooldown;
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-
-    public override Type RoleType { get; protected set; }
-        = typeof(Tracker);
 }

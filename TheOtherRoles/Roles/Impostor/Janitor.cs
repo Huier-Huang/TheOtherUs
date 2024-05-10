@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace TheOtherRoles.Roles.Impostor;
@@ -7,20 +6,18 @@ namespace TheOtherRoles.Roles.Impostor;
 [RegisterRole]
 public class Janitor : RoleBase
 {
-    public PlayerControl janitor;
+    private ResourceSprite buttonSprite = new("CleanButton.png");
     public Color color = Palette.ImpostorRed;
 
     public float cooldown = 30f;
+    public PlayerControl janitor;
 
-    private ResourceSprite buttonSprite = new ("CleanButton.png");
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public override void ClearAndReload()
     {
         janitor = null;
         cooldown = CustomOptionHolder.janitorCooldown.getFloat();
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
-    
 }

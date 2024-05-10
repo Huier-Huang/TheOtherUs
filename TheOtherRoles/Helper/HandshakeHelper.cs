@@ -27,7 +27,7 @@ public static class HandshakeHelper
         var mode = reader.ReadByte();
         RPCProcedure.shareGamemode(mode);
     }
-    
+
     public static void ShareGameMode()
     {
         if (CachedPlayer.LocalPlayer == null) return;

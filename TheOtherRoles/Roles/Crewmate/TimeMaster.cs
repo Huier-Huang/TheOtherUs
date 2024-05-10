@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace TheOtherRoles.Roles.Crewmate;
@@ -7,18 +6,20 @@ namespace TheOtherRoles.Roles.Crewmate;
 [RegisterRole]
 public class TimeMaster : RoleBase
 {
-    public PlayerControl timeMaster;
+    private ResourceSprite buttonSprite = new("TimeShieldButton.png");
     public Color color = new Color32(112, 142, 239, byte.MaxValue);
+    public float cooldown = 30f;
+    public bool isRewinding;
 
     public bool reviveDuringRewind = false;
     public float rewindTime = 3f;
-    public float shieldDuration = 3f;
-    public float cooldown = 30f;
 
     public bool shieldActive;
-    public bool isRewinding;
+    public float shieldDuration = 3f;
+    public PlayerControl timeMaster;
 
-    private ResourceSprite buttonSprite = new ("TimeShieldButton.png");
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public override void ClearAndReload()
     {
@@ -29,7 +30,4 @@ public class TimeMaster : RoleBase
         shieldDuration = CustomOptionHolder.timeMasterShieldDuration.getFloat();
         cooldown = CustomOptionHolder.timeMasterCooldown.getFloat();
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

@@ -11,10 +11,13 @@ namespace TheOtherRoles.Roles.Modifier;
 public class Chameleon : RoleBase
 {
     public List<PlayerControl> chameleon = [];
-    public float minVisibility = 0.2f;
-    public float holdDuration = 1f;
     public float fadeDuration = 0.5f;
+    public float holdDuration = 1f;
     public Dictionary<byte, float> lastMoved;
+    public float minVisibility = 0.2f;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public override void ClearAndReload()
     {
@@ -24,9 +27,6 @@ public class Chameleon : RoleBase
         fadeDuration = CustomOptionHolder.modifierChameleonFadeDuration.getFloat();
         minVisibility = CustomOptionHolder.modifierChameleonMinVisibility.getSelection() / 10f;
     }
-
-    public override Roles.RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 
     public float visibility(byte playerId)
     {
@@ -51,20 +51,20 @@ public class Chameleon : RoleBase
     {
         foreach (var chameleonPlayer in chameleon)
         {
-            if 
+            if
             (
                 (
-                    chameleonPlayer.Is<Ninja>() 
-                    && 
+                    chameleonPlayer.Is<Ninja>()
+                    &&
                     Get<Ninja>().isInvisble
-                    ) 
-                || 
+                )
+                ||
                 (
                     chameleonPlayer.Is<Jackal>()
-                    && 
+                    &&
                     Get<Jackal>().isInvisable
-                    ) 
                 )
+            )
                 continue; // Dont make Ninja visible...
             // check movement by animation
             var playerPhysics = chameleonPlayer.MyPhysics;

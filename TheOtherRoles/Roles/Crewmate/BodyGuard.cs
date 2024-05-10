@@ -1,6 +1,5 @@
 using System;
 using Hazel;
-using TheOtherRoles.Modules.Options;
 using TheOtherRoles.Objects;
 using UnityEngine;
 
@@ -10,19 +9,22 @@ namespace TheOtherRoles.Roles.Crewmate;
 public class BodyGuard : RoleBase
 {
     public PlayerControl bodyguard;
+    public CustomOption bodyGuardFlash;
+
+    public CustomButton bodyGuardGuardButton;
+    public CustomOption bodyGuardResetTargetAfterMeeting;
+
+    public CustomOption bodyGuardSpawnRate;
     public Color color = new Color32(145, 102, 64, byte.MaxValue);
     public PlayerControl currentTarget;
-    private ResourceSprite guardButtonSprite = new ("Shield.png");
+    private readonly ResourceSprite guardButtonSprite = new("Shield.png");
     public PlayerControl guarded;
     public bool guardFlash;
     public bool reset = true;
     public bool usedGuard;
-    
-    public CustomOption bodyGuardSpawnRate;
-    public CustomOption bodyGuardFlash;
-    public CustomOption bodyGuardResetTargetAfterMeeting;
-    
-    public CustomButton bodyGuardGuardButton;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public void resetGuarded()
     {
@@ -85,7 +87,4 @@ public class BodyGuard : RoleBase
     {
         bodyGuardGuardButton.MaxTimer = 0f;
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Hazel;
 using Reactor.Utilities;
-using TheOtherRoles.Modules.Options;
 using TheOtherRoles.Objects;
 using TMPro;
 using UnityEngine;
-using static TheOtherRoles.TheOtherRoles;
 using static TheOtherRoles.TORMapOptions;
 using Object = UnityEngine.Object;
 
@@ -874,15 +872,15 @@ internal class MeetingHudPatch
             Bait.active = new Dictionary<DeadPlayer, float>();
             // Save AntiTeleport position, if the player is able to move (i.e. not on a ladder or a gap thingy)
             if (CachedPlayer.LocalPlayer.Physics.enabled && (CachedPlayer.LocalPlayer.Control.moveable ||
-                                                                   CachedPlayer.LocalPlayer.Control.inVent
-                                                                   || HudManagerStartPatch.hackerVitalsButton
-                                                                       .isEffectActive ||
-                                                                   HudManagerStartPatch.hackerAdminTableButton
-                                                                       .isEffectActive || HudManagerStartPatch
-                                                                       .securityGuardCamButton.isEffectActive
-                                                                   || (Portal.isTeleporting &&
-                                                                       Portal.teleportedPlayers.Last().playerId ==
-                                                                       CachedPlayer.LocalPlayer.PlayerId)))
+                                                             CachedPlayer.LocalPlayer.Control.inVent
+                                                             || HudManagerStartPatch.hackerVitalsButton
+                                                                 .isEffectActive ||
+                                                             HudManagerStartPatch.hackerAdminTableButton
+                                                                 .isEffectActive || HudManagerStartPatch
+                                                                 .securityGuardCamButton.isEffectActive
+                                                             || (Portal.isTeleporting &&
+                                                                 Portal.teleportedPlayers.Last().playerId ==
+                                                                 CachedPlayer.LocalPlayer.PlayerId)))
                 if (!CachedPlayer.LocalPlayer.Control.inMovingPlat)
                     AntiTeleport.position = CachedPlayer.LocalPlayer.transform.position;
 
@@ -996,7 +994,7 @@ internal class MeetingHudPatch
                 return;
             playerState.Overlay.gameObject.SetActive(true);
             playerState.Overlay.sprite = Overlay;
-            if (__instance.state == MeetingHud.VoteStates.Animating || shookAlready != false) return;
+            if (__instance.state == MeetingHud.VoteStates.Animating || shookAlready) return;
             shookAlready = true;
             __instance.StartCoroutine(Effects.SwayX(playerState.transform));
         }

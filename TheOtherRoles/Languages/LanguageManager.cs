@@ -1,12 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using AmongUs.Data.Legacy;
 using BepInEx;
-using HarmonyLib;
 
 namespace TheOtherRoles.Modules.Languages;
 
@@ -33,8 +30,8 @@ public class LanguageManager : ManagerBase<LanguageManager>
 
     private readonly List<LanguageLoaderBase> _AllLoader = [];
     internal SupportedLangs? CurrentLang;
-    private Dictionary<SupportedLangs, Dictionary<string, string>> StringMap = null!;
     private bool Loaded;
+    private Dictionary<SupportedLangs, Dictionary<string, string>> StringMap = null!;
 
     public LanguageManager()
     {
@@ -46,10 +43,7 @@ public class LanguageManager : ManagerBase<LanguageManager>
     {
         Info("init stringMap");
         StringMap = new Dictionary<SupportedLangs, Dictionary<string, string>>();
-        foreach (var lang in TextHelper.LangNameDictionary.Keys)
-        {
-            StringMap[lang] = new Dictionary<string, string>();
-        }
+        foreach (var lang in TextHelper.LangNameDictionary.Keys) StringMap[lang] = new Dictionary<string, string>();
     }
 
     public LanguageLoaderBase? GetLoader(string extensionName)
@@ -148,7 +142,6 @@ public class LanguageManager : ManagerBase<LanguageManager>
 [Harmony]
 internal static class LanguageExtension
 {
-    
     [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.Initialize))]
     [HarmonyPostfix]
     private static void OnTranslationController_Initialized_Load(TranslationController __instance)
@@ -156,7 +149,7 @@ internal static class LanguageExtension
         LanguageManager.Instance.CurrentLang = __instance.currentLanguage.languageID;
         Main.OnTranslationController_Initialized_Load();
     }
-    
+
     [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.SetLanguage))]
     [HarmonyPrefix]
     private static void OnTranslationController_SetLanguage([HarmonyArgument(0)] TranslatedImageSet lang)

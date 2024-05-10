@@ -3,15 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains::JetBrains.Annotations;
 
 namespace TheOtherRoles.Modules;
 
 #nullable enable
 public class AttributeManager : ManagerBase<AttributeManager>
 {
-    private readonly Dictionary<Type, object[]> CreateTargets = [];
     private readonly Dictionary<Type, MethodInfo> _methodInfos = [];
+    private readonly Dictionary<Type, object[]> CreateTargets = [];
     private Assembly? targetAssembly;
 
     public AttributeManager Set(Assembly assembly)
@@ -25,10 +24,11 @@ public class AttributeManager : ManagerBase<AttributeManager>
         var types = Assembly.GetCallingAssembly().GetTypes().Where(n => n.IsSubclassOf(typeof(RegisterAttribute)));
         foreach (var type in types)
         {
-            var method =  type.GetMethods(BindingFlags.Static).FirstOrDefault(n => n.Name == "Register");
+            var method = type.GetMethods(BindingFlags.Static).FirstOrDefault(n => n.Name == "Register");
             if (method != null)
                 _methodInfos.Add(type, method);
         }
+
         return this;
     }
 
@@ -44,7 +44,10 @@ public class AttributeManager : ManagerBase<AttributeManager>
         }
     }
 
-    public AttributeManager Add<T>(params object[] Instances) => Add(typeof(T), Instances);
+    public AttributeManager Add<T>(params object[] Instances)
+    {
+        return Add(typeof(T), Instances);
+    }
 
     public AttributeManager Add(Type type, params object[] Instances)
     {

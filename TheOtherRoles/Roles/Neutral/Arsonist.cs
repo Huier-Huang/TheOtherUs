@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using TheOtherRoles.Objects;
 using System.Linq;
-using UnityEngine;
 using Hazel;
-using TheOtherRoles.Modules.Options;
+using TheOtherRoles.Objects;
+using UnityEngine;
 
 namespace TheOtherRoles.Roles.Neutral;
 
@@ -12,24 +11,26 @@ namespace TheOtherRoles.Roles.Neutral;
 public class Arsonist : RoleBase
 {
     public PlayerControl arsonist;
-    public Color color = new Color32(238, 112, 46, byte.MaxValue);
 
-    public float cooldown = 30f;
-    public float duration = 3f;
-    public bool triggerArsonistWin;
-
-    public PlayerControl currentTarget;
-    public PlayerControl douseTarget;
-    public List<PlayerControl> dousedPlayers = [];
-
-    private ResourceSprite douseSprite = new("DouseButton.png");
-    private ResourceSprite igniteSprite = new ("IgniteButton.png");
-
-    public CustomOption arsonistSpawnRate;
+    public CustomButton arsonistButton;
     public CustomOption arsonistCooldown;
     public CustomOption arsonistDuration;
 
-    public CustomButton arsonistButton;
+    public CustomOption arsonistSpawnRate;
+    public Color color = new Color32(238, 112, 46, byte.MaxValue);
+
+    public float cooldown = 30f;
+
+    public PlayerControl currentTarget;
+    public List<PlayerControl> dousedPlayers = [];
+
+    private readonly ResourceSprite douseSprite = new("DouseButton.png");
+    public PlayerControl douseTarget;
+    public float duration = 3f;
+    private readonly ResourceSprite igniteSprite = new("IgniteButton.png");
+    public bool triggerArsonistWin;
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public bool dousedEveryoneAlive()
     {
@@ -59,6 +60,7 @@ public class Arsonist : RoleBase
         arsonistCooldown = new CustomOption(291, "Arsonist Cooldown", 12.5f, 2.5f, 60f, 2.5f, arsonistSpawnRate);
         arsonistDuration = new CustomOption(292, "Arsonist Douse Duration", 3f, 1f, 10f, 1f, arsonistSpawnRate);
     }
+
     public override void ButtonCreate(HudManager _hudManager)
     {
         // Arsonist button
@@ -139,11 +141,10 @@ public class Arsonist : RoleBase
             }
         );
     }
+
     public override void ResetCustomButton()
     {
         arsonistButton.MaxTimer = cooldown;
         arsonistButton.EffectDuration = duration;
     }
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

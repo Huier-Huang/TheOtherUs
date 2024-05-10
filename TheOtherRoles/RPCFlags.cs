@@ -1,7 +1,7 @@
 namespace TheOtherRoles;
 
 public enum CustomRPC : byte
-{ 
+{
     ResetVaribles = 65,
     ForceEnd,
     WorkaroundSetRoles,
@@ -107,7 +107,7 @@ public enum CustomRPC : byte
     // Other functionality
     ShareTimer,
     ShareGhostInfo,
-    
+
     SendFile,
     RoleRPC,
     Option

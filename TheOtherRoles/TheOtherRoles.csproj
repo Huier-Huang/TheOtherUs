@@ -30,7 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="CustomCosmetics\" />
+        <Folder Include="CustomCosmetics\"/>
         <Folder Include="Modules\Components\"/>
     </ItemGroup>
 

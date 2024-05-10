@@ -5,28 +5,12 @@ using UnityEngine;
 
 namespace TheOtherRoles.Utilities;
 
-
 public sealed class CachedPlayer
 {
-    private bool Equals(CachedPlayer other)
-    {
-        return Equals(transform, other.transform) && Equals(Control, other.Control) && Equals(Physics, other.Physics) && Equals(NetTransform, other.NetTransform) && Equals(Data, other.Data) && PlayerId == other.PlayerId;
-    }
-
-    public override bool Equals(object obj)
-    {
-        return ReferenceEquals(this, obj) || obj is CachedPlayer other && Equals(other);
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(transform, Control, Physics, NetTransform);
-    }
-
     public static readonly Dictionary<IntPtr, CachedPlayer> PlayerPtrs = new();
     public static readonly List<CachedPlayer> AllPlayers = [];
     public static CachedPlayer LocalPlayer => PlayerControl.LocalPlayer;
-    
+
     public Transform transform { get; init; }
     public PlayerControl Control { get; init; }
     public PlayerPhysics Physics { get; init; }
@@ -34,27 +18,61 @@ public sealed class CachedPlayer
     public GameData.PlayerInfo Data { get; set; }
     public byte PlayerId { get; set; }
 
+    private bool Equals(CachedPlayer other)
+    {
+        return Equals(transform, other.transform) && Equals(Control, other.Control) && Equals(Physics, other.Physics) &&
+               Equals(NetTransform, other.NetTransform) && Equals(Data, other.Data) && PlayerId == other.PlayerId;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return ReferenceEquals(this, obj) || (obj is CachedPlayer other && Equals(other));
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(transform, Control, Physics, NetTransform);
+    }
+
     public static implicit operator bool(CachedPlayer player)
     {
         return player != null && player.Control;
     }
 
-    public static implicit operator PlayerControl(CachedPlayer player) => player.Control;
-    public static implicit operator PlayerPhysics(CachedPlayer player) => player.Physics;
-    
-    public static implicit operator CachedPlayer(PlayerControl player) => AllPlayers.FirstOrDefault(n => n.Control == player);
-    public static implicit operator CachedPlayer(PlayerPhysics player) => AllPlayers.FirstOrDefault(n => n.Physics == player);
-    
-    public static bool operator ==(CachedPlayer cache, PlayerControl player) => cache != null && player != null && cache.Control == player;
+    public static implicit operator PlayerControl(CachedPlayer player)
+    {
+        return player.Control;
+    }
 
-    public static bool operator !=(CachedPlayer cache, PlayerControl player) => cache == null || player == null || cache.Control != player;
-    
+    public static implicit operator PlayerPhysics(CachedPlayer player)
+    {
+        return player.Physics;
+    }
+
+    public static implicit operator CachedPlayer(PlayerControl player)
+    {
+        return AllPlayers.FirstOrDefault(n => n.Control == player);
+    }
+
+    public static implicit operator CachedPlayer(PlayerPhysics player)
+    {
+        return AllPlayers.FirstOrDefault(n => n.Physics == player);
+    }
+
+    public static bool operator ==(CachedPlayer cache, PlayerControl player)
+    {
+        return cache != null && player != null && cache.Control == player;
+    }
+
+    public static bool operator !=(CachedPlayer cache, PlayerControl player)
+    {
+        return cache == null || player == null || cache.Control != player;
+    }
 }
 
 [HarmonyPatch]
 public static class CachedPlayerPatches
 {
-    
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Awake))]
     [HarmonyPostfix]
     public static void CachePlayerPatch(PlayerControl __instance)

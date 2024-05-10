@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using Hazel;
-using TheOtherRoles.Modules.Options;
 using TheOtherRoles.Objects;
 using TheOtherRoles.Roles.Modifier;
 using UnityEngine;
@@ -11,23 +9,25 @@ namespace TheOtherRoles.Roles.Impostor;
 [RegisterRole]
 public class Warlock : RoleBase
 {
-    public PlayerControl warlock;
     public Color color = Palette.ImpostorRed;
 
+    public float cooldown = 30f;
+
     public PlayerControl currentTarget;
+
+    private readonly ResourceSprite curseButtonSprite = new("CurseButton.png");
+    private readonly ResourceSprite curseKillButtonSprite = new("CurseKillButton.png");
     public PlayerControl curseVictim;
     public PlayerControl curseVictimTarget;
-
-    public float cooldown = 30f;
     public float rootTime = 5f;
-
-    private ResourceSprite curseButtonSprite = new ("CurseButton.png");
-    private ResourceSprite curseKillButtonSprite = new ("CurseKillButton.png");
+    public PlayerControl warlock;
+    public CustomOption warlockCooldown;
+    public CustomButton warlockCurseButton;
+    public CustomOption warlockRootTime;
 
     public CustomOption warlockSpawnRate;
-    public CustomOption warlockCooldown;
-    public CustomOption warlockRootTime;
-    public CustomButton warlockCurseButton;
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public override void ClearAndReload()
     {
@@ -48,12 +48,14 @@ public class Warlock : RoleBase
         curseVictim = null;
         curseVictimTarget = null;
     }
+
     public override void OptionCreate()
     {
         warlockSpawnRate = new CustomOption(270, "Warlock".ColorString(color), CustomOptionHolder.rates, null, true);
         warlockCooldown = new CustomOption(271, "Warlock Cooldown", 30f, 10f, 60f, 2.5f, warlockSpawnRate);
         warlockRootTime = new CustomOption(272, "Warlock Root Time", 5f, 0f, 15f, 1f, warlockSpawnRate);
     }
+
     public override void ButtonCreate(HudManager _hudManager)
     {
         // Warlock curse
@@ -100,7 +102,7 @@ public class Warlock : RoleBase
                             })));
                     }
 
-                   curseVictim = null;
+                    curseVictim = null;
                     curseVictimTarget = null;
                     warlockCurseButton.Sprite = curseButtonSprite;
                     warlock.killTimer = warlockCurseButton.Timer = warlockCurseButton.MaxTimer;
@@ -140,10 +142,9 @@ public class Warlock : RoleBase
             KeyCode.F
         );
     }
+
     public override void ResetCustomButton()
     {
         warlockCurseButton.MaxTimer = cooldown;
     }
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

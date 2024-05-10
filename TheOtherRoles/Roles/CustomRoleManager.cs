@@ -5,17 +5,16 @@ namespace TheOtherRoles.Roles;
 
 public class CustomRoleManager : ManagerBase<CustomRoleManager>
 {
+    public readonly List<RoleBase> _AllActiveRole = [];
+
+    public readonly List<RoleControllerBase> _AllControllerBases = [];
     public readonly List<RoleBase> _RoleBases = [];
 
-    public readonly List<RoleBase> _AllActiveRole = [];
-    
-    public readonly List<RoleControllerBase> _AllControllerBases = [];
-
-    public readonly Dictionary<RoleBase, List<PlayerControl>> PlayerAndRoles = new();
+    public readonly List<RoleControllerBase> LocalControllerBases = [];
 
     public readonly List<RoleBase> LocalRoleBases = [];
-    
-    public readonly List<RoleControllerBase> LocalControllerBases = [];
+
+    public readonly Dictionary<RoleBase, List<PlayerControl>> PlayerAndRoles = new();
 
     public void Register(RoleBase role)
     {
@@ -32,11 +31,8 @@ public class CustomRoleManager : ManagerBase<CustomRoleManager>
             LocalControllerBases.Remove(ControllerBase);
             ControllerBase.Dispose();
         }
-            
-        foreach (var Base in LocalRoleBases)
-        {
-            LocalRoleBases.Remove(Base);
-        }
+
+        foreach (var Base in LocalRoleBases) LocalRoleBases.Remove(Base);
     }
 
     public void SetRole(RoleBase @base, PlayerControl player)
@@ -56,10 +52,10 @@ public class CustomRoleManager : ManagerBase<CustomRoleManager>
         {
             if (dic.Value.Any() && !_AllActiveRole.Contains(dic.Key))
                 _AllActiveRole.Add(dic.Key);
-            
+
             if (!dic.Value.Any() && _AllActiveRole.Contains(dic.Key))
                 _AllActiveRole.Remove(dic.Key);
-        }   
+        }
     }
 
     public void ShifterRole(PlayerControl player, RoleBase target)
@@ -70,20 +66,14 @@ public class CustomRoleManager : ManagerBase<CustomRoleManager>
 
     public void Update(HudManager __instance)
     {
-        if (!_AllControllerBases.Any() || !_AllActiveRole.Any())
-        {
-            return;
-        }
-        
-        foreach (var Base in _AllControllerBases)
-        {
-            Base.Update(__instance);
-        }
+        if (!_AllControllerBases.Any() || !_AllActiveRole.Any()) return;
+
+        foreach (var Base in _AllControllerBases) Base.Update(__instance);
     }
 
     public void ClearAndReload()
     {
-        foreach (var role in _RoleBases) 
+        foreach (var role in _RoleBases)
             role.ClearAndReload();
     }
 }

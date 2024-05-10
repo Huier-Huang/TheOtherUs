@@ -10,13 +10,16 @@ namespace TheOtherRoles.Roles.Modifier;
 [RegisterRole]
 public class Follower : RoleBase
 {
-    public PlayerControl follower;
-    public PlayerControl currentTarget;
-    public Color color = Palette.ImpostorRed;
-    public List<Arrow> localArrows = [];
-    public bool getsAssassin;
     public bool chatTarget = true;
     public bool chatTarget2 = true;
+    public Color color = Palette.ImpostorRed;
+    public PlayerControl currentTarget;
+    public PlayerControl follower;
+    public bool getsAssassin;
+    public List<Arrow> localArrows = [];
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public override void ClearAndReload()
     {
@@ -30,7 +33,4 @@ public class Follower : RoleBase
         chatTarget2 = true;
         getsAssassin = CustomOptionHolder.modifierAssassinCultist;
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

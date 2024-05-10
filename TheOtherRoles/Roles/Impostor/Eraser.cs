@@ -1,32 +1,32 @@
 using System;
-using TheOtherRoles.Objects;
 using System.Collections.Generic;
-using UnityEngine;
 using Hazel;
-using TheOtherRoles.Modules.Options;
+using TheOtherRoles.Objects;
+using UnityEngine;
 
 namespace TheOtherRoles.Roles.Impostor;
 
 [RegisterRole]
 public class Eraser : RoleBase
 {
-    public PlayerControl eraser;
-    public Color color = Palette.ImpostorRed;
-
     public List<byte> alreadyErased = [];
 
-    public List<PlayerControl> futureErased = [];
-    public PlayerControl currentTarget;
-    public float cooldown = 30f;
+
+    private readonly ResourceSprite buttonSprite = new("EraserButton.png");
     public bool canEraseAnyone;
+    public Color color = Palette.ImpostorRed;
+    public float cooldown = 30f;
+    public PlayerControl currentTarget;
+    public PlayerControl eraser;
+    private CustomButton eraserButton;
+    public CustomOption eraserCanEraseAnyone;
+    public CustomOption eraserCooldown;
 
     public CustomOption eraserSpawnRate;
-    public CustomOption eraserCooldown;
-    public CustomOption eraserCanEraseAnyone;
-    private CustomButton eraserButton;
 
-
-    private ResourceSprite buttonSprite = new ("EraserButton.png");
+    public List<PlayerControl> futureErased = [];
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public override void ClearAndReload()
     {
@@ -37,12 +37,14 @@ public class Eraser : RoleBase
         canEraseAnyone = eraserCanEraseAnyone.getBool();
         alreadyErased = [];
     }
+
     public override void OptionCreate()
     {
         eraserSpawnRate = new CustomOption(230, "Eraser".ColorString(color), CustomOptionHolder.rates, null, true);
         eraserCooldown = new CustomOption(231, "Eraser Cooldown", 30f, 10f, 120f, 5f, eraserSpawnRate);
         eraserCanEraseAnyone = new CustomOption(232, "Eraser Can Erase Anyone", false, eraserSpawnRate);
     }
+
     public override void ButtonCreate(HudManager _hudManager)
     {
         // Eraser erase button
@@ -78,11 +80,9 @@ public class Eraser : RoleBase
             KeyCode.F
         );
     }
+
     public override void ResetCustomButton()
     {
         eraserButton.MaxTimer = cooldown;
     }
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
-    
 }

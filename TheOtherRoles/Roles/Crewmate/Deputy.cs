@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Hazel;
-using TheOtherRoles.Modules.Options;
 using TheOtherRoles.Objects;
 using TheOtherRoles.Roles.Neutral;
 using TMPro;
@@ -13,32 +12,35 @@ namespace TheOtherRoles.Roles.Crewmate;
 [RegisterRole]
 public class Deputy : RoleBase
 {
-    private ResourceSprite buttonSprite = new ("DeputyHandcuffButton.png");
-    private ResourceSprite handcuffedSprite = new ("DeputyHandcuffed.png");
-    
+    private readonly ResourceSprite buttonSprite = new("DeputyHandcuffButton.png");
+
     public Color color = new Color32(248, 205, 70, byte.MaxValue);
     public PlayerControl currentTarget;
     public PlayerControl deputy;
+    public TMP_Text deputyButtonHandcuffsText;
+    public CustomOption deputyGetsPromoted;
+
+    private CustomButton deputyHandcuffButton;
+    public CustomOption deputyHandcuffCooldown;
+    public CustomOption deputyHandcuffDuration;
+    public Dictionary<byte, List<CustomButton>> deputyHandcuffedButtons;
+    public CustomOption deputyKeepsHandcuffs;
+    public CustomOption deputyKnowsSheriff;
+    public CustomOption deputyNumberOfHandcuffs;
+
+    public CustomOption deputySpawnRate;
     public float handcuffCooldown;
     public float handcuffDuration;
     public Dictionary<byte, float> handcuffedKnows = new();
     public List<byte> handcuffedPlayers = [];
+    private readonly ResourceSprite handcuffedSprite = new("DeputyHandcuffed.png");
     public bool keepsHandcuffsOnPromotion;
     public bool knowsSheriff;
     public int promotesToSheriff; // No: 0, Immediately: 1, After Meeting: 2
     public float remainingHandcuffs;
-    
-    public CustomOption deputySpawnRate;
-    public CustomOption deputyNumberOfHandcuffs;
-    public CustomOption deputyHandcuffCooldown;
-    public CustomOption deputyGetsPromoted;
-    public CustomOption deputyKeepsHandcuffs;
-    public CustomOption deputyHandcuffDuration;
-    public CustomOption deputyKnowsSheriff;
-    
-    private CustomButton deputyHandcuffButton;
-    public Dictionary<byte, List<CustomButton>> deputyHandcuffedButtons;
-    public TMP_Text deputyButtonHandcuffsText;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     // Can be used to enable / disable the handcuff effect on the target's buttons
     public void setHandcuffedKnows(bool active = true, byte playerId = byte.MaxValue)
@@ -85,7 +87,8 @@ public class Deputy : RoleBase
 
     public override void OptionCreate()
     {
-        deputySpawnRate = new CustomOption(103, "Sheriff Has A Deputy", CustomOptionHolder.rates, Get<Sheriff>().sheriffSpawnRate);
+        deputySpawnRate = new CustomOption(103, "Sheriff Has A Deputy", CustomOptionHolder.rates,
+            Get<Sheriff>().sheriffSpawnRate);
         deputyNumberOfHandcuffs = new CustomOption(104, "Deputy Number Of Handcuffs", 3f, 1f, 10f,
             1f, deputySpawnRate);
         deputyHandcuffCooldown =
@@ -102,7 +105,7 @@ public class Deputy : RoleBase
 
     public override void ButtonCreate(HudManager _hudManager)
     {
-                // Deputy Handcuff
+        // Deputy Handcuff
         deputyHandcuffButton = new CustomButton(
             () =>
             {
@@ -123,7 +126,8 @@ public class Deputy : RoleBase
                 SoundEffectsManager.play("deputyHandcuff");
             },
             () => ((deputy != null && CachedPlayer.LocalPlayer.Control.Is<Deputy>()) ||
-                   (CachedPlayer.LocalPlayer.Control.Is<Sheriff>() && Get<Sheriff>().formerDeputy.Is<Sheriff>() && keepsHandcuffsOnPromotion)) &&
+                   (CachedPlayer.LocalPlayer.Control.Is<Sheriff>() && Get<Sheriff>().formerDeputy.Is<Sheriff>() &&
+                    keepsHandcuffsOnPromotion)) &&
                   !CachedPlayer.LocalPlayer.Data.IsDead,
             () =>
             {
@@ -131,8 +135,8 @@ public class Deputy : RoleBase
                 if (deputyButtonHandcuffsText != null) deputyButtonHandcuffsText.text = $"{remainingHandcuffs}";
                 return ((deputy != null && deputy == CachedPlayer.LocalPlayer.Control &&
                          currentTarget) ||
-                        CachedPlayer.LocalPlayer.Control.Is<Sheriff>() &&
-                         Get<Sheriff>().formerDeputy.Is<Sheriff>() && Get<Sheriff>().currentTarget) &&
+                        (CachedPlayer.LocalPlayer.Control.Is<Sheriff>() &&
+                         Get<Sheriff>().formerDeputy.Is<Sheriff>() && Get<Sheriff>().currentTarget)) &&
                        remainingHandcuffs > 0 &&
                        CachedPlayer.LocalPlayer.Control.CanMove;
             },
@@ -157,9 +161,6 @@ public class Deputy : RoleBase
         deputyHandcuffedButtons = new Dictionary<byte, List<CustomButton>>();
     }
 
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
-
     private void addReplacementHandcuffedButton(CustomButton button, Vector3? positionOffset = null,
         Func<bool> couldUse = null)
     {
@@ -179,8 +180,8 @@ public class Deputy : RoleBase
             deputyHandcuffedButtons.Add(CachedPlayer.LocalPlayer.PlayerId,
                 [replacementHandcuffedButton]);
     }
-    
-        // Disables / Enables all Buttons (except the ones disabled in the Deputy class), and replaces them with new buttons.
+
+    // Disables / Enables all Buttons (except the ones disabled in the Deputy class), and replaces them with new buttons.
     public void setAllButtonsHandcuffedStatus(bool handcuffed, bool reset = false)
     {
         if (reset)
@@ -211,11 +212,13 @@ public class Deputy : RoleBase
                 // Non Custom (Vanilla) Buttons. The Originals are disabled / hidden in UpdatePatch.cs already, just need to replace them. Can use any button, as we replace onclick etc anyways.
                 // Kill Button if enabled for the Role
                 if (FastDestroyableSingleton<HudManager>.Instance.KillButton.isActiveAndEnabled)
-                    addReplacementHandcuffedButton(Get<Arsonist>().arsonistButton,CustomButton.ButtonPositions.upperRowRight,
+                    addReplacementHandcuffedButton(Get<Arsonist>().arsonistButton,
+                        CustomButton.ButtonPositions.upperRowRight,
                         () => FastDestroyableSingleton<HudManager>.Instance.KillButton.currentTarget != null);
                 // Vent Button if enabled
                 if (CachedPlayer.LocalPlayer.Control.roleCanUseVents())
-                    addReplacementHandcuffedButton(Get<Arsonist>().arsonistButton, CustomButton.ButtonPositions.upperRowCenter,
+                    addReplacementHandcuffedButton(Get<Arsonist>().arsonistButton,
+                        CustomButton.ButtonPositions.upperRowCenter,
                         () => FastDestroyableSingleton<HudManager>.Instance.ImpostorVentButton.currentTarget != null);
                 // Report Button
                 addReplacementHandcuffedButton(Get<Arsonist>().arsonistButton,

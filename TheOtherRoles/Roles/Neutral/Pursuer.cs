@@ -7,17 +7,20 @@ namespace TheOtherRoles.Roles.Neutral;
 [RegisterRole]
 public class Pursuer : RoleBase
 {
-    public PlayerControl pursuer;
-    public PlayerControl target;
-    public Color color = GetColor<Lawyer>();
+    public ResourceSprite blank = new("PursuerButton.png");
     public List<PlayerControl> blankedList = [];
     public int blanks;
-    public ResourceSprite blank = new("PursuerButton.png");
-    public bool notAckedExiled;
+    public int blanksNumber = 5;
+    public Color color = GetColor<Lawyer>();
 
     public float cooldown = 30f;
-    public int blanksNumber = 5;
-    
+    public bool notAckedExiled;
+    public PlayerControl pursuer;
+    public PlayerControl target;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
+
 
     public override void ClearAndReload()
     {
@@ -30,7 +33,4 @@ public class Pursuer : RoleBase
         cooldown = CustomOptionHolder.pursuerCooldown.getFloat();
         blanksNumber = Mathf.RoundToInt(CustomOptionHolder.pursuerBlanksNumber.getFloat());
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

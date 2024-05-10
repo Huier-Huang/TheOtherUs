@@ -6,11 +6,14 @@ namespace TheOtherRoles.Roles.Modifier;
 [RegisterRole]
 public class Bloody : RoleBase
 {
-    public List<PlayerControl> bloody = [];
     public Dictionary<byte, float> active = new();
+    public List<PlayerControl> bloody = [];
     public Dictionary<byte, byte> bloodyKillerMap = new();
 
     public float duration = 5f;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public override void ClearAndReload()
     {
@@ -19,7 +22,4 @@ public class Bloody : RoleBase
         bloodyKillerMap = new Dictionary<byte, byte>();
         duration = CustomOptionHolder.modifierBloodyDuration.getFloat();
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

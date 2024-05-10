@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using Hazel;
-using TheOtherRoles.Modules.Options;
 using TheOtherRoles.Objects;
 using UnityEngine;
 
@@ -10,25 +8,28 @@ namespace TheOtherRoles.Roles.Impostor;
 [RegisterRole]
 public class Morphling : RoleBase
 {
-    public PlayerControl morphling;
     public Color color = Palette.ImpostorRed;
-    
-    private ResourceSprite sampleSprite = new ("SampleButton.png");
-    private ResourceSprite morphSprite = new ("MorphButton.png");
 
     public float cooldown = 30f;
-    public float duration = 10f;
 
     public PlayerControl currentTarget;
-    public PlayerControl sampledTarget;
-    public PlayerControl morphTarget;
-    public float morphTimer;
-    
-    public CustomOption morphlingSpawnRate;
+    public float duration = 10f;
+    public PlayerControl morphling;
+
+    private CustomButton morphlingButton;
     public CustomOption morphlingCooldown;
     public CustomOption morphlingDuration;
-    
-    private CustomButton morphlingButton;
+
+    public CustomOption morphlingSpawnRate;
+    private readonly ResourceSprite morphSprite = new("MorphButton.png");
+    public PlayerControl morphTarget;
+    public float morphTimer;
+    public PlayerControl sampledTarget;
+
+    private readonly ResourceSprite sampleSprite = new("SampleButton.png");
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public void resetMorph()
     {
@@ -129,8 +130,4 @@ public class Morphling : RoleBase
         morphlingButton.MaxTimer = cooldown;
         morphlingButton.EffectDuration = duration;
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
-
 }

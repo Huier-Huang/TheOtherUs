@@ -7,16 +7,18 @@ namespace TheOtherRoles.Roles.Modifier;
 [RegisterRole]
 public class Lovers : RoleBase
 {
-    public PlayerControl lover1;
-    public PlayerControl lover2;
+    public bool bothDie = true;
     public Color color = new Color32(232, 57, 185, byte.MaxValue);
 
-    public bool bothDie = true;
-
     public bool enableChat = true;
+    public PlayerControl lover1;
+    public PlayerControl lover2;
 
     // Lovers save if next to be exiled is a lover, because RPC of ending game comes before RPC of exiled
     public bool notAckedExiledIsLover;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public bool existing()
     {
@@ -40,9 +42,9 @@ public class Lovers : RoleBase
     public bool existingWithKiller()
     {
         return existing() && (lover1.Is<Jackal>() || lover2.Is<Jackal>()
-                                                      || lover1.Is<Sidekick>() || lover2.Is<Sidekick>()
-                                                      || lover1.Is<Werewolf>() || lover2.Is<Werewolf>()
-                                                      || lover1.Data.Role.IsImpostor || lover2.Data.Role.IsImpostor);
+                                                  || lover1.Is<Sidekick>() || lover2.Is<Sidekick>()
+                                                  || lover1.Is<Werewolf>() || lover2.Is<Werewolf>()
+                                                  || lover1.Data.Role.IsImpostor || lover2.Data.Role.IsImpostor);
     }
 
     public bool hasAliveKillingLover(PlayerControl player)
@@ -71,7 +73,4 @@ public class Lovers : RoleBase
             return lover1;
         return null;
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

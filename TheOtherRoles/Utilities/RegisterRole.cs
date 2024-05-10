@@ -9,7 +9,7 @@ namespace TheOtherRoles.Utilities;
 public sealed class RegisterRole(bool isTemplate = false) : RegisterAttribute
 {
     public readonly bool IsTemplate = isTemplate;
-    
+
     public static void Register(Assembly assembly, CustomRoleManager _customRoleManager)
     {
         var types = assembly.GetTypes()

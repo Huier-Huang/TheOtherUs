@@ -1,8 +1,7 @@
 using System;
-using Hazel;
 using System.Collections.Generic;
 using System.Linq;
-using TheOtherRoles.Modules.Options;
+using Hazel;
 using TheOtherRoles.Objects;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -12,21 +11,25 @@ namespace TheOtherRoles.Roles.Impostor;
 [RegisterRole]
 public class Cultist : RoleBase
 {
-    public PlayerControl cultist;
-    public PlayerControl currentTarget;
+    public ResourceSprite buttonSprite = new("SidekickButton.png");
+    public bool chatTarget = true;
+
+    public bool chatTarget2 = true;
+
     //public PlayerControl currentFollower;
     public Color color = Palette.ImpostorRed;
-    public List<Arrow> localArrows = [];
-    public bool chatTarget = true;
-    public bool chatTarget2 = true;
-    public bool isCultistGame = false;
-
-    public bool needsFollower = true;
+    public PlayerControl cultist;
 
     public CustomOption cultistSpawnRate;
     private CustomButton cultistTurnButton;
+    public PlayerControl currentTarget;
+    public bool isCultistGame = false;
+    public List<Arrow> localArrows = [];
 
-    public ResourceSprite buttonSprite = new("SidekickButton.png");
+    public bool needsFollower = true;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
 
     public override void ClearAndReload()
@@ -41,6 +44,7 @@ public class Cultist : RoleBase
         chatTarget = true;
         chatTarget2 = true;
     }
+
     public override void ButtonCreate(HudManager _hudManager)
     {
         cultistTurnButton = new CustomButton(
@@ -79,12 +83,8 @@ public class Cultist : RoleBase
         );
     }
 
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
-
     public override void OptionCreate()
     {
         cultistSpawnRate = new CustomOption(3801, "Cultist".ColorString(color), CustomOptionHolder.rates, null, true);
-
     }
 }

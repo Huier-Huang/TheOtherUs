@@ -35,14 +35,15 @@ public class DependentDownload : ManagerBase<DependentDownload>
 
     public async void CheckDependent(string fileName, string url = "", bool formDownload = true)
     {
-        if (AppDomain.CurrentDomain.GetAssemblies().Any(n => n.GetName().Name == fileName.Replace(Path.GetExtension(fileName), string.Empty)))
+        if (AppDomain.CurrentDomain.GetAssemblies().Any(n =>
+                n.GetName().Name == fileName.Replace(Path.GetExtension(fileName), string.Empty)))
             return;
-        
+
         var filePath = Path.Combine(DllPath, fileName);
 
         if (url == string.Empty || File.Exists(filePath))
             goto load;
-        
+
         var stream = formDownload ? await DownloadDependent(url) : await ReadDependent(fileName);
         var file = File.Open(filePath, FileMode.OpenOrCreate);
         await stream.CopyToAsync(file);
@@ -53,7 +54,7 @@ public class DependentDownload : ManagerBase<DependentDownload>
         Assembly.LoadFile(filePath);
         Info($"Loaded File:{fileName} Url:{url}");
     }
-    
+
     public void DownLoadDependentMap(string mapUrl, bool useFast = true)
     {
         CurrentUrl = useFast ? mapUrl.GithubUrl() : mapUrl;
@@ -67,10 +68,7 @@ public class DependentDownload : ManagerBase<DependentDownload>
     public void DownLoadDependentFormMap(string option)
     {
         var DLLs = Map[option];
-        foreach (var dll in DLLs)
-        {
-            CheckDependent(dll, Path.Combine(CurrentUrl, dll));
-        }
+        foreach (var dll in DLLs) CheckDependent(dll, Path.Combine(CurrentUrl, dll));
     }
 
     public void Read(string s, int i)
@@ -78,9 +76,9 @@ public class DependentDownload : ManagerBase<DependentDownload>
         if (s.IsNullOrWhiteSpace())
             return;
 
-        var data =  s.Split(":");
+        var data = s.Split(":");
         var option = data[0];
-        
+
         var list = data[1].Contains(',') ? data[1].Split(",").ToList() : [data[1]];
 
         Map[option] = list;

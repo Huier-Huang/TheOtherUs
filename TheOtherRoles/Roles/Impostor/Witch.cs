@@ -1,45 +1,45 @@
 using System;
-using Hazel;
 using System.Collections.Generic;
-using TheOtherRoles.Modules.Options;
+using Hazel;
 using TheOtherRoles.Objects;
-using UnityEngine;
 using TheOtherRoles.Patches;
 using TheOtherRoles.Roles.Modifier;
 using TheOtherRoles.Roles.Neutral;
+using UnityEngine;
 
 namespace TheOtherRoles.Roles.Impostor;
 
 [RegisterRole]
 public class Witch : RoleBase
 {
-    public PlayerControl witch;
+    private readonly ResourceSprite buttonSprite = new("SpellButton.png");
+    public bool canSpellAnyone;
     public Color color = Palette.ImpostorRed;
-
-    public List<PlayerControl> futureSpelled = [];
-    public PlayerControl currentTarget;
-    public PlayerControl spellCastingTarget;
     public float cooldown = 30f;
-    public float spellCastingDuration = 2f;
     public float cooldownAddition = 10f;
     public float currentCooldownAddition;
-    public bool canSpellAnyone;
+    public PlayerControl currentTarget;
+
+    public List<PlayerControl> futureSpelled = [];
+    public float spellCastingDuration = 2f;
+    public PlayerControl spellCastingTarget;
+
+    private ResourceSprite spelledOverlaySprite = new("SpellButtonMeeting.png", 225f);
     public bool triggerBothCooldowns = true;
     public bool VoteSavesTargets = true;
-
-    private ResourceSprite buttonSprite = new ("SpellButton.png");
-
-    private ResourceSprite spelledOverlaySprite = new ("SpellButtonMeeting.png", 225f);
-
-    public CustomOption witchSpawnRate;
-    public CustomOption witchCooldown;
+    public PlayerControl witch;
     public CustomOption witchAdditionalCooldown;
     public CustomOption witchCanSpellAnyone;
+    public CustomOption witchCooldown;
+
+    public CustomOption witchSpawnRate;
+
+    public CustomButton witchSpellButton;
     public CustomOption witchSpellCastingDuration;
     public CustomOption witchTriggerBothCooldowns;
     public CustomOption witchVoteSavesTargets;
-
-    public CustomButton witchSpellButton;
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public override void ClearAndReload()
     {
@@ -54,6 +54,7 @@ public class Witch : RoleBase
         triggerBothCooldowns = witchTriggerBothCooldowns.getBool();
         VoteSavesTargets = witchVoteSavesTargets.getBool();
     }
+
     public override void ButtonCreate(HudManager _hudManager)
     {
         // Witch Spell button
@@ -124,7 +125,7 @@ public class Witch : RoleBase
                             ? Get<Mini>().isGrownUp() ? 0.66f : 2f
                             : 1f;
                         witch.killTimer = GameOptionsManager.Instance.currentNormalGameOptions.KillCooldown *
-                                                multiplier;
+                                          multiplier;
                     }
                 }
                 else
@@ -136,11 +137,10 @@ public class Witch : RoleBase
             }
         );
     }
+
     public override void ResetCustomButton()
     {
         witchSpellButton.MaxTimer = cooldown;
         witchSpellButton.EffectDuration = spellCastingDuration;
     }
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

@@ -9,9 +9,8 @@ namespace TheOtherRoles.Utilities;
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor)]
 public class OnEvent(string EventName) : RegisterAttribute
 {
-    public string eventName = EventName;
-
     public static List<OnEvent> onEvents = [];
+    public string eventName = EventName;
 
     [UsedImplicitly]
     public static void Register(Assembly assembly)
@@ -30,9 +29,11 @@ public class OnEvent(string EventName) : RegisterAttribute
             onEvents.Add(OnEvent);
         }
     }
-    
-    #nullable enable
+#nullable enable
     public MethodInfo? method;
-    public static void Call(string EventName, params object[] instances) =>
+
+    public static void Call(string EventName, params object[] instances)
+    {
         onEvents.Where(n => n.eventName == EventName).Do(n => n.method?.Invoke(null, instances));
+    }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace TheOtherRoles.Roles.Crewmate;
@@ -7,6 +6,19 @@ namespace TheOtherRoles.Roles.Crewmate;
 [RegisterRole]
 public class Engineer : RoleBase
 {
+    public static readonly RoleInfo Info = new()
+    {
+        Name = nameof(Engineer),
+        Color = new Color32(0, 40, 245, byte.MaxValue),
+        Description = "Repair the ship",
+        IntroInfo = "Maintain important systems on the ship",
+        GetRole = Get<Engineer>,
+        RoleClassType = typeof(Engineer),
+        RoleId = RoleId.Engineer,
+        RoleTeam = RoleTeam.Crewmate,
+        RoleType = CustomRoleType.Main
+    };
+
     private Sprite buttonSprite;
     public Color color = new Color32(0, 40, 245, byte.MaxValue);
     public PlayerControl engineer;
@@ -19,6 +31,9 @@ public class Engineer : RoleBase
     public bool resetFixAfterMeeting;
 
     public bool usedFix;
+
+    public override RoleInfo RoleInfo { get; protected set; } = Info;
+    public override Type RoleType { get; protected set; }
 
     public Sprite getButtonSprite()
     {
@@ -45,20 +60,4 @@ public class Engineer : RoleBase
         highlightForTeamJackal = CustomOptionHolder.engineerHighlightForTeamJackal.getBool();
         usedFix = false;
     }
-
-    public static readonly RoleInfo Info = new()
-    {
-        Name = nameof(Engineer),
-        Color = new Color32(0, 40, 245, byte.MaxValue),
-        Description = "Repair the ship",
-        IntroInfo = "Maintain important systems on the ship",
-        GetRole = Get<Engineer>,
-        RoleClassType = typeof(Engineer),
-        RoleId = RoleId.Engineer,
-        RoleTeam = RoleTeam.Crewmate,
-        RoleType = CustomRoleType.Main
-    };
-
-    public override RoleInfo RoleInfo { get; protected set; } = Info;
-    public override Type RoleType { get; protected set; }
 }

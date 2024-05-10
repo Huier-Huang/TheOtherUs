@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace TheOtherRoles.Roles.Crewmate;
@@ -7,15 +6,17 @@ namespace TheOtherRoles.Roles.Crewmate;
 [RegisterRole]
 public class PrivateInvestigator : RoleBase
 {
-    public PlayerControl privateInvestigator;
+    private ResourceSprite buttonSprite = new("Watch.png");
     public Color color = new Color32(77, 77, 255, byte.MaxValue);
-    public PlayerControl watching;
     public PlayerControl currentTarget;
-    
-    private ResourceSprite buttonSprite = new ("Watch.png");
+    public PlayerControl privateInvestigator;
 
 
     public bool seeFlashColor;
+    public PlayerControl watching;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
 
     public override void ClearAndReload()
@@ -25,7 +26,4 @@ public class PrivateInvestigator : RoleBase
         currentTarget = null;
         seeFlashColor = CustomOptionHolder.privateInvestigatorSeeColor.getBool();
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

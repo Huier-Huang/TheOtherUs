@@ -4,7 +4,8 @@ using UnityEngine;
 
 namespace TheOtherRoles;
 
-internal static class TORMapOptions {
+internal static class TORMapOptions
+{
     // Set values
     public static int maxNumberOfMeetings = 10;
     public static bool blockSkippingInEmergencyMeetings;
@@ -43,11 +44,25 @@ internal static class TORMapOptions {
     public static string firstKillName;
     public static PlayerControl firstKillPlayer;
 
-    public static void clearAndReloadMapOptions() {
+    public static bool CanShow => CachedPlayer.LocalPlayer.Control.Is<Hacker>() ||
+                                  CachedPlayer.LocalPlayer.Data.IsDead ||
+                                  restrictDevices == 0;
+
+    public static bool canUseCameras => CanShow || restrictCamerasTime > 0f;
+
+    public static bool couldUseCameras => CanShow || restrictCamerasTimeMax > 0f;
+
+    public static bool canUseVitals => CanShow || restrictVitalsTime > 0f;
+
+    public static bool couldUseVitals => CanShow || restrictVitalsTimeMax > 0f;
+
+    public static void clearAndReloadMapOptions()
+    {
         meetingsCount = 0;
         camerasToAdd = [];
         ventsToSeal = [];
-        playerIcons = new Dictionary<byte, PoolablePlayer>(); ;
+        playerIcons = new Dictionary<byte, PoolablePlayer>();
+        ;
 
         maxNumberOfMeetings = Mathf.RoundToInt(CustomOptionHolder.maxNumberOfMeetings.getSelection());
         blockSkippingInEmergencyMeetings = CustomOptionHolder.blockSkippingInEmergencyMeetings.getBool();
@@ -68,10 +83,11 @@ internal static class TORMapOptions {
         CustomOptionHolder.randomGameStartPosition.getBool();
         /*allowModGuess = CustomOptionHolder.allowModGuess.getBool();*/
         firstKillPlayer = null;
-        isRoundOne = true; 
+        isRoundOne = true;
     }
 
-    public static void reloadPluginOptions() {
+    public static void reloadPluginOptions()
+    {
         ghostsSeeRoles = Main.GhostsSeeRoles.Value;
         ghostsSeeModifier = Main.GhostsSeeModifier.Value;
         ghostsSeeInformation = Main.GhostsSeeInformation.Value;
@@ -83,20 +99,10 @@ internal static class TORMapOptions {
         enableHorseMode = Main.EnableHorseMode.Value;
         /*ShowVentsOnMap = Main.ShowVentsOnMap.Value;*/
     }
-    public static void resetDeviceTimes() 
+
+    public static void resetDeviceTimes()
     {
         restrictCamerasTime = restrictCamerasTimeMax;
         restrictVitalsTime = restrictVitalsTimeMax;
     }
-
-    public static bool CanShow => CachedPlayer.LocalPlayer.Control.Is<Hacker>() || CachedPlayer.LocalPlayer.Data.IsDead ||
-                             restrictDevices == 0;
-
-    public static bool canUseCameras => CanShow || restrictCamerasTime > 0f;
-
-    public static bool couldUseCameras => CanShow || restrictCamerasTimeMax > 0f;
-
-    public static bool canUseVitals => CanShow || restrictVitalsTime > 0f;
-
-    public static bool couldUseVitals => CanShow || restrictVitalsTimeMax > 0f;
 }

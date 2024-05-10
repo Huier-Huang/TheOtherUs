@@ -1,8 +1,6 @@
-﻿using BepInEx.Logging;
-using System;
+﻿using System;
 using System.Text;
-using BepInEx;
-
+using BepInEx.Logging;
 #if DEBUG
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +16,10 @@ internal static class LogHelper
 {
     private static ManualLogSource logSource { get; set; }
 
-    internal static void SetLogSource(ManualLogSource Source) => logSource = Source;
+    internal static void SetLogSource(ManualLogSource Source)
+    {
+        logSource = Source;
+    }
 
     /// <summary>
     ///     一般信息

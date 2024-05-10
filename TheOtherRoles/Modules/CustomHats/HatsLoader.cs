@@ -1,8 +1,8 @@
-﻿using BepInEx.Unity.IL2CPP.Utils;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using BepInEx.Unity.IL2CPP.Utils;
 using UnityEngine;
 using UnityEngine.Networking;
 using static TheOtherRoles.Modules.CustomHats.CustomHatManager;
@@ -11,20 +11,17 @@ namespace TheOtherRoles.Modules.CustomHats;
 
 public class HatsLoader : MonoBehaviour
 {
-    private bool isRunning;
-
-    private static readonly HashSet<string> RepositoryUrls = 
+    private static readonly HashSet<string> RepositoryUrls =
     [
         "https://raw.githubusercontent.com/TheOtherRolesAU/TheOtherHats/master"
     ];
 
+    private bool isRunning;
+
     public void FetchHats()
     {
         if (isRunning) return;
-        foreach (var url in RepositoryUrls)
-        {
-            this.StartCoroutine(CoFetchHats(url.GithubUrl()));
-        }
+        foreach (var url in RepositoryUrls) this.StartCoroutine(CoFetchHats(url.GithubUrl()));
     }
 
     [HideFromIl2Cpp]
@@ -38,10 +35,7 @@ public class HatsLoader : MonoBehaviour
         www.downloadHandler = new DownloadHandlerBuffer();
         var operation = www.SendWebRequest();
 
-        while (!operation.isDone)
-        {
-            yield return new WaitForEndOfFrame();
-        }
+        while (!operation.isDone) yield return new WaitForEndOfFrame();
 
         if (www.isNetworkError || www.isHttpError)
         {
@@ -63,10 +57,7 @@ public class HatsLoader : MonoBehaviour
 
         Message($"I'll download {toDownload.Count} hat files");
 
-        foreach (var fileName in toDownload)
-        {
-            yield return CoDownloadHatAsset(fileName, RepositoryUrl);
-        }
+        foreach (var fileName in toDownload) yield return CoDownloadHatAsset(fileName, RepositoryUrl);
 
         isRunning = false;
     }
@@ -81,10 +72,7 @@ public class HatsLoader : MonoBehaviour
         www.downloadHandler = new DownloadHandlerBuffer();
         var operation = www.SendWebRequest();
 
-        while (!operation.isDone)
-        {
-            yield return new WaitForEndOfFrame();
-        }
+        while (!operation.isDone) yield return new WaitForEndOfFrame();
 
         if (www.isNetworkError || www.isHttpError)
         {

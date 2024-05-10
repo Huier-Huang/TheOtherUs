@@ -7,14 +7,13 @@ namespace TheOtherRoles.Modules;
 
 public class TaskQueue : ManagerBase<TaskQueue>
 {
+    public string CurrentId;
+
+    public Task CurrentTask;
     public Queue<Task> Tasks = [];
 
     public bool TaskStarting;
 
-    public string CurrentId;
-
-    public Task CurrentTask;
-    
     public void StartTask(Action action, string Id)
     {
         var task = new Task(() =>
@@ -30,14 +29,10 @@ public class TaskQueue : ManagerBase<TaskQueue>
                 Exception(e);
                 Error($"加载失败 TaskQueue Id:{Id}");
             }
-            
         });
         Tasks.Enqueue(task);
-        
-        if (!TaskStarting)
-        {
-            StartNew();
-        }
+
+        if (!TaskStarting) StartNew();
     }
 
     public void StartNew()

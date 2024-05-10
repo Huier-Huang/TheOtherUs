@@ -12,7 +12,7 @@ public class DataLoader : LanguageLoaderBase
 
     public override void Load(LanguageManager _manager, Stream stream, string fileName)
     {
-        TextHelper.StartRead(stream, (text, index) => Read(text, index, _manager, fileName.PareNameToLangId()),
+        stream.StartRead((text, index) => Read(text, index, _manager, fileName.PareNameToLangId()),
             out var allText);
     }
 

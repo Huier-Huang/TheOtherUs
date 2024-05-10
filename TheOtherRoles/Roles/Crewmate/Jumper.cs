@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace TheOtherRoles.Roles.Crewmate;
@@ -24,6 +23,9 @@ public class Jumper : RoleBase
 
     public bool resetPlaceAfterMeeting;
     public bool usedPlace;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public Sprite getJumpMarkButtonSprite()
     {
@@ -59,7 +61,4 @@ public class Jumper : RoleBase
         //jumperMaxCharges = CustomOptionHolder.jumperMaxCharges.getFloat();
         usedPlace = false;
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

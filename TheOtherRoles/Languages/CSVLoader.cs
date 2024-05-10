@@ -24,7 +24,8 @@ public class CsvLoader : LanguageLoaderBase
             try
             {
                 for (var i = 1; i < line.ColumnCount; i++)
-                    _manager.AddToMap(line.Headers[i].PareIndexToLangId(), line.Values[0], line.Values[i], nameof(CsvLoader));
+                    _manager.AddToMap(line.Headers[i].PareIndexToLangId(), line.Values[0], line.Values[i],
+                        nameof(CsvLoader));
             }
             catch (Exception ex)
             {

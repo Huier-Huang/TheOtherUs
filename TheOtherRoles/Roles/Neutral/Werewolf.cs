@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using TheOtherRoles.Modules.Options;
 using TheOtherRoles.Objects;
 using UnityEngine;
 
@@ -9,9 +7,25 @@ namespace TheOtherRoles.Roles.Neutral;
 [RegisterRole]
 public class Werewolf : RoleBase
 {
-    public PlayerControl werewolf;
-    public PlayerControl currentTarget;
+    public static readonly RoleInfo roleInfo = new()
+    {
+        Name = nameof(Werewolf),
+        RoleId = RoleId.Werewolf,
+        Color = new Color32(79, 56, 21, byte.MaxValue),
+        Description = "Rampage and kill everyone",
+        IntroInfo = "Rampage and kill everyone",
+        RoleClassType = typeof(Werewolf),
+        RoleTeam = RoleTeam.Neutral,
+        RoleType = CustomRoleType.Main,
+        GetRole = Get<Werewolf>
+    };
+
+    public ResourceSprite buttonSprite = new("Rampage.png");
+    public bool canKill;
+    public bool canUseVents;
     public Color color = new Color32(79, 56, 21, byte.MaxValue);
+    public PlayerControl currentTarget;
+    public bool hasImpostorVision;
 
     // Kill Button 
     public float killCooldown = 3f;
@@ -19,19 +33,17 @@ public class Werewolf : RoleBase
     // Rampage Button
     public float rampageCooldown = 30f;
     public float rampageDuration = 5f;
-    public bool canUseVents;
-    public bool canKill;
-    public bool hasImpostorVision;
-
-    public ResourceSprite buttonSprite = new ("Rampage.png");
-
-    public CustomOption werewolfSpawnRate;
-    public CustomOption werewolfRampageCooldown;
-    public CustomOption werewolfRampageDuration;
+    public PlayerControl werewolf;
+    public CustomButton werewolfKillButton;
     public CustomOption werewolfKillCooldown;
 
     public CustomButton werewolfRampageButton;
-    public CustomButton werewolfKillButton;
+    public CustomOption werewolfRampageCooldown;
+    public CustomOption werewolfRampageDuration;
+
+    public CustomOption werewolfSpawnRate;
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
 
     public static Vector3 getRampageVector()
@@ -50,6 +62,7 @@ public class Werewolf : RoleBase
         rampageDuration = werewolfRampageDuration.getFloat();
         killCooldown = werewolfKillCooldown.getFloat();
     }
+
     public override void ButtonCreate(HudManager _hudManager)
     {
         // Werewolf Kill
@@ -66,7 +79,7 @@ public class Werewolf : RoleBase
             () => werewolf != null && werewolf == CachedPlayer.LocalPlayer.Control &&
                   !CachedPlayer.LocalPlayer.Data.IsDead && canKill,
             () =>
-            { 
+            {
                 ButtonHelper.showTargetNameOnButton(currentTarget, werewolfKillButton, "KILL");
                 return currentTarget && CachedPlayer.LocalPlayer.Control.CanMove;
             },
@@ -111,25 +124,11 @@ public class Werewolf : RoleBase
             }
         );
     }
+
     public override void ResetCustomButton()
     {
         werewolfKillButton.MaxTimer = killCooldown;
         werewolfRampageButton.MaxTimer = rampageCooldown;
         werewolfRampageButton.EffectDuration = rampageDuration;
     }
-
-    public static readonly RoleInfo roleInfo = new()
-    {
-        Name = nameof(Werewolf),
-        RoleId = RoleId.Werewolf,
-        Color = new Color32(79, 56, 21, byte.MaxValue),
-        Description = "Rampage and kill everyone",
-        IntroInfo = "Rampage and kill everyone",
-        RoleClassType = typeof(Werewolf),
-        RoleTeam = RoleTeam.Neutral,
-        RoleType = CustomRoleType.Main,
-        GetRole = Get<Werewolf>
-    };
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace TheOtherRoles.Roles.Crewmate;
@@ -7,6 +6,19 @@ namespace TheOtherRoles.Roles.Crewmate;
 [RegisterRole]
 public class Mayor : RoleBase
 {
+    public static readonly RoleInfo roleInfo = new()
+    {
+        Name = nameof(Mayor),
+        Color = new Color32(32, 77, 66, byte.MaxValue),
+        Description = "Your vote counts twice",
+        IntroInfo = "Your vote counts twice",
+        GetRole = Get<Mayor>,
+        RoleClassType = typeof(Mayor),
+        RoleId = RoleId.Mayor,
+        RoleTeam = RoleTeam.Crewmate,
+        RoleType = CustomRoleType.Main
+    };
+
     public bool canSeeVoteColors;
     public Color color = new Color32(32, 77, 66, byte.MaxValue);
     public Minigame emergency;
@@ -18,6 +30,9 @@ public class Mayor : RoleBase
     public int tasksNeededToSeeVoteColors;
 
     public bool voteTwice = true;
+
+    public override RoleInfo RoleInfo { get; protected set; } = roleInfo;
+    public override Type RoleType { get; protected set; }
 
     public Sprite getMeetingSprite()
     {
@@ -38,20 +53,4 @@ public class Mayor : RoleBase
         mayorChooseSingleVote = CustomOptionHolder.mayorChooseSingleVote.getSelection();
         voteTwice = true;
     }
-
-    public static readonly RoleInfo roleInfo = new()
-    {
-        Name = nameof(Mayor),
-        Color = new Color32(32, 77, 66, byte.MaxValue),
-        Description = "Your vote counts twice",
-        IntroInfo = "Your vote counts twice",
-        GetRole = Get<Mayor>,
-        RoleClassType = typeof(Mayor),
-        RoleId = RoleId.Mayor,
-        RoleTeam = RoleTeam.Crewmate,
-        RoleType = CustomRoleType.Main
-    };
-
-    public override RoleInfo RoleInfo { get; protected set; } = roleInfo;
-    public override Type RoleType { get; protected set; }
 }

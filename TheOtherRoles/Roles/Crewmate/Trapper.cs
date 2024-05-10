@@ -7,21 +7,24 @@ namespace TheOtherRoles.Roles.Crewmate;
 [RegisterRole]
 public class Trapper : RoleBase
 {
-    public PlayerControl trapper;
+    public bool anonymousMap;
+    public int charges = 1;
     public Color color = new Color32(110, 57, 105, byte.MaxValue);
 
     public float cooldown = 30f;
-    public int maxCharges = 5;
-    public int rechargeTasksNumber = 3;
-    public int rechargedTasks = 3;
-    public int charges = 1;
-    public int trapCountToReveal = 2;
-    public List<PlayerControl> playersOnMap = [];
-    public bool anonymousMap;
     public int infoType; // 0 = Role, 1 = Good/Evil, 2 = Name
-    public float trapDuration = 5f;
+    public int maxCharges = 5;
+    public List<PlayerControl> playersOnMap = [];
+    public int rechargedTasks = 3;
+    public int rechargeTasksNumber = 3;
 
-    private ResourceSprite trapButtonSprite = new ("Trapper_Place_Button.png");
+    private ResourceSprite trapButtonSprite = new("Trapper_Place_Button.png");
+    public int trapCountToReveal = 2;
+    public float trapDuration = 5f;
+    public PlayerControl trapper;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public override void ClearAndReload()
     {
@@ -37,7 +40,4 @@ public class Trapper : RoleBase
         infoType = CustomOptionHolder.trapperInfoType.getSelection();
         trapDuration = CustomOptionHolder.trapperTrapDuration.getFloat();
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

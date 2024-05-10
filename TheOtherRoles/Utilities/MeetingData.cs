@@ -11,33 +11,48 @@ public static class MeetingData
     public static int CurrentMeetingHudId { get; private set; }
 
     public static List<MeetingVote> PlayerVotes(this PlayerControl player, bool isSrc)
-        => meetingVotes.Where(n =>
-            (n.SrcPlayerId == player.PlayerId && isSrc) || (n.SuspectPlayerId == player.PlayerId && !isSrc)).ToList();
-
-    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CastVote)), HarmonyPostfix]
-    private static void MeetingHud_CastVote(byte srcPlayerId, byte suspectPlayerId) => meetingVotes.Add(new MeetingVote
     {
-        MeetingId = CurrentMeetingHudId,
-        SuspectPlayerId = suspectPlayerId,
-        SrcPlayerId = srcPlayerId
-    });
+        return meetingVotes.Where(n =>
+            (n.SrcPlayerId == player.PlayerId && isSrc) || (n.SuspectPlayerId == player.PlayerId && !isSrc)).ToList();
+    }
 
-    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.ServerStart)), HarmonyPostfix]
-    private static void MeetingHud_ServerStart() => CurrentMeetingHudId++;
+    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CastVote))]
+    [HarmonyPostfix]
+    private static void MeetingHud_CastVote(byte srcPlayerId, byte suspectPlayerId)
+    {
+        meetingVotes.Add(new MeetingVote
+        {
+            MeetingId = CurrentMeetingHudId,
+            SuspectPlayerId = suspectPlayerId,
+            SrcPlayerId = srcPlayerId
+        });
+    }
+
+    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.ServerStart))]
+    [HarmonyPostfix]
+    private static void MeetingHud_ServerStart()
+    {
+        CurrentMeetingHudId++;
+    }
 
     [OnEvent("OnGameEnd")]
-    private static void OnGameEnd() => meetingVotes.Clear();
+    private static void OnGameEnd()
+    {
+        meetingVotes.Clear();
+    }
 
-    public static MeetingVote Get(this PlayerControl player, int MeetingIndex = 0) =>
-        meetingVotes.FirstOrDefault(n =>
+    public static MeetingVote Get(this PlayerControl player, int MeetingIndex = 0)
+    {
+        return meetingVotes.FirstOrDefault(n =>
             n.MeetingId == CurrentMeetingHudId - MeetingIndex && n.SrcPlayerId == player.PlayerId)!;
+    }
 }
 
 public class MeetingVote
 {
     public byte SrcPlayerId { get; set; }
-    
+
     public byte SuspectPlayerId { get; set; }
-    
+
     public int MeetingId { get; set; }
 }

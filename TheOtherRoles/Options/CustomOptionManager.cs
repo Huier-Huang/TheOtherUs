@@ -10,12 +10,20 @@ namespace TheOtherRoles.Modules.Options;
 
 public class CustomOptionManager : ManagerBase<CustomOptionManager>
 {
-    public List<CustomOption> options = [];
-    public string vanillaSettings;
-    public int CurrentPresetId;
+    private readonly Queue<int> noAssignId = [];
     public readonly HashSet<OptionPreset> presets = [];
+    public int CurrentPresetId;
+
+    // 分配选项Id
+    private int LastId;
+    public List<CustomOption> options = [];
+
+    public int OptionSplit = 35;
+
+    public string SettingSplitString = "!/!/!";
+    public string vanillaSettings;
     public OptionPreset currentPreset => presets.FirstOrDefault(n => n.PresetId == CurrentPresetId);
-    
+
     public void Register(CustomOption option)
     {
         option.optionInfo.Id = assignOptionId();
@@ -27,7 +35,7 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
         releaseOptionId(option);
         options.Remove(option);
     }
-    
+
     // 获取选项
     public bool TryGetOption(int id, [MaybeNullWhen(false)] out CustomOption option)
     {
@@ -35,17 +43,14 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
         option = varOption;
         return varOption == null;
     }
-    
+
     public bool TryGetOption(OptionBehaviour behaviour, [MaybeNullWhen(false)] out CustomOption option)
     {
         var varOption = options.FirstOrDefault(n => n.optionBehaviour == behaviour);
         option = varOption;
         return varOption == null;
     }
-    
-    // 分配选项Id
-    private int LastId;
-    private readonly Queue<int> noAssignId = [];
+
     public int assignOptionId()
     {
         if (noAssignId.TryDequeue(out var id))
@@ -55,18 +60,20 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
         LastId++;
         goto assign;
     }
-    
+
     // 释放选项Id
-    public void releaseOptionId(CustomOption option) => 
+    public void releaseOptionId(CustomOption option)
+    {
         noAssignId.Enqueue(option.optionInfo.Id);
-    
-    public void switchToPreset(int PresetId) {
+    }
+
+    public void switchToPreset(int PresetId)
+    {
         saveVanillaOptions();
     }
 
     public void SavePreset(OptionPreset preset)
     {
-        
     }
 
     public OptionPreset LoadPreset(string Preset)
@@ -76,17 +83,16 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
         return preset;
     }
 
-    public string SettingSplitString = "!/!/!";
-    
-    public void copyToClipboard() 
+    public void copyToClipboard()
     {
         GUIUtility.systemCopyBuffer = string.Join("!/!/!", Main.Version, currentPreset.Serialize(), vanillaSettings);
     }
 
-    public bool pasteFromClipboard() 
+    public bool pasteFromClipboard()
     {
         var allSettings = GUIUtility.systemCopyBuffer;
-        try {
+        try
+        {
             var settingsSplit = allSettings.Split(SettingSplitString);
             var versionInfo = Version.Parse(settingsSplit[0]);
             if (versionInfo.CompareTo(Main.Version) != 0)
@@ -99,27 +105,35 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
             vanillaSettings = vanillaSetting;
             loadVanillaOptions();
             return true;
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             Warn($"{e}: tried to paste invalid settings!");
             SoundEffectsManager.Load();
             SoundEffectsManager.play("fail");
             return false;
         }
     }
-    
-    public void saveVanillaOptions() =>
-        vanillaSettings = Convert.ToBase64String(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(GameManager.Instance.LogicOptions.currentGameOptions, false));
 
-    public void loadVanillaOptions() {
+    public void saveVanillaOptions()
+    {
+        vanillaSettings =
+            Convert.ToBase64String(
+                GameOptionsManager.Instance.gameOptionsFactory.ToBytes(
+                    GameManager.Instance.LogicOptions.currentGameOptions, false));
+    }
+
+    public void loadVanillaOptions()
+    {
         var optionsString = vanillaSettings;
         if (optionsString == "") return;
-        GameOptionsManager.Instance.GameHostOptions = GameOptionsManager.Instance.gameOptionsFactory.FromBytes(Convert.FromBase64String(optionsString));
+        GameOptionsManager.Instance.GameHostOptions =
+            GameOptionsManager.Instance.gameOptionsFactory.FromBytes(Convert.FromBase64String(optionsString));
         GameOptionsManager.Instance.CurrentGameOptions = GameOptionsManager.Instance.GameHostOptions;
         GameManager.Instance.LogicOptions.SetGameOptions(GameOptionsManager.Instance.CurrentGameOptions);
         GameManager.Instance.LogicOptions.SyncOptions();
     }
 
-    public int OptionSplit = 35;
     public void ShareAllOption()
     {
         var max = options.Count / OptionSplit;
@@ -127,21 +141,17 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
         if (max > 0)
         {
             for (var i = 1; i < max; i++)
-            {
                 SendSerializeOption((i - 1) * OptionSplit, (i * OptionSplit) - 1, OptionSplit);
-            }
 
             if (remainder != 0)
-            {
                 SendSerializeOption(max * OptionSplit, (max * OptionSplit) + remainder - 1, OptionSplit);
-            }
         }
         else
         {
             SendSerializeOption(0, options.Count - 1, options.Count);
         }
     }
-    
+
     public void ShareAllOptionSelection()
     {
         var writer = FastRpcWriter.StartNewRpcWriter(CustomRPC.Option, GameData.Instance);
@@ -168,7 +178,7 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
             option.Serialize(writer);
         }
     }
-    
+
     [RPCListener(CustomRPC.Option)]
     public static void ShareOption_Listener(MessageReader reader)
     {
@@ -183,7 +193,7 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
                 option.OptionSelection.Selection = selection;
                 break;
             }
-            
+
             case CustomOption.Option_Flag.ShareAll:
             {
                 var count = reader.ReadInt32();
@@ -193,6 +203,7 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
                     Instance.TryGetOption(id, out var option);
                     option.Deserialize(reader);
                 }
+
                 break;
             }
 
@@ -205,6 +216,7 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
                     Instance.TryGetOption(id, out var option);
                     option.OptionSelection.Selection = reader.ReadInt32();
                 }
+
                 break;
             }
         }

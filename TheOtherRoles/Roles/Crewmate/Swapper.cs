@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace TheOtherRoles.Roles.Crewmate;
@@ -7,18 +6,21 @@ namespace TheOtherRoles.Roles.Crewmate;
 [RegisterRole]
 public class Swapper : RoleBase
 {
-    public PlayerControl swapper;
-    public Color color = new Color32(134, 55, 86, byte.MaxValue);
-    private ResourceSprite spriteCheck = new ("SwapperCheck.png", 150f);
     public bool canCallEmergency;
+    public bool canFixSabotages;
     public bool canOnlySwapOthers;
     public int charges;
-    public float rechargeTasksNumber;
-    public bool canFixSabotages;
-    public float rechargedTasks;
+    public Color color = new Color32(134, 55, 86, byte.MaxValue);
 
     public byte playerId1 = byte.MaxValue;
     public byte playerId2 = byte.MaxValue;
+    public float rechargedTasks;
+    public float rechargeTasksNumber;
+    private ResourceSprite spriteCheck = new("SwapperCheck.png", 150f);
+    public PlayerControl swapper;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public override void ClearAndReload()
     {
@@ -32,7 +34,4 @@ public class Swapper : RoleBase
         rechargeTasksNumber = Mathf.RoundToInt(CustomOptionHolder.swapperRechargeTasksNumber.getFloat());
         rechargedTasks = Mathf.RoundToInt(CustomOptionHolder.swapperRechargeTasksNumber.getFloat());
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

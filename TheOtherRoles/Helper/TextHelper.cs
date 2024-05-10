@@ -40,7 +40,10 @@ public static class TextHelper
         return (byte)(f * 255);
     }
 
-    public static string Format(this string s, params object[] obj) => string.Format(s, obj);
+    public static string Format(this string s, params object[] obj)
+    {
+        return string.Format(s, obj);
+    }
 
 
 #nullable enable

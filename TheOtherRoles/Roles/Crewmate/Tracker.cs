@@ -10,27 +10,30 @@ namespace TheOtherRoles.Roles.Crewmate;
 [RegisterRole]
 public class Tracker : RoleBase
 {
-    public PlayerControl tracker;
-    public Color color = new Color32(100, 58, 220, byte.MaxValue);
-    public List<Arrow> localArrows = [];
+    public Arrow arrow = new(Color.blue);
 
-    public float updateIntervall = 5f;
-    public bool resetTargetAfterMeeting;
+    private ResourceSprite buttonSprite = new("TrackerButton.png");
     public bool canTrackCorpses;
+    public Color color = new Color32(100, 58, 220, byte.MaxValue);
     public float corpsesTrackingCooldown = 30f;
     public float corpsesTrackingDuration = 5f;
     public float corpsesTrackingTimer;
-    public List<Vector3> deadBodyPositions = [];
 
     public PlayerControl currentTarget;
-    public PlayerControl tracked;
-    public bool usedTracker;
+    public List<Vector3> deadBodyPositions = [];
+    public List<Arrow> localArrows = [];
+    public bool resetTargetAfterMeeting;
     public float timeUntilUpdate;
-    public Arrow arrow = new(Color.blue);
 
-    private ResourceSprite trackCorpsesButtonSprite = new ("PathfindButton.png");
+    private ResourceSprite trackCorpsesButtonSprite = new("PathfindButton.png");
+    public PlayerControl tracked;
+    public PlayerControl tracker;
 
-    private ResourceSprite buttonSprite = new ("TrackerButton.png");
+    public float updateIntervall = 5f;
+    public bool usedTracker;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public void resetTracked()
     {
@@ -57,7 +60,4 @@ public class Tracker : RoleBase
         corpsesTrackingDuration = CustomOptionHolder.trackerCorpsesTrackingDuration.getFloat();
         canTrackCorpses = CustomOptionHolder.trackerCanTrackCorpses.getBool();
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

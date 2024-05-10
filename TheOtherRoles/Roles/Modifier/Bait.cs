@@ -7,13 +7,16 @@ namespace TheOtherRoles.Roles.Modifier;
 [RegisterRole]
 public class Bait : RoleBase
 {
-    public List<PlayerControl> bait = [];
     public Dictionary<DeadPlayer, float> active = new();
+    public List<PlayerControl> bait = [];
     public Color color = new Color32(0, 247, 255, byte.MaxValue);
+    public float reportDelayMax;
 
     public float reportDelayMin;
-    public float reportDelayMax;
     public bool showKillFlash = true;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public override void ClearAndReload()
     {
@@ -24,7 +27,4 @@ public class Bait : RoleBase
         if (reportDelayMin > reportDelayMax) reportDelayMin = reportDelayMax;
         showKillFlash = CustomOptionHolder.modifierBaitShowKillFlash.getBool();
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

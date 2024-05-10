@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace TheOtherRoles.Roles.Crewmate;
@@ -7,26 +6,28 @@ namespace TheOtherRoles.Roles.Crewmate;
 [RegisterRole]
 public class Medic : RoleBase
 {
-    public PlayerControl medic;
-    public PlayerControl shielded;
-    public PlayerControl futureShielded;
+    private ResourceSprite buttonSprite = new("ShieldButton.png");
 
     public Color color = new Color32(126, 251, 194, byte.MaxValue);
-    public bool usedShield;
-
-    public int showShielded;
-    public bool showAttemptToShielded;
-    public bool showAttemptToMedic;
-    public bool unbreakableShield = true;
-    public bool setShieldAfterMeeting;
-    public bool showShieldAfterMeeting;
+    public PlayerControl currentTarget;
+    public PlayerControl futureShielded;
+    public PlayerControl medic;
     public bool meetingAfterShielding;
     public bool reset;
+    public bool setShieldAfterMeeting;
+    public PlayerControl shielded;
 
     public Color shieldedColor = new Color32(0, 221, 255, byte.MaxValue);
-    public PlayerControl currentTarget;
+    public bool showAttemptToMedic;
+    public bool showAttemptToShielded;
+    public bool showShieldAfterMeeting;
 
-    private ResourceSprite buttonSprite = new("ShieldButton.png");
+    public int showShielded;
+    public bool unbreakableShield = true;
+    public bool usedShield;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public void resetShielded()
     {
@@ -51,7 +52,4 @@ public class Medic : RoleBase
         showShieldAfterMeeting = CustomOptionHolder.medicSetOrShowShieldAfterMeeting.getSelection() == 1;
         meetingAfterShielding = false;
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

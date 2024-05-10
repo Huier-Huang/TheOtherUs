@@ -1,17 +1,18 @@
 using System;
-using UnityEngine;
 
 namespace TheOtherRoles.Roles.Modifier;
 
 [RegisterRole]
 public class Shifter : RoleBase
 {
-    public PlayerControl shifter;
-
-    public PlayerControl futureShift;
+    private ResourceSprite buttonSprite = new("ShiftButton.png");
     public PlayerControl currentTarget;
 
-    private ResourceSprite buttonSprite = new ("ShiftButton.png");
+    public PlayerControl futureShift;
+    public PlayerControl shifter;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; } = typeof(Shifter);
 
     public override void ClearAndReload()
     {
@@ -19,7 +20,4 @@ public class Shifter : RoleBase
         currentTarget = null;
         futureShift = null;
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; } = typeof(Shifter);
 }

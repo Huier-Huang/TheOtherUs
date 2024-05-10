@@ -1,8 +1,6 @@
-using Hazel;
 using System;
-using System.Collections.Generic;
+using Hazel;
 using TheOtherRoles.CustomGameModes;
-using TheOtherRoles.Modules.Options;
 using TheOtherRoles.Objects;
 using UnityEngine;
 
@@ -11,31 +9,34 @@ namespace TheOtherRoles.Roles.Impostor;
 [RegisterRole]
 public class Vampire : RoleBase
 {
-    public PlayerControl vampire;
-    public Color color = Palette.ImpostorRed;
+    public PlayerControl bitten;
 
-    public float delay = 10f;
-    public float cooldown = 30f;
+    private readonly ResourceSprite buttonSprite = new("VampireButton.png");
     public bool canKillNearGarlics = true;
-    public bool localPlacedGarlic;
-    public bool garlicsActive = true;
-    public bool GarlicButton;
+    public Color color = Palette.ImpostorRed;
+    public float cooldown = 30f;
 
     public PlayerControl currentTarget;
-    public PlayerControl bitten;
-    public bool targetNearGarlic;
 
-    public CustomOption vampireSpawnRate;
-    public CustomOption vampireKillDelay;
+    public float delay = 10f;
+    public CustomButton garlicButton;
+    public bool GarlicButton;
+    private readonly ResourceSprite garlicButtonSprite = new("GarlicButton.png");
+    public bool garlicsActive = true;
+    public bool localPlacedGarlic;
+    public bool targetNearGarlic;
+    public PlayerControl vampire;
+    public CustomOption vampireCanKillNearGarlics;
     public CustomOption vampireCooldown;
     public CustomOption vampireGarlicButton;
-    public CustomOption vampireCanKillNearGarlics;
 
     public CustomButton vampireKillButton;
-    public CustomButton garlicButton;
+    public CustomOption vampireKillDelay;
 
-    private ResourceSprite buttonSprite = new("VampireButton.png");
-    private ResourceSprite garlicButtonSprite = new("GarlicButton.png");
+    public CustomOption vampireSpawnRate;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public override void ClearAndReload()
     {
@@ -50,6 +51,7 @@ public class Vampire : RoleBase
         canKillNearGarlics = vampireCanKillNearGarlics.getBool();
         GarlicButton = vampireGarlicButton.getBool();
     }
+
     public override void OptionCreate()
     {
         vampireSpawnRate = new CustomOption(40, "Vampire".ColorString(color), CustomOptionHolder.rates, null, true);
@@ -60,12 +62,10 @@ public class Vampire : RoleBase
         vampireGarlicButton = new CustomOption(43277854, "Enable Garlic", true, vampireSpawnRate);
         vampireCanKillNearGarlics = new CustomOption(43, "Vampire Can Kill Near Garlics", true,
             vampireGarlicButton);
-
     }
-    
+
     public override void ButtonCreate(HudManager _hudManager)
     {
-
         vampireKillButton = new CustomButton(
             () =>
             {
@@ -235,7 +235,4 @@ public class Vampire : RoleBase
         vampireKillButton.MaxTimer = cooldown;
         vampireKillButton.EffectDuration = delay;
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

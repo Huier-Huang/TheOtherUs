@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Hazel;
 using TheOtherRoles.Objects;
 using TheOtherRoles.Roles.Modifier;
@@ -11,23 +10,25 @@ namespace TheOtherRoles.Roles.Impostor;
 [RegisterRole]
 public class Bomber : RoleBase
 {
+    public Bomb bomb;
+    public float bombActiveAfter = 3f;
+    public float bombCooldown = 15f;
     public PlayerControl bomber;
+    public CustomButton bomberButton;
+
+    private readonly ResourceSprite buttonSprite = new("Bomb_Button_Plant.png");
     public Color color = Palette.ImpostorRed;
 
-    public Bomb bomb;
-    public bool isPlanted;
-    public bool isActive;
-    public float destructionTime = 20f;
-    public float destructionRange = 2f;
-    public float hearRange = 30f;
-    public float defuseDuration = 3f;
-    public float bombCooldown = 15f;
-    public float bombActiveAfter = 3f;
-
-    private ResourceSprite buttonSprite = new ("Bomb_Button_Plant.png");
-
     public CustomButton defuseButton;
-    public CustomButton bomberButton;
+    public float defuseDuration = 3f;
+    public float destructionRange = 2f;
+    public float destructionTime = 20f;
+    public float hearRange = 30f;
+    public bool isActive;
+    public bool isPlanted;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public void clearBomb(bool flag = true)
     {
@@ -58,6 +59,7 @@ public class Bomber : RoleBase
         bombActiveAfter = CustomOptionHolder.bomberBombActiveAfter.getFloat();
         Bomb.clearBackgroundSprite();
     }
+
     public override void ButtonCreate(HudManager _hudManager)
     {
         // Bomber button
@@ -107,7 +109,9 @@ public class Bomber : RoleBase
             () => { defuseButton.HasEffect = true; },
             () =>
             {
-                defuseButton.PositionOffset = Get<Shifter>().shifterShiftButton.HasButton() ? new Vector3(0f, 2f, 0f) : new Vector3(0f, 1f, 0f);
+                defuseButton.PositionOffset = Get<Shifter>().shifterShiftButton.HasButton()
+                    ? new Vector3(0f, 2f, 0f)
+                    : new Vector3(0f, 1f, 0f);
                 return bomb != null && Bomb.canDefuse && !CachedPlayer.LocalPlayer.Data.IsDead;
             },
             () =>
@@ -144,15 +148,11 @@ public class Bomber : RoleBase
             true
         );
     }
+
     public override void ResetCustomButton()
     {
         bomberButton.MaxTimer = bombCooldown;
         defuseButton.EffectDuration = defuseDuration;
         bomberButton.EffectDuration = destructionTime + bombActiveAfter;
-
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
-    
 }

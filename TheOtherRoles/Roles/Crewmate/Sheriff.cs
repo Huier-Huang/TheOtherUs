@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using TheOtherRoles.Modules.Options;
 using TheOtherRoles.Objects;
 using TheOtherRoles.Roles.Modifier;
 using TheOtherRoles.Roles.Neutral;
@@ -11,25 +9,56 @@ namespace TheOtherRoles.Roles.Crewmate;
 [RegisterRole]
 public class Sheriff : RoleBase
 {
-    public PlayerControl sheriff;
+    public static readonly RoleInfo roleInfo = new()
+    {
+        Name = nameof(sheriff),
+        Color = new Color32(248, 205, 70, byte.MaxValue),
+        Description = "Shoot the Impostors",
+        IntroInfo = "Shoot the <color=#FF1919FF>Impostors</color>",
+        RoleId = RoleId.Sheriff,
+        RoleTeam = RoleTeam.Crewmate,
+        RoleType = CustomRoleType.Main,
+        GetRole = Get<Sheriff>
+    };
+
+    public bool canKillAmnesiac;
+    public bool canKillArsonist;
+    public bool canKillJester;
+    public bool canKillLawyer;
+    public bool canKillNeutrals;
+    public bool canKillProsecutor;
+    public bool canKillPursuer;
+    public bool canKillThief;
+    public bool canKillVulture;
 
     public float cooldown = 30f;
-    public bool canKillNeutrals;
-    public bool canKillArsonist;
-    public bool canKillLawyer;
-    public bool canKillJester;
-    public bool canKillPursuer;
-    public bool canKillVulture;
-    public bool canKillThief;
-    public bool canKillAmnesiac;
-    public bool canKillProsecutor;
-    public bool spyCanDieToSheriff;
-    public int misfireKills; // Self: 0, Target: 1, Both: 2
 
     public PlayerControl currentTarget;
 
     public PlayerControl formerDeputy; // Needed for keeping handcuffs + shifting
     public PlayerControl formerSheriff; // When deputy gets promoted...
+    public int misfireKills; // Self: 0, Target: 1, Both: 2
+    public PlayerControl sheriff;
+    public CustomOption sheriffCanKillAmnesiac;
+    public CustomOption sheriffCanKillArsonist;
+    public CustomOption sheriffCanKillJester;
+    public CustomOption sheriffCanKillLawyer;
+    public CustomOption sheriffCanKillNeutrals;
+    public CustomOption sheriffCanKillProsecutor;
+    public CustomOption sheriffCanKillPursuer;
+    public CustomOption sheriffCanKillThief;
+    public CustomOption sheriffCanKillVulture;
+    public CustomOption sheriffCooldown;
+
+    public CustomButton sheriffKillButton;
+    public CustomOption sheriffMisfireKills;
+
+
+    public CustomOption sheriffSpawnRate;
+    public bool spyCanDieToSheriff;
+
+    public override RoleInfo RoleInfo { get; protected set; } = roleInfo;
+    public override Type RoleType { get; protected set; } = typeof(Sheriff);
 
     public void replaceCurrentSheriff(PlayerControl deputy)
     {
@@ -59,22 +88,10 @@ public class Sheriff : RoleBase
         spyCanDieToSheriff = CustomOptionHolder.spyCanDieToSheriff;
     }
 
-
-    public CustomOption sheriffSpawnRate;
-    public CustomOption sheriffMisfireKills;
-    public CustomOption sheriffCooldown;
-    public CustomOption sheriffCanKillNeutrals;
-    public CustomOption sheriffCanKillArsonist;
-    public CustomOption sheriffCanKillLawyer;
-    public CustomOption sheriffCanKillProsecutor;
-    public CustomOption sheriffCanKillJester;
-    public CustomOption sheriffCanKillVulture;
-    public CustomOption sheriffCanKillThief;
-    public CustomOption sheriffCanKillAmnesiac;
-    public CustomOption sheriffCanKillPursuer;
     public override void OptionCreate()
     {
-        sheriffSpawnRate = new CustomOption(100, "Sheriff".ColorString(roleInfo.Color), CustomOptionHolder.rates, null, true);
+        sheriffSpawnRate = new CustomOption(100, "Sheriff".ColorString(roleInfo.Color), CustomOptionHolder.rates, null,
+            true);
         sheriffCooldown =
             new CustomOption(101, "Sheriff Cooldown", 30f, 10f, 60f, 2.5f, sheriffSpawnRate);
         sheriffMisfireKills = new CustomOption(2101, "Misfire Kills",
@@ -99,7 +116,6 @@ public class Sheriff : RoleBase
             "Sheriff Can Kill " + "Pursuer".ColorString(GetColor<Pursuer>()), false, sheriffCanKillNeutrals);
     }
 
-    public CustomButton sheriffKillButton;
     public override void ButtonCreate(HudManager _hudManager)
     {
         sheriffKillButton = new CustomButton(
@@ -114,54 +130,55 @@ public class Sheriff : RoleBase
                     case MurderAttemptResult.PerformKill:
                     {
                         var targetId = PlayerControl.LocalPlayer.PlayerId;
-                        if 
+                        if
                         (
-                            (!currentTarget.Is<Mini>() || Get<Mini>().isGrownUp() 
-                                && 
-                                (currentTarget.Data.Role.IsImpostor || (currentTarget.GetRole() is Jackal or Sidekick or Werewolf))
-                                 ||
-                                 (spyCanDieToSheriff && currentTarget.Is<Spy>()) 
-                                ||
-                                 (
-                                     canKillNeutrals 
-                                     &&
-                                     (
-                                         (currentTarget.Is<Arsonist>() && canKillArsonist) || 
-                                         (currentTarget.Is<Jester>() && canKillJester) || 
-                                         (currentTarget.Is<Vulture>() && canKillVulture) || 
-                                         (currentTarget.Is<Lawyer>() && canKillLawyer && !Get<Lawyer>().isProsecutor) || 
-                                         (currentTarget.Is<Thief>() && canKillThief) || 
-                                         (currentTarget.Is<Amnisiac>() && canKillAmnesiac) || 
-                                         (currentTarget.Is<Lawyer>() && canKillProsecutor && Get<Lawyer>().isProsecutor) || 
-                                         (currentTarget.Is<Pursuer>() && canKillPursuer)
-                                     )
-                                 )
-                         ))
-                        {
+                            !currentTarget.Is<Mini>() || (Get<Mini>().isGrownUp()
+                                                          &&
+                                                          (currentTarget.Data.Role.IsImpostor ||
+                                                           currentTarget.GetRole() is Jackal or Sidekick or Werewolf))
+                                                      ||
+                                                      (spyCanDieToSheriff && currentTarget.Is<Spy>())
+                                                      ||
+                                                      (
+                                                          canKillNeutrals
+                                                          &&
+                                                          (
+                                                              (currentTarget.Is<Arsonist>() && canKillArsonist) ||
+                                                              (currentTarget.Is<Jester>() && canKillJester) ||
+                                                              (currentTarget.Is<Vulture>() && canKillVulture) ||
+                                                              (currentTarget.Is<Lawyer>() && canKillLawyer &&
+                                                               !Get<Lawyer>().isProsecutor) ||
+                                                              (currentTarget.Is<Thief>() && canKillThief) ||
+                                                              (currentTarget.Is<Amnisiac>() && canKillAmnesiac) ||
+                                                              (currentTarget.Is<Lawyer>() && canKillProsecutor &&
+                                                               Get<Lawyer>().isProsecutor) ||
+                                                              (currentTarget.Is<Pursuer>() && canKillPursuer)
+                                                          )
+                                                      ))
                             targetId = currentTarget.PlayerId;
-                        }
-                        else switch (misfireKills)
-                        {
-                            case 0:
-                                targetId = CachedPlayer.LocalPlayer.PlayerId;
-                                break;
-                            case 1:
-                                targetId = currentTarget.PlayerId;
-                                break;
-                            case 2:
+                        else
+                            switch (misfireKills)
                             {
-                                targetId = currentTarget.PlayerId;
-                                
-                                var killWriter2 = FastRpcWriter.StartNewRpcWriter(CustomRPC.UncheckedMurderPlayer)
-                                .Write(sheriff.Data.PlayerId)
-                                .Write(CachedPlayer.LocalPlayer.PlayerId)
-                                .Write(byte.MaxValue);
-                                killWriter2.RPCSend();
-                                RPCProcedure.uncheckedMurderPlayer(sheriff.Data.PlayerId,
-                                    CachedPlayer.LocalPlayer.PlayerId, byte.MaxValue);
-                                break;
+                                case 0:
+                                    targetId = CachedPlayer.LocalPlayer.PlayerId;
+                                    break;
+                                case 1:
+                                    targetId = currentTarget.PlayerId;
+                                    break;
+                                case 2:
+                                {
+                                    targetId = currentTarget.PlayerId;
+
+                                    var killWriter2 = FastRpcWriter.StartNewRpcWriter(CustomRPC.UncheckedMurderPlayer)
+                                        .Write(sheriff.Data.PlayerId)
+                                        .Write(CachedPlayer.LocalPlayer.PlayerId)
+                                        .Write(byte.MaxValue);
+                                    killWriter2.RPCSend();
+                                    RPCProcedure.uncheckedMurderPlayer(sheriff.Data.PlayerId,
+                                        CachedPlayer.LocalPlayer.PlayerId, byte.MaxValue);
+                                    break;
+                                }
                             }
-                        }
 
                         var killWriter = FastRpcWriter.StartNewRpcWriter(CustomRPC.UncheckedMurderPlayer)
                             .Write(sheriff.Data.PlayerId)
@@ -198,21 +215,4 @@ public class Sheriff : RoleBase
     {
         sheriffKillButton.MaxTimer = cooldown;
     }
-
-    public static readonly RoleInfo roleInfo = new()
-    {
-        Name = nameof(sheriff),
-        Color = new Color32(248, 205, 70, byte.MaxValue),
-        Description = "Shoot the Impostors",
-        IntroInfo = "Shoot the <color=#FF1919FF>Impostors</color>",
-        RoleId = RoleId.Sheriff,
-        RoleTeam = RoleTeam.Crewmate,
-        RoleType = CustomRoleType.Main,
-        GetRole = Get<Sheriff>
-    };
-
-    public override RoleInfo RoleInfo { get; protected set; } = roleInfo;
-    public override Type RoleType { get; protected set; } = typeof(Sheriff);
-    
-    
 }

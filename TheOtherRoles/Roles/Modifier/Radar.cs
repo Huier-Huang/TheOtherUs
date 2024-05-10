@@ -9,11 +9,14 @@ namespace TheOtherRoles.Roles.Modifier;
 [RegisterRole]
 public class Radar : RoleBase
 {
-    public PlayerControl radar;
-    public List<Arrow> localArrows = [];
     public PlayerControl ClosestPlayer;
     public Color color = new Color32(255, 0, 128, byte.MaxValue);
+    public List<Arrow> localArrows = [];
+    public PlayerControl radar;
     public bool showArrows = true;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
 
     public override void ClearAndReload()
@@ -26,7 +29,4 @@ public class Radar : RoleBase
                     Object.Destroy(arrow.arrow);
         localArrows = [];
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

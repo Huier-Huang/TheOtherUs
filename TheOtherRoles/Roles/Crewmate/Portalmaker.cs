@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace TheOtherRoles.Roles.Crewmate;
@@ -7,37 +6,6 @@ namespace TheOtherRoles.Roles.Crewmate;
 [RegisterRole]
 public class Portalmaker : RoleBase
 {
-    public PlayerControl portalmaker;
-    public Color color = new Color32(69, 69, 169, byte.MaxValue);
-
-    public float cooldown;
-    public float usePortalCooldown;
-    public bool logOnlyHasColors;
-    public bool logShowsTime;
-    public bool canPortalFromAnywhere;
-
-    private ResourceSprite placePortalButtonSprite = new ("PlacePortalButton.png");
-    private ResourceSprite usePortalButtonSprite = new ("UsePortalButton.png");
-    private ResourceSprite usePortalSpecialButtonSprite1 = new ("UsePortalSpecialButton1.png");
-    private ResourceSprite usePortalSpecialButtonSprite2 = new ("UsePortalSpecialButton2.png");
-    private ResourceSprite logSprite = new ()
-    {
-        ReturnSprite = FastDestroyableSingleton<HudManager>.Instance.UseButton.fastUseSettings[ImageNames.DoorLogsButton]
-            .Image
-    };
-
-    public Sprite getUsePortalSpecialButtonSprite(bool first) => first ? usePortalSpecialButtonSprite1 : usePortalSpecialButtonSprite2;
-
-    public override void ClearAndReload()
-    {
-        portalmaker = null;
-        cooldown = CustomOptionHolder.portalmakerCooldown.getFloat();
-        usePortalCooldown = CustomOptionHolder.portalmakerUsePortalCooldown.getFloat();
-        logOnlyHasColors = CustomOptionHolder.portalmakerLogOnlyColorType.getBool();
-        logShowsTime = CustomOptionHolder.portalmakerLogHasTime.getBool();
-        canPortalFromAnywhere = CustomOptionHolder.portalmakerCanPortalFromAnywhere.getBool();
-    }
-
     public static readonly RoleInfo roleInfo = new()
     {
         Name = nameof(Portalmaker),
@@ -51,6 +19,42 @@ public class Portalmaker : RoleBase
         RoleType = CustomRoleType.Main
     };
 
+    public bool canPortalFromAnywhere;
+    public Color color = new Color32(69, 69, 169, byte.MaxValue);
+
+    public float cooldown;
+    public bool logOnlyHasColors;
+    public bool logShowsTime;
+
+    private ResourceSprite logSprite = new()
+    {
+        ReturnSprite = FastDestroyableSingleton<HudManager>.Instance.UseButton
+            .fastUseSettings[ImageNames.DoorLogsButton]
+            .Image
+    };
+
+    private ResourceSprite placePortalButtonSprite = new("PlacePortalButton.png");
+    public PlayerControl portalmaker;
+    private ResourceSprite usePortalButtonSprite = new("UsePortalButton.png");
+    public float usePortalCooldown;
+    private readonly ResourceSprite usePortalSpecialButtonSprite1 = new("UsePortalSpecialButton1.png");
+    private readonly ResourceSprite usePortalSpecialButtonSprite2 = new("UsePortalSpecialButton2.png");
+
     public override RoleInfo RoleInfo { get; protected set; } = roleInfo;
     public override Type RoleType { get; protected set; }
+
+    public Sprite getUsePortalSpecialButtonSprite(bool first)
+    {
+        return first ? usePortalSpecialButtonSprite1 : usePortalSpecialButtonSprite2;
+    }
+
+    public override void ClearAndReload()
+    {
+        portalmaker = null;
+        cooldown = CustomOptionHolder.portalmakerCooldown.getFloat();
+        usePortalCooldown = CustomOptionHolder.portalmakerUsePortalCooldown.getFloat();
+        logOnlyHasColors = CustomOptionHolder.portalmakerLogOnlyColorType.getBool();
+        logShowsTime = CustomOptionHolder.portalmakerLogHasTime.getBool();
+        canPortalFromAnywhere = CustomOptionHolder.portalmakerCanPortalFromAnywhere.getBool();
+    }
 }

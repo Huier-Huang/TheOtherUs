@@ -9,22 +9,16 @@ namespace TheOtherRoles.Options;
 
 public abstract class OptionTabMenuBase
 {
-    public List<OptionTab> OptionTabs { get; set; } = [];
+    public List<CustomOption> AllOption = [];
+    public OptionTab CurrentTab;
+    public Vector3 defPos;
+    public GameObject GameSettings;
+    public GameObject GameTab;
 
     public bool IsDefault;
-    public OptionTab CurrentTab;
-    public GameObject GameSettings;
     public GameObject RoleTab;
-    public GameObject GameTab;
-    public List<CustomOption> AllOption = [];
-    public Vector3 defPos;
-    
-#nullable enable
-    public Vector3? CurrentPos;
-    public StringOption? StringOptionTemplate;
-    public GameSettingMenu? GameSettingMenu;
-#nullable disable
-    
+    public List<OptionTab> OptionTabs { get; set; } = [];
+
     public virtual void CreateTabMenu(GameOptionsMenu __instance)
     {
         IsDefault = true;
@@ -36,21 +30,20 @@ public abstract class OptionTabMenuBase
         StringOptionTemplate ??= Object.FindObjectsOfType<StringOption>().FirstOrDefault();
         GameSettingMenu ??= Object.FindObjectsOfType<GameSettingMenu>().FirstOrDefault();
         GameSettingMenu!.RolesSettings.gameObject.Destroy();
-        
+
         foreach (var optionTab in OptionTabs)
         {
             SetOptions(__instance, optionTab);
             optionTab.CreateTab(this);
             optionTab.SetActive(false);
         }
-        
+
         UpdateOptionTab();
         SetTabPos();
     }
 
     public virtual void SetOptions(GameOptionsMenu __instance, OptionTab menu)
     {
-        
     }
 
     public void UpdateOptionTab()
@@ -71,7 +64,8 @@ public abstract class OptionTabMenuBase
 
     public void SetTabPos()
     {
-        CurrentPos = defPos + Vector3.left * 3f;;
+        CurrentPos = defPos + (Vector3.left * 3f);
+        ;
         GameTab.transform.position += Vector3.left * 3f;
         foreach (var tab in OptionTabs)
         {
@@ -80,32 +74,40 @@ public abstract class OptionTabMenuBase
             CurrentPos += Vector3.right * 1f;
         }
     }
+
+#nullable enable
+    public Vector3? CurrentPos;
+    public StringOption? StringOptionTemplate;
+    public GameSettingMenu? GameSettingMenu;
+#nullable disable
 }
 
 public sealed class OptionTab
 {
     public string TabName { get; set; }
-    
+
     public ResourceSprite TabSprite { get; set; }
 
     public Vector3 TabPos { get; set; }
 
     public OptionTypes OptionType { get; set; }
-    
+
     public GameObject TabGameObject { get; set; }
-    
+
     public GameObject TabHighlightGameObject { get; set; }
-    
+
     public SpriteRenderer TabHighlightSpriteRenderer { get; set; }
-    
-    #nullable enable
+
+#nullable enable
     public List<CustomOption>? Options { get; set; }
-    #nullable disable
+#nullable disable
 
     public void CreateTab(OptionTabMenuBase optionTabMenuBase)
     {
-        TabHighlightGameObject = Object.Instantiate(optionTabMenuBase.RoleTab, optionTabMenuBase.RoleTab.transform.parent);
-        TabHighlightSpriteRenderer = TabHighlightGameObject.transform.FindChild("Hat Button").FindChild("Tab Background")
+        TabHighlightGameObject =
+            Object.Instantiate(optionTabMenuBase.RoleTab, optionTabMenuBase.RoleTab.transform.parent);
+        TabHighlightSpriteRenderer = TabHighlightGameObject.transform.FindChild("Hat Button")
+            .FindChild("Tab Background")
             .GetComponent<SpriteRenderer>();
         TabHighlightGameObject.transform.FindChild("Hat Button").FindChild("Icon").GetComponent<SpriteRenderer>()
             .sprite = TabSprite;
@@ -127,7 +129,6 @@ public sealed class OptionTab
     }
 }
 
-
 public class ClassicTabMenu : OptionTabMenuBase
 {
     public readonly OptionTab TORSettings = new()
@@ -136,10 +137,9 @@ public class ClassicTabMenu : OptionTabMenuBase
         TabSprite = new ResourceSprite("TheOtherRoles.Resources.TabIcon.png"),
         TabPos = Vector3.left * 2f
     };
-    
+
     public ClassicTabMenu()
     {
         OptionTabs.Add(TORSettings);
     }
-
 }

@@ -1,8 +1,7 @@
-using Hazel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TheOtherRoles.Modules.Options;
+using Hazel;
 using TheOtherRoles.Objects;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -12,24 +11,26 @@ namespace TheOtherRoles.Roles.Neutral;
 [RegisterRole]
 public class Vulture : RoleBase
 {
-    public PlayerControl vulture;
-    public Color color = new Color32(139, 69, 19, byte.MaxValue);
-    public List<Arrow> localArrows = [];
-    public float cooldown = 30f;
-    public int eatNumberToWin = 4;
-    public int eatenBodies;
-    public bool triggerVultureWin;
+    private readonly ResourceSprite buttonSprite = new("VultureButton.png");
     public bool canUseVents = true;
+    public Color color = new Color32(139, 69, 19, byte.MaxValue);
+    public float cooldown = 30f;
+    public int eatenBodies;
+    public int eatNumberToWin = 4;
+    public List<Arrow> localArrows = [];
     public bool showArrows = true;
-    private ResourceSprite buttonSprite = new ("VultureButton.png");
-
-    public CustomOption vultureSpawnRate;
-    public CustomOption vultureCooldown;
-    public CustomOption vultureNumberToWin;
+    public bool triggerVultureWin;
+    public PlayerControl vulture;
     public CustomOption vultureCanUseVents;
-    public CustomOption vultureShowArrows;
+    public CustomOption vultureCooldown;
 
     public CustomButton vultureEatButton;
+    public CustomOption vultureNumberToWin;
+    public CustomOption vultureShowArrows;
+
+    public CustomOption vultureSpawnRate;
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public override void ClearAndReload()
     {
@@ -45,14 +46,17 @@ public class Vulture : RoleBase
                 Object.Destroy(arrow.arrow);
         localArrows = [];
     }
+
     public override void OptionCreate()
     {
         vultureSpawnRate = new CustomOption(340, "Vulture".ColorString(color), CustomOptionHolder.rates, null, true);
         vultureCooldown = new CustomOption(341, "Vulture Cooldown", 15f, 10f, 60f, 2.5f, vultureSpawnRate);
-        vultureNumberToWin = new CustomOption(342, "Number Of Corpses Needed To Be Eaten", 4f, 1f, 10f, 1f, vultureSpawnRate);
+        vultureNumberToWin =
+            new CustomOption(342, "Number Of Corpses Needed To Be Eaten", 4f, 1f, 10f, 1f, vultureSpawnRate);
         vultureCanUseVents = new CustomOption(343, "Vulture Can Use Vents", true, vultureSpawnRate);
         vultureShowArrows = new CustomOption(344, "Show Arrows Pointing Towards The Corpses", true, vultureSpawnRate);
     }
+
     public override void ButtonCreate(HudManager _hudManager)
     {
         // Vulture Eat
@@ -114,6 +118,4 @@ public class Vulture : RoleBase
     {
         vultureEatButton.MaxTimer = cooldown;
     }
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 }

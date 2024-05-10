@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using Hazel;
-using TheOtherRoles.Modules.Options;
 using TheOtherRoles.Objects;
 using UnityEngine;
 
@@ -10,34 +8,38 @@ namespace TheOtherRoles.Roles.Impostor;
 [RegisterRole]
 public class Bomber2 : RoleBase
 {
-    public PlayerControl bomber2;
-    public Color color = Palette.ImpostorRed;
     public Color alertColor = Palette.ImpostorRed;
 
-    public float cooldown = 30f;
-    public float bombDelay = 10f;
-    public float bombTimer = 10f;
-
     public bool bombActive;
+    public float bombDelay = 10f;
 
-    // public static bool hotPotatoMode = false;
-    public PlayerControl currentBombTarget = null;
-    public bool hasAlerted = false;
-    public int timeLeft = 0;
-    public PlayerControl currentTarget = null;
-    public PlayerControl hasBomb;
-
-    public CustomOption bomber2SpawnRate;
-    public CustomOption bomber2BombCooldown;
-    public CustomOption bomber2Delay;
-    public CustomOption bomber2Timer;
+    public PlayerControl bomber2;
     //public CustomOption bomber2HotPotatoMode;
 
     private CustomButton bomber2BombButton;
+    public CustomOption bomber2BombCooldown;
+    public CustomOption bomber2Delay;
     private CustomButton bomber2KillButton;
 
+    public CustomOption bomber2SpawnRate;
+    public CustomOption bomber2Timer;
+    public float bombTimer = 10f;
 
-    private ResourceSprite buttonSprite = new ("Bomber2.png");
+
+    private readonly ResourceSprite buttonSprite = new("Bomber2.png");
+    public Color color = Palette.ImpostorRed;
+
+    public float cooldown = 30f;
+
+    // public static bool hotPotatoMode = false;
+    public PlayerControl currentBombTarget = null;
+    public PlayerControl currentTarget = null;
+    public bool hasAlerted = false;
+    public PlayerControl hasBomb;
+    public int timeLeft = 0;
+
+    public override RoleInfo RoleInfo { get; protected set; }
+    public override Type RoleType { get; protected set; }
 
     public override void ClearAndReload()
     {
@@ -47,20 +49,20 @@ public class Bomber2 : RoleBase
         bombDelay = bomber2Delay.getFloat();
         bombTimer = bomber2Timer.getFloat();
     }
+
     public override void OptionCreate()
     {
-        bomber2SpawnRate = new CustomOption(8840, "Bomber [BETA]".ColorString(color), CustomOptionHolder.rates, null, true);
+        bomber2SpawnRate =
+            new CustomOption(8840, "Bomber [BETA]".ColorString(color), CustomOptionHolder.rates, null, true);
         bomber2BombCooldown = new CustomOption(8841, "Bomber2 Cooldown", 30f, 25f, 60f, 2.5f,
             bomber2SpawnRate);
         bomber2Delay = new CustomOption(8842, "Bomb Delay", 10f, 1f, 20f, 0.5f, bomber2SpawnRate);
         bomber2Timer = new CustomOption(8843, "Bomb Timer", 10f, 5f, 30f, 5f, bomber2SpawnRate);
         //bomber2HotPotatoMode = new CustomOption(2526236, "Hot Potato Mode", false, bomber2SpawnRate);
     }
+
     public override void ButtonCreate(HudManager _hudManager)
     {
-
-
-
         bomber2BombButton = new CustomButton(
             () =>
             {
@@ -154,6 +156,7 @@ public class Bomber2 : RoleBase
             KeyCode.B
         );
     }
+
     public override void ResetCustomButton()
     {
         bomber2KillButton.MaxTimer = 0f;
@@ -161,8 +164,4 @@ public class Bomber2 : RoleBase
         bomber2BombButton.MaxTimer = cooldown;
         bomber2BombButton.EffectDuration = bombDelay + bombTimer;
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
-    
 }
