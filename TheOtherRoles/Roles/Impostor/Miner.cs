@@ -11,7 +11,7 @@ namespace TheOtherRoles.Roles.Impostor;
 [RegisterRole]
 public class Miner : RoleBase
 {
-    public readonly List<Vent> Vents = new();
+    public readonly List<Vent> Vents = [];
     public PlayerControl miner;
     public DateTime LastMined;
 

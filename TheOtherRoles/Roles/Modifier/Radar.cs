@@ -10,7 +10,7 @@ namespace TheOtherRoles.Roles.Modifier;
 public class Radar : RoleBase
 {
     public PlayerControl radar;
-    public List<Arrow> localArrows = new();
+    public List<Arrow> localArrows = [];
     public PlayerControl ClosestPlayer;
     public Color color = new Color32(255, 0, 128, byte.MaxValue);
     public bool showArrows = true;
@@ -24,7 +24,7 @@ public class Radar : RoleBase
             foreach (var arrow in localArrows)
                 if (arrow?.arrow != null)
                     Object.Destroy(arrow.arrow);
-        localArrows = new List<Arrow>();
+        localArrows = [];
     }
 
     public override RoleInfo RoleInfo { get; protected set; }

@@ -12,7 +12,7 @@ namespace TheOtherRoles.Objects
         private static Sprite bombSprite;
         private static Sprite backgroundSprite;
         private static Sprite defuseSprite;
-        public static bool canDefuse = false;
+        public static bool canDefuse;
 
         public static Sprite getBombSprite() {
             if (bombSprite) return bombSprite;

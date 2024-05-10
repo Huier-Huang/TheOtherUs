@@ -6,7 +6,7 @@ using UnityEngine;
 namespace TheOtherRoles.Objects
 {
     class NinjaTrace {
-        public static List<NinjaTrace> traces = new List<NinjaTrace>();
+        public static List<NinjaTrace> traces = [];
 
         private GameObject trace;
         private float timeRemaining;
@@ -63,7 +63,7 @@ namespace TheOtherRoles.Objects
         }
 
         public static void clearTraces() {
-            traces = new List<NinjaTrace>();
+            traces = [];
         }
 
         public static void UpdateAll() {

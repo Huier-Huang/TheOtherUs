@@ -11,7 +11,7 @@ public class Sunglasses : RoleBase
 
     public override void ClearAndReload()
     {
-        sunglasses = new List<PlayerControl>();
+        sunglasses = [];
         vision = CustomOptionHolder.modifierSunglassesVision.getSelection() + 1;
     }
 

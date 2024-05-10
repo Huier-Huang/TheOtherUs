@@ -125,7 +125,7 @@ namespace TheOtherRoles
             CalculateLightRadiusMethod = AccessTools.Method(SubmarineStatusType, "CalculateLightRadius");
 
             FloorHandlerType = Types.First(t => t.Name == "FloorHandler");
-            GetFloorHandlerMethod = AccessTools.Method(FloorHandlerType, "GetFloorHandler", new Type[] {typeof(PlayerControl)});
+            GetFloorHandlerMethod = AccessTools.Method(FloorHandlerType, "GetFloorHandler", [typeof(PlayerControl)]);
             RpcRequestChangeFloorMethod = AccessTools.Method(FloorHandlerType, "RpcRequestChangeFloor");
 
             VentPatchDataType = Types.First(t => t.Name == "VentPatchData");
@@ -152,13 +152,14 @@ namespace TheOtherRoles
 
         public static float GetSubmergedNeutralLightRadius(bool isImpostor) {
             if (!Loaded) return 0;
-            return (float)CalculateLightRadiusMethod.Invoke(SubmarineStatus, new object[] { null, true, isImpostor });
+            return (float)CalculateLightRadiusMethod.Invoke(SubmarineStatus, [null, true, isImpostor]);
         }
 
         public static void ChangeFloor(bool toUpper) {
             if (!Loaded) return;
-            MonoBehaviour _floorHandler = ((Component)GetFloorHandlerMethod.Invoke(null, new object[] { CachedPlayer.LocalPlayer.Control })).TryCast(FloorHandlerType) as MonoBehaviour;
-            RpcRequestChangeFloorMethod.Invoke(_floorHandler, new object[] { toUpper });
+            MonoBehaviour _floorHandler = ((Component)GetFloorHandlerMethod.Invoke(null, [CachedPlayer.LocalPlayer.Control
+            ])).TryCast(FloorHandlerType) as MonoBehaviour;
+            RpcRequestChangeFloorMethod.Invoke(_floorHandler, [toUpper]);
         }
 
         public static bool getInTransition() {
@@ -170,7 +171,8 @@ namespace TheOtherRoles
             if (!Loaded) return;
             try {
                 ShipStatus.Instance.RpcRepairSystem((SystemTypes)130, 64);
-                RepairDamageMethod.Invoke(SubmarineOxygenSystemInstanceField.Invoke(null, Array.Empty<object>()), new object[] { CachedPlayer.LocalPlayer.Control, 64 });
+                RepairDamageMethod.Invoke(SubmarineOxygenSystemInstanceField.Invoke(null, Array.Empty<object>()),
+                    [CachedPlayer.LocalPlayer.Control, 64]);
             }
             catch (System.NullReferenceException) {
                 Message("null reference in engineer oxygen fix");

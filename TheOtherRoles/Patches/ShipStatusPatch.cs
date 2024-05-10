@@ -114,9 +114,9 @@ namespace TheOtherRoles.Patches
             __result = false;
         }
 
-        private static int originalNumCommonTasksOption = 0;
-        private static int originalNumShortTasksOption = 0;
-        private static int originalNumLongTasksOption = 0;
+        private static int originalNumCommonTasksOption;
+        private static int originalNumShortTasksOption;
+        private static int originalNumLongTasksOption;
         public static float originalNumCrewVisionOption = 0;
         public static float originalNumImpVisionOption = 0;
         public static float originalNumKillCooldownOption = 0;

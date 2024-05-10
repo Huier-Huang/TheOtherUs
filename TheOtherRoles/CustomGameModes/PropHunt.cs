@@ -13,12 +13,12 @@ namespace TheOtherRoles.CustomGameModes
 {
     [HarmonyPatch]
     class PropHunt {
-        public static bool isPropHuntGM = false;
+        public static bool isPropHuntGM;
 
-        public static Dictionary<byte, int> remainingShots = new Dictionary<byte, int>();
+        public static Dictionary<byte, int> remainingShots = new();
         public static float timer = 20f;
-        public static bool timerRunning = false;
-        public static float blackOutTimer = 0f;
+        public static bool timerRunning;
+        public static float blackOutTimer;
 
         public static int numberOfHunters;
         public static float initialBlackoutTime;
@@ -30,13 +30,13 @@ namespace TheOtherRoles.CustomGameModes
         public static float revealDuration = 5f;
         public static float unstuckDuration = 5f;
         public static float unstuckCooldown = 5f;
-        public static float revealPunish = 0f;
+        public static float revealPunish;
 
-        public static float invisCooldown = 0f;
-        public static float invisDuration = 0f;
-        public static float speedboostCooldown = 0f;
-        public static float speedboostDuration = 0f;
-        public static float speedboostRatio = 0f;
+        public static float invisCooldown;
+        public static float invisDuration;
+        public static float speedboostCooldown;
+        public static float speedboostDuration;
+        public static float speedboostRatio;
 
         public static float adminCooldown = 5f;
         public static float adminDuration = 10f;
@@ -57,7 +57,7 @@ namespace TheOtherRoles.CustomGameModes
         private static Sprite poolablesBackgroundSprite;
         public static DateTime startTime = DateTime.UtcNow;
         public static TMP_Text timerText;
-        public static List<string> whitelistedObjects = new List<string>() { };
+        public static List<string> whitelistedObjects = [];
 
         public static Dictionary<byte, Tuple<string, float>> currentObject = new();
         public static Dictionary<byte, float> isCurrentlyRevealed = new();
@@ -66,12 +66,12 @@ namespace TheOtherRoles.CustomGameModes
 
         public static Dictionary<byte, float> speedboostActive = new();
 
-        public static GameObject currentTarget = null;
+        public static GameObject currentTarget;
         private static GameObject poolablesBackground;
 
         public static float dangerMeterActive = 0f;
 
-        private static List<GameObject> duplicatedCollider = new();
+        private static List<GameObject> duplicatedCollider = [];
         private static GameObject introObject;
 
         public static void clearAndReload() {
@@ -112,7 +112,7 @@ namespace TheOtherRoles.CustomGameModes
             speedboostActive = new();
             invisPlayers = new();
             foreach (var go in duplicatedCollider) { go.Destroy(); }
-            duplicatedCollider = new();
+            duplicatedCollider = [];
         }
 
         public static Sprite getIntroSprite(int index) {
@@ -509,10 +509,10 @@ namespace TheOtherRoles.CustomGameModes
             int map = GameOptionsManager.Instance.currentGameOptions.MapId;
             if (map > 3) map--;
             if (TORMapOptions.gameMode == CustomGamemodes.HideNSeek)
-                if (CustomOptionHolder.hideNSeekMap.selection != map)
+                if (CustomOptionHolder.hideNSeekMap.OptionSelection != map)
                     CustomOptionHolder.hideNSeekMap.updateSelection(map);
             if (TORMapOptions.gameMode == CustomGamemodes.PropHunt)
-                if (CustomOptionHolder.propHuntMap.selection != map)
+                if (CustomOptionHolder.propHuntMap.OptionSelection != map)
                     CustomOptionHolder.propHuntMap.updateSelection(map);
         }
 

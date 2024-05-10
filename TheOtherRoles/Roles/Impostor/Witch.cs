@@ -16,7 +16,7 @@ public class Witch : RoleBase
     public PlayerControl witch;
     public Color color = Palette.ImpostorRed;
 
-    public List<PlayerControl> futureSpelled = new();
+    public List<PlayerControl> futureSpelled = [];
     public PlayerControl currentTarget;
     public PlayerControl spellCastingTarget;
     public float cooldown = 30f;
@@ -44,7 +44,7 @@ public class Witch : RoleBase
     public override void ClearAndReload()
     {
         witch = null;
-        futureSpelled = new List<PlayerControl>();
+        futureSpelled = [];
         currentTarget = spellCastingTarget = null;
         cooldown = witchCooldown.getFloat();
         cooldownAddition = witchAdditionalCooldown.getFloat();

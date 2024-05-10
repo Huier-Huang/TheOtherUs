@@ -8,9 +8,9 @@ namespace TheOtherRoles.Objects
 {
 
     public class JackInTheBox {
-        public static System.Collections.Generic.List<JackInTheBox> AllJackInTheBoxes = new System.Collections.Generic.List<JackInTheBox>();
+        public static System.Collections.Generic.List<JackInTheBox> AllJackInTheBoxes = [];
         public static int JackInTheBoxLimit = 3;
-        public static bool boxesConvertedToVents = false;
+        public static bool boxesConvertedToVents;
         public static Sprite[] boxAnimationSprites = new Sprite[18];
 
         public static Sprite getBoxAnimationSprite(int index) {
@@ -127,7 +127,7 @@ namespace TheOtherRoles.Objects
 
         public static void clearJackInTheBoxes() {
             boxesConvertedToVents = false;
-            AllJackInTheBoxes = new List<JackInTheBox>();
+            AllJackInTheBoxes = [];
         }
 
     }

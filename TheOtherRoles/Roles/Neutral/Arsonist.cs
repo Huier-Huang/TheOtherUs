@@ -20,7 +20,7 @@ public class Arsonist : RoleBase
 
     public PlayerControl currentTarget;
     public PlayerControl douseTarget;
-    public List<PlayerControl> dousedPlayers = new();
+    public List<PlayerControl> dousedPlayers = [];
 
     private ResourceSprite douseSprite = new("DouseButton.png");
     private ResourceSprite igniteSprite = new ("IgniteButton.png");
@@ -46,7 +46,7 @@ public class Arsonist : RoleBase
         currentTarget = null;
         douseTarget = null;
         triggerArsonistWin = false;
-        dousedPlayers = new List<PlayerControl>();
+        dousedPlayers = [];
         foreach (var p in TORMapOptions.playerIcons.Values.Where(p => p != null && p.gameObject != null))
             p.gameObject.SetActive(false);
         cooldown = arsonistCooldown.getFloat();

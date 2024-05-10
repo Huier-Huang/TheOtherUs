@@ -39,9 +39,9 @@ namespace TheOtherRoles.Patches
     static class AdditionalTempData {
         // Should be implemented using a proper GameOverReason in the future
         public static WinCondition winCondition = WinCondition.Default;
-        public static List<WinCondition> additionalWinConditions = new List<WinCondition>();
-        public static List<PlayerRoleInfo> playerRoles = new List<PlayerRoleInfo>();
-        public static float timer = 0;
+        public static List<WinCondition> additionalWinConditions = [];
+        public static List<PlayerRoleInfo> playerRoles = [];
+        public static float timer;
 
         public static void clear() {
             playerRoles.Clear();
@@ -94,7 +94,7 @@ namespace TheOtherRoles.Patches
             }
 
             // Remove Jester, Arsonist, Vulture, Jackal, former Jackals and Sidekick from winners (if they win, they'll be readded)
-            List<PlayerControl> notWinners = new List<PlayerControl>();
+            List<PlayerControl> notWinners = [];
             if (Jester.jester != null) notWinners.Add(Jester.jester);
             if (Sidekick.sidekick != null) notWinners.Add(Sidekick.sidekick);
             if (Amnisiac.amnisiac != null) notWinners.Add(Amnisiac.amnisiac);
@@ -108,7 +108,7 @@ namespace TheOtherRoles.Patches
 
             notWinners.AddRange(Jackal.formerJackals);
 
-            List<WinningPlayerData> winnersToRemove = new List<WinningPlayerData>();
+            List<WinningPlayerData> winnersToRemove = [];
             foreach (WinningPlayerData winner in TempData.winners.GetFastEnumerator()) {
                 if (notWinners.Any(x => x.Data.PlayerName == winner.PlayerName)) winnersToRemove.Add(winner);
             }

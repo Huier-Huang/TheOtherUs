@@ -22,7 +22,7 @@ public static class CustomHatManager
     internal static string CustomSkinsDirectory => Path.Combine(Path.GetDirectoryName(Application.dataPath)!, ResourcesDirectory);
     internal static string HatsDirectory => CustomSkinsDirectory;
     
-    internal static List<CustomHat> UnregisteredHats = new();
+    internal static List<CustomHat> UnregisteredHats = [];
     internal static readonly Dictionary<string, HatViewData> ViewDataCache = new();
     internal static readonly Dictionary<string, HatExtension> ExtensionCache = new();
     
@@ -270,10 +270,10 @@ public static class CustomHatManager
     }
 
     public static List<CustomHat> loadHorseHats() {
-        List<CustomHat> hatdatas = new();
+        List<CustomHat> hatdatas = [];
         Assembly assembly = Assembly.GetExecutingAssembly();
         string[] resourceNames = assembly.GetManifestResourceNames();
-        List<string> hatFiles = new();
+        List<string> hatFiles = [];
         Dictionary<string, List<string>> hatFilesSorted = new Dictionary<string, List<string>>();
         foreach (string resourceName in resourceNames) {
             if (resourceName.Contains("TheOtherRoles.Resources.HorseHats.") && resourceName.Contains(".png")) {
@@ -284,7 +284,7 @@ public static class CustomHatManager
         foreach (string s in hatFiles) {
             string value = s.Substring(0, s.LastIndexOf("HorseSpecialHat") + 17);
             if (value.Contains(".")) value.Remove(value.LastIndexOf("."));
-            if (!hatFilesSorted.ContainsKey(value)) hatFilesSorted.Add(value, new List<string>());
+            if (!hatFilesSorted.ContainsKey(value)) hatFilesSorted.Add(value, []);
             hatFilesSorted[value].Add(s);
         }
         int i = 0;

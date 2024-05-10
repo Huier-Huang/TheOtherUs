@@ -14,9 +14,9 @@ public class Medium : RoleBase
     public DeadPlayer target;
     public DeadPlayer soulTarget;
     public Color color = new Color32(98, 120, 115, byte.MaxValue);
-    public List<Tuple<DeadPlayer, Vector3>> deadBodies = new();
-    public List<Tuple<DeadPlayer, Vector3>> futureDeadBodies = new();
-    public List<SpriteRenderer> souls = new();
+    public List<Tuple<DeadPlayer, Vector3>> deadBodies = [];
+    public List<Tuple<DeadPlayer, Vector3>> futureDeadBodies = [];
+    public List<SpriteRenderer> souls = [];
     public DateTime meetingStartTime = DateTime.UtcNow;
 
     public float cooldown = 30f;
@@ -33,9 +33,9 @@ public class Medium : RoleBase
         medium = null;
         target = null;
         soulTarget = null;
-        deadBodies = new List<Tuple<DeadPlayer, Vector3>>();
-        futureDeadBodies = new List<Tuple<DeadPlayer, Vector3>>();
-        souls = new List<SpriteRenderer>();
+        deadBodies = [];
+        futureDeadBodies = [];
+        souls = [];
         meetingStartTime = DateTime.UtcNow;
         cooldown = CustomOptionHolder.mediumCooldown.getFloat();
         duration = CustomOptionHolder.mediumDuration.getFloat();

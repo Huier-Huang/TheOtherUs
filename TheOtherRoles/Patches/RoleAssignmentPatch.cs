@@ -44,7 +44,7 @@ namespace TheOtherRoles.Patches
         private static int crewValues;
         private static int impValues;
         //private static bool isEvilGuesser;
-        private static List<Tuple<byte, byte>> playerRoleMap = new List<Tuple<byte, byte>>();
+        private static List<Tuple<byte, byte>> playerRoleMap = [];
         public static bool isGuesserGamemode { get { return TORMapOptions.gameMode == CustomGamemodes.Guesser; } }
         public static void Postfix() {
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.ResetVaribles, Hazel.SendOption.Reliable, -1);
@@ -459,10 +459,10 @@ namespace TheOtherRoles.Patches
             if (isGuesserGamemode && !CustomOptionHolder.guesserGamemodeHaveModifier.getBool())
                 players.RemoveAll(x => GuesserGM.isGuesser(x.PlayerId));
 
-            List<PlayerControl> impPlayer = new List<PlayerControl>(players);
+            List<PlayerControl> impPlayer = [..players];
             //List<Control> neutralPlayer = new List<Control>(players);
-            List<PlayerControl> impPlayerL = new List<PlayerControl>(players);
-                List<PlayerControl> crewPlayer = new List<PlayerControl>(players);
+            List<PlayerControl> impPlayerL = [..players];
+                List<PlayerControl> crewPlayer = [..players];
                 impPlayer.RemoveAll(x => !x.Data.Role.IsImpostor);
                 //neutralPlayer.RemoveAll(x => !Helpers.isNeutral(x));
                 impPlayerL.RemoveAll(x => !x.Data.Role.IsImpostor);
@@ -472,13 +472,13 @@ namespace TheOtherRoles.Patches
 
             if (modifierCount == 0) return;
 
-            List<RoleId> allModifiers = new List<RoleId>();
-            List<RoleId> ensuredModifiers = new List<RoleId>();
-            List<RoleId> chanceModifiers = new List<RoleId>();
+            List<RoleId> allModifiers = [];
+            List<RoleId> ensuredModifiers = [];
+            List<RoleId> chanceModifiers = [];
 
-            List<RoleId> impModifiers = new List<RoleId>();
-            List<RoleId> ensuredImpModifiers = new List<RoleId>();
-            List<RoleId> chanceImpModifiers = new List<RoleId>();
+            List<RoleId> impModifiers = [];
+            List<RoleId> ensuredImpModifiers = [];
+            List<RoleId> chanceImpModifiers = [];
             allModifiers.AddRange(new List<RoleId> {
                 RoleId.Tiebreaker,
                 RoleId.Mini,
@@ -553,7 +553,7 @@ namespace TheOtherRoles.Patches
             modifierCount -= ensuredImpModifiers.Count + ensuredModifiers.Count;
             if (modifierCount <= 0) return;
             int chanceModifierCount = Mathf.Min(modifierCount, chanceModifiers.Count);
-            List<RoleId> chanceModifierToAssign = new List<RoleId>();
+            List<RoleId> chanceModifierToAssign = [];
             while (chanceModifierCount > 0 && chanceModifiers.Count > 0) {
                 var index = rnd.Next(0, chanceModifiers.Count);
                 RoleId modifierId = chanceModifiers[index];
@@ -570,7 +570,7 @@ namespace TheOtherRoles.Patches
             assignModifiersToPlayers(chanceModifierToAssign, players, modifierCount); // Assign chance modifier
 
             int chanceImpModifierCount = Mathf.Min(modifierCount, chanceImpModifiers.Count);
-            List<RoleId> chanceImpModifierToAssign = new List<RoleId>();
+            List<RoleId> chanceImpModifierToAssign = [];
             while (chanceImpModifierCount > 0 && chanceImpModifiers.Count > 0)
             {
                 var index = rnd.Next(0, chanceImpModifiers.Count);
@@ -664,7 +664,7 @@ namespace TheOtherRoles.Patches
             byte playerId;
 
             if (modifiers.Contains(RoleId.EvilGuesser)) {
-                List<PlayerControl> impPlayer = new List<PlayerControl>(playerList); //testing
+                List<PlayerControl> impPlayer = [..playerList]; //testing
                 impPlayer.RemoveAll(x => !x.Data.Role.IsImpostor);
                 
                 int assassinCount = 0;
@@ -678,7 +678,7 @@ namespace TheOtherRoles.Patches
             }
 
             if (modifiers.Contains(RoleId.Disperser)) {
-                List<PlayerControl> impPlayer = new List<PlayerControl>(playerList); //testing
+                List<PlayerControl> impPlayer = [..playerList]; //testing
                 impPlayer.RemoveAll(x => !x.Data.Role.IsImpostor);
                     playerId = setModifierToRandomPlayer((byte)RoleId.Disperser, impPlayer);
                  //   crewPlayer.RemoveAll(x => x.PlayerId == playerId);
@@ -687,7 +687,7 @@ namespace TheOtherRoles.Patches
             }
 
             if (modifiers.Contains(RoleId.Cursed)) {
-                List<PlayerControl> crewPlayerC = new List<PlayerControl>(playerList);
+                List<PlayerControl> crewPlayerC = [..playerList];
                 crewPlayerC.RemoveAll(x => x.Data.Role.IsImpostor || RoleInfo.getRoleInfoForPlayer(x).Any(r => r.isNeutral));
                 playerId = setModifierToRandomPlayer((byte)RoleId.Cursed, crewPlayerC);
                 playerList.RemoveAll(x => x.PlayerId == playerId);
@@ -695,7 +695,7 @@ namespace TheOtherRoles.Patches
             }
 
             if (modifiers.Contains(RoleId.Tunneler)) {
-                List<PlayerControl> crewPlayerT = new List<PlayerControl>(playerList);
+                List<PlayerControl> crewPlayerT = [..playerList];
                 crewPlayerT.RemoveAll(x => x.Data.Role.IsImpostor || RoleInfo.getRoleInfoForPlayer(x).Any(r => r.isNeutral) || RoleInfo.getRoleInfoForPlayer(x).Any(r => r.roleId == RoleId.Engineer));
                 playerId = setModifierToRandomPlayer((byte)RoleId.Tunneler, crewPlayerT);
                 playerList.RemoveAll(x => x.PlayerId == playerId);
@@ -710,7 +710,7 @@ namespace TheOtherRoles.Patches
                 modifiers.RemoveAll(x => x == RoleId.Watcher);
             }
 */
-            List<PlayerControl> crewPlayer = new List<PlayerControl>(playerList);
+            List<PlayerControl> crewPlayer = [..playerList];
             crewPlayer.RemoveAll(x => x.Data.Role.IsImpostor || RoleInfo.getRoleInfoForPlayer(x).Any(r => r.isNeutral));
             if (modifiers.Contains(RoleId.Shifter)) {
                 var crewPlayerShifter = new List<PlayerControl>(crewPlayer);
@@ -863,9 +863,9 @@ namespace TheOtherRoles.Patches
         public class RoleAssignmentData {
             public List<PlayerControl> crewmates {get;set;}
             public List<PlayerControl> impostors {get;set;}
-            public Dictionary<byte, int> impSettings = new Dictionary<byte, int>();
-            public Dictionary<byte, int> neutralSettings = new Dictionary<byte, int>();
-            public Dictionary<byte, int> crewSettings = new Dictionary<byte, int>();
+            public Dictionary<byte, int> impSettings = new();
+            public Dictionary<byte, int> neutralSettings = new();
+            public Dictionary<byte, int> crewSettings = new();
             public int maxCrewmateRoles {get;set;}
             public int maxNeutralRoles {get;set;}
             public int maxImpostorRoles {get;set;}

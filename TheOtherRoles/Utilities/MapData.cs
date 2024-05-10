@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Reactor.Utilities.Extensions;
 
 namespace TheOtherRoles.Utilities;
 
 [Harmony]
 #nullable enable
-public class MapData
+public static class MapData
 {
     public static readonly List<Vector3> SkeldSpawnPosition =
     [
@@ -220,7 +219,7 @@ public class MapData
         RandomSpawnPlayers(CachedPlayer.AllPlayers.Select(n => n.Control));
     public static void RandomSpawnPlayers(IEnumerable<PlayerControl> spawnPlayers)
     {
-        if (CustomOptionHolder.randomGameStartToVents.getBool())
+        if (CustomOptionHolder.randomGameStartToVents)
         {
             RandomSpawnToVent(spawnPlayers);
         }

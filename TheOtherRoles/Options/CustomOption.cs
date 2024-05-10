@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using AmongUs.GameOptions;
 using Hazel;
 using Reactor.Utilities.Extensions;
+using TheOtherRoles.Options;
 using UnityEngine;
 using static TheOtherRoles.TheOtherRoles;
 
@@ -19,6 +20,12 @@ public enum OptionTypes
     Mode,
 }
 
+public class CustomRoleOption(string Title, OptionTypes type, OptionSelection selection, CustomOption Parent = default) : CustomOption(Title, type, selection, Parent)
+{
+    private static OptionSelection roleRateSelection = new BoolOptionSelection()
+    public RoleBase roleBase;
+}
+
 public class CustomOption
 {
     public OptionTypes optionType { get; set; }
@@ -29,12 +36,44 @@ public class CustomOption
     [JsonIgnore]
     public OptionEvent optionEvent { get; private set; }
     
-    public OptionSelection selection { get; set; }
+    public OptionSelection OptionSelection { get; set; }
     public OptionInfo optionInfo { get; set; }
 
+    /// <summary>
+    /// 启用
+    /// </summary>
     [JsonIgnore] 
     public bool Enabled { get; set; } = true;
     
+    /// <summary>
+    /// 启用翻译
+    /// </summary>
+    [JsonIgnore] 
+    public bool EnabledTranslate { get; set; } = false;
+    
+    
+    /// <summary>
+    /// 翻译Id
+    /// </summary>
+    [JsonIgnore] 
+    public string TranslateId { get; set; } = string.Empty;
+
+
+    public CustomOption(string Title, OptionTypes type, OptionSelection selection, CustomOption Parent = default)
+    {
+        optionType = type;
+        OptionSelection = selection;
+        optionInfo = new OptionInfo
+        {
+            Title = Title,
+        };
+        if (Parent != null)
+        {
+            optionInfo.Parent = Parent.optionInfo;
+            Parent.optionInfo.Children.Add(optionInfo);
+        }
+        CustomOptionManager.Instance.Register(this);
+    }
     
     internal enum Option_Flag
     {
@@ -47,31 +86,31 @@ public class CustomOption
         FastRpcWriter.StartNewRpcWriter(CustomRPC.Option, GameData.Instance)
             .WritePacked((int)Option_Flag.Share)
             .WritePacked(optionInfo.Id)
-            .Write(selection.Selection)
+            .Write(OptionSelection.Selection)
             .RPCSend();               
     }
     
 
     // Getter
-    public static implicit operator bool(CustomOption option) => option.selection.GetValue<bool>();
+    public static implicit operator bool(CustomOption option) => option.OptionSelection;
     
-    public static implicit operator float(CustomOption option) => option.selection.GetValue<float>();
+    public static implicit operator float(CustomOption option) => option.OptionSelection;
     
-    public static implicit operator int(CustomOption option) => option.selection.GetValue<int>();
+    public static implicit operator int(CustomOption option) => option.OptionSelection;
     
-    public static implicit operator string(CustomOption option) => option.selection.GetValue<string>();
+    public static implicit operator string(CustomOption option) => option.OptionSelection;
     
     public void Serialize(FastRpcWriter writer)
     {
-        writer.Write(JsonSerializer.Serialize(selection));
+        writer.Write(JsonSerializer.Serialize(OptionSelection));
         writer.Write(JsonSerializer.Serialize(optionInfo));
     }
 
     public void Deserialize(MessageReader reader)
     {
         var selectionString = reader.ReadString();
-        selection = JsonSerializer.Deserialize<OptionSelection>(selectionString);
-        selection.InitFormJson();
+        OptionSelection = JsonSerializer.Deserialize<OptionSelection>(selectionString);
+        OptionSelection.InitFormJson();
 
         var infoString = reader.ReadString();
         optionInfo = JsonSerializer.Deserialize<OptionInfo>(infoString);
@@ -214,23 +253,28 @@ internal class GameOptionsMenuStartPatch {
             }));
         }
 
-        destroyOptions(new List<List<OptionBehaviour>>{
+        destroyOptions([
             torMenu.GetComponentsInChildren<OptionBehaviour>().ToList(),
             impostorMenu.GetComponentsInChildren<OptionBehaviour>().ToList(),
             neutralMenu.GetComponentsInChildren<OptionBehaviour>().ToList(),
             crewmateMenu.GetComponentsInChildren<OptionBehaviour>().ToList(),
             modifierMenu.GetComponentsInChildren<OptionBehaviour>().ToList()
-        });
+        ]);
 
-        List<OptionBehaviour> torOptions = new List<OptionBehaviour>();
-        List<OptionBehaviour> impostorOptions = new List<OptionBehaviour>();
-        List<OptionBehaviour> neutralOptions = new List<OptionBehaviour>();
-        List<OptionBehaviour> crewmateOptions = new List<OptionBehaviour>();
-        List<OptionBehaviour> modifierOptions = new List<OptionBehaviour>();
+        List<OptionBehaviour> torOptions = [];
+        List<OptionBehaviour> impostorOptions = [];
+        List<OptionBehaviour> neutralOptions = [];
+        List<OptionBehaviour> crewmateOptions = [];
+        List<OptionBehaviour> modifierOptions = [];
 
 
-        List<Transform> menus = new List<Transform>() { torMenu.transform, impostorMenu.transform, neutralMenu.transform, crewmateMenu.transform, modifierMenu.transform };
-        List<List<OptionBehaviour>> optionBehaviours = new List<List<OptionBehaviour>>() { torOptions, impostorOptions, neutralOptions, crewmateOptions, modifierOptions };
+        List<Transform> menus =
+        [
+            torMenu.transform, impostorMenu.transform, neutralMenu.transform, crewmateMenu.transform,
+            modifierMenu.transform
+        ];
+        List<List<OptionBehaviour>> optionBehaviours =
+            [torOptions, impostorOptions, neutralOptions, crewmateOptions, modifierOptions];
 
         for (int i = 0; i < CustomOption.options.Count; i++) {
             CustomOption option = CustomOption.options[i];
@@ -240,8 +284,8 @@ internal class GameOptionsMenuStartPatch {
                 optionBehaviours[(int)option.type].Add(stringOption);
                 stringOption.OnValueChanged = new Action<OptionBehaviour>((o) => { });
                 stringOption.TitleText.text = option.name;
-                stringOption.Value = stringOption.oldValue = option.selection;
-                stringOption.ValueText.text = option.selections[option.selection].ToString();
+                stringOption.Value = stringOption.oldValue = option.OptionSelection;
+                stringOption.ValueText.text = option.selections[option.OptionSelection].ToString();
 
                 option.optionBehaviour = stringOption;
             }
@@ -249,9 +293,9 @@ internal class GameOptionsMenuStartPatch {
         }
 
         setOptions(
-            new List<GameOptionsMenu> { torMenu, impostorMenu, neutralMenu, crewmateMenu, modifierMenu },
-            new List<List<OptionBehaviour>> { torOptions, impostorOptions, neutralOptions, crewmateOptions, modifierOptions },
-            new List<GameObject> { torSettings, impostorSettings, neutralSettings, crewmateSettings, modifierSettings }
+            [torMenu, impostorMenu, neutralMenu, crewmateMenu, modifierMenu],
+            [torOptions, impostorOptions, neutralOptions, crewmateOptions, modifierOptions],
+            [torSettings, impostorSettings, neutralSettings, crewmateSettings, modifierSettings]
         );
 
         adaptTaskCount(__instance);
@@ -345,26 +389,31 @@ internal class GameOptionsMenuStartPatch {
             }));
         }
 
-        destroyOptions(new List<List<OptionBehaviour>>{
+        destroyOptions([
             torMenu.GetComponentsInChildren<OptionBehaviour>().ToList(),
             guesserMenu.GetComponentsInChildren<OptionBehaviour>().ToList(),
             impostorMenu.GetComponentsInChildren<OptionBehaviour>().ToList(),
             neutralMenu.GetComponentsInChildren<OptionBehaviour>().ToList(),
             crewmateMenu.GetComponentsInChildren<OptionBehaviour>().ToList(),
             modifierMenu.GetComponentsInChildren<OptionBehaviour>().ToList()
-        });
+        ]);
 
-        List<OptionBehaviour> torOptions = new List<OptionBehaviour>();
-        List<OptionBehaviour> guesserOptions = new List<OptionBehaviour>();
-        List<OptionBehaviour> impostorOptions = new List<OptionBehaviour>();
-        List<OptionBehaviour> neutralOptions = new List<OptionBehaviour>();
-        List<OptionBehaviour> crewmateOptions = new List<OptionBehaviour>();
-        List<OptionBehaviour> modifierOptions = new List<OptionBehaviour>();
+        List<OptionBehaviour> torOptions = [];
+        List<OptionBehaviour> guesserOptions = [];
+        List<OptionBehaviour> impostorOptions = [];
+        List<OptionBehaviour> neutralOptions = [];
+        List<OptionBehaviour> crewmateOptions = [];
+        List<OptionBehaviour> modifierOptions = [];
 
 
-        List<Transform> menus = new List<Transform>() { torMenu.transform, impostorMenu.transform, neutralMenu.transform, crewmateMenu.transform, modifierMenu.transform, guesserMenu.transform };
-        List<List<OptionBehaviour>> optionBehaviours = new List<List<OptionBehaviour>>() { torOptions, impostorOptions, neutralOptions, crewmateOptions, modifierOptions, guesserOptions };
-        List<int> exludedIds = new List<int> { 310, 311, 312, 313, 314, 315, 316, 317, 318 };
+        List<Transform> menus =
+        [
+            torMenu.transform, impostorMenu.transform, neutralMenu.transform, crewmateMenu.transform,
+            modifierMenu.transform, guesserMenu.transform
+        ];
+        List<List<OptionBehaviour>> optionBehaviours =
+            [torOptions, impostorOptions, neutralOptions, crewmateOptions, modifierOptions, guesserOptions];
+        List<int> exludedIds = [310, 311, 312, 313, 314, 315, 316, 317, 318];
 
         for (int i = 0; i < CustomOption.options.Count; i++) {
             CustomOption option = CustomOption.options[i];
@@ -375,8 +424,8 @@ internal class GameOptionsMenuStartPatch {
                 optionBehaviours[(int)option.type].Add(stringOption);
                 stringOption.OnValueChanged = new Action<OptionBehaviour>((o) => { });
                 stringOption.TitleText.text = option.name;
-                stringOption.Value = stringOption.oldValue = option.selection;
-                stringOption.ValueText.text = option.selections[option.selection].ToString();
+                stringOption.Value = stringOption.oldValue = option.OptionSelection;
+                stringOption.ValueText.text = option.selections[option.OptionSelection].ToString();
 
                 option.optionBehaviour = stringOption;
             }
@@ -384,9 +433,9 @@ internal class GameOptionsMenuStartPatch {
         }
 
         setOptions(
-            new List<GameOptionsMenu> { torMenu, impostorMenu, neutralMenu, crewmateMenu, modifierMenu, guesserMenu }, 
-            new List<List<OptionBehaviour>> { torOptions, impostorOptions, neutralOptions, crewmateOptions, modifierOptions, guesserOptions }, 
-            new List<GameObject> { torSettings, impostorSettings, neutralSettings, crewmateSettings, modifierSettings, guesserSettings }
+            [torMenu, impostorMenu, neutralMenu, crewmateMenu, modifierMenu, guesserMenu],
+            [torOptions, impostorOptions, neutralOptions, crewmateOptions, modifierOptions, guesserOptions],
+            [torSettings, impostorSettings, neutralSettings, crewmateSettings, modifierSettings, guesserSettings]
         );
 
         adaptTaskCount(__instance);
@@ -444,16 +493,16 @@ internal class GameOptionsMenuStartPatch {
             }));
         }
 
-        destroyOptions(new List<List<OptionBehaviour>>{ 
-            torMenu.GetComponentsInChildren<OptionBehaviour>().ToList(), 
-            hideNSeekMenu.GetComponentsInChildren<OptionBehaviour>().ToList() 
-        });
+        destroyOptions([
+            torMenu.GetComponentsInChildren<OptionBehaviour>().ToList(),
+            hideNSeekMenu.GetComponentsInChildren<OptionBehaviour>().ToList()
+        ]);
 
-        List<OptionBehaviour> torOptions = new List<OptionBehaviour>();
-        List<OptionBehaviour> hideNSeekOptions = new List<OptionBehaviour>();
+        List<OptionBehaviour> torOptions = [];
+        List<OptionBehaviour> hideNSeekOptions = [];
 
-        List<Transform> menus = new List<Transform>() { torMenu.transform, hideNSeekMenu.transform};
-        List<List<OptionBehaviour>> optionBehaviours = new List<List<OptionBehaviour>>() { torOptions, hideNSeekOptions };
+        List<Transform> menus = [torMenu.transform, hideNSeekMenu.transform];
+        List<List<OptionBehaviour>> optionBehaviours = [torOptions, hideNSeekOptions];
 
         for (int i = 0; i < CustomOption.options.Count; i++) {
             CustomOption option = CustomOption.options[i];
@@ -464,8 +513,8 @@ internal class GameOptionsMenuStartPatch {
                 optionBehaviours[index].Add(stringOption);
                 stringOption.OnValueChanged = new Action<OptionBehaviour>((o) => { });
                 stringOption.TitleText.text = option.name;
-                stringOption.Value = stringOption.oldValue = option.selection;
-                stringOption.ValueText.text = option.selections[option.selection].ToString();
+                stringOption.Value = stringOption.oldValue = option.OptionSelection;
+                stringOption.ValueText.text = option.selections[option.OptionSelection].ToString();
 
                 option.optionBehaviour = stringOption;
             }
@@ -473,9 +522,9 @@ internal class GameOptionsMenuStartPatch {
         }
 
         setOptions(
-            new List<GameOptionsMenu>{torMenu, hideNSeekMenu},
-            new List<List<OptionBehaviour>> {torOptions, hideNSeekOptions}, 
-            new List<GameObject> {torSettings, hideNSeekSettings}
+            [torMenu, hideNSeekMenu],
+            [torOptions, hideNSeekOptions],
+            [torSettings, hideNSeekSettings]
         );
 
         torSettings.gameObject.SetActive(true);
@@ -527,14 +576,14 @@ internal class GameOptionsMenuStartPatch {
             }));
         }
 
-        destroyOptions(new List<List<OptionBehaviour>>{
-            torMenu.GetComponentsInChildren<OptionBehaviour>().ToList(),
-        });
+        destroyOptions([
+            torMenu.GetComponentsInChildren<OptionBehaviour>().ToList()
+        ]);
 
-        List<OptionBehaviour> torOptions = new List<OptionBehaviour>();
+        List<OptionBehaviour> torOptions = [];
 
-        List<Transform> menus = new List<Transform>() { torMenu.transform };
-        List<List<OptionBehaviour>> optionBehaviours = new List<List<OptionBehaviour>>() { torOptions };
+        List<Transform> menus = [torMenu.transform];
+        List<List<OptionBehaviour>> optionBehaviours = [torOptions];
 
         for (int i = 0; i < CustomOption.options.Count; i++) {
             CustomOption option = CustomOption.options[i];
@@ -545,8 +594,8 @@ internal class GameOptionsMenuStartPatch {
                 optionBehaviours[index].Add(stringOption);
                 stringOption.OnValueChanged = new Action<OptionBehaviour>((o) => { });
                 stringOption.TitleText.text = option.name;
-                stringOption.Value = stringOption.oldValue = option.selection;
-                stringOption.ValueText.text = option.selections[option.selection].ToString();
+                stringOption.Value = stringOption.oldValue = option.OptionSelection;
+                stringOption.ValueText.text = option.selections[option.OptionSelection].ToString();
 
                 option.optionBehaviour = stringOption;
             }
@@ -554,9 +603,9 @@ internal class GameOptionsMenuStartPatch {
         }
 
         setOptions(
-            new List<GameOptionsMenu> { torMenu},
-            new List<List<OptionBehaviour>> { torOptions },
-            new List<GameObject> { torSettings }
+            [torMenu],
+            [torOptions],
+            [torSettings]
         );
 
         torSettings.gameObject.SetActive(true);
@@ -639,8 +688,8 @@ public class StringOptionEnablePatch {
 
         __instance.OnValueChanged = new Action<OptionBehaviour>((o) => {});
         __instance.TitleText.text = option.name;
-        __instance.Value = __instance.oldValue = option.selection;
-        __instance.ValueText.text = option.selections[option.selection].ToString();
+        __instance.Value = __instance.oldValue = option.OptionSelection;
+        __instance.ValueText.text = option.selections[option.OptionSelection].ToString();
             
         return false;
     }
@@ -653,10 +702,10 @@ public class StringOptionIncreasePatch
     {
         CustomOption option = CustomOption.options.FirstOrDefault(option => option.optionBehaviour == __instance);
         if (option == null) return true;
-        option.updateSelection(option.selection + 1);
+        option.updateSelection(option.OptionSelection + 1);
         if (CustomOptionHolder.isMapSelectionOption(option)) {
             IGameOptions currentGameOptions = GameOptionsManager.Instance.CurrentGameOptions;
-            currentGameOptions.SetByte(ByteOptionNames.MapId, (byte)option.selection);
+            currentGameOptions.SetByte(ByteOptionNames.MapId, (byte)option.OptionSelection);
             GameOptionsManager.Instance.GameHostOptions = GameOptionsManager.Instance.CurrentGameOptions;
             GameManager.Instance.LogicOptions.SyncOptions();
         }
@@ -671,10 +720,10 @@ public class StringOptionDecreasePatch
     {
         CustomOption option = CustomOption.options.FirstOrDefault(option => option.optionBehaviour == __instance);
         if (option == null) return true;
-        option.updateSelection(option.selection - 1);
+        option.updateSelection(option.OptionSelection - 1);
         if (CustomOptionHolder.isMapSelectionOption(option)) {
             IGameOptions currentGameOptions = GameOptionsManager.Instance.CurrentGameOptions;
-            currentGameOptions.SetByte(ByteOptionNames.MapId, (byte)option.selection);
+            currentGameOptions.SetByte(ByteOptionNames.MapId, (byte)option.OptionSelection);
             GameOptionsManager.Instance.GameHostOptions = GameOptionsManager.Instance.CurrentGameOptions;
             GameManager.Instance.LogicOptions.SyncOptions();
         }
@@ -797,7 +846,7 @@ class GameOptionsDataPatch
         if (TORMapOptions.gameMode == CustomGamemodes.Guesser) {
             if (type == CustomOption.CustomOptionType.General)
                 options = CustomOption.options.Where(o => o.type == type || o.type == CustomOption.CustomOptionType.Guesser);
-            List<int> remove = new List<int>{ 308, 310, 311, 312, 313, 314, 315, 316, 317, 318 };
+            List<int> remove = [308, 310, 311, 312, 313, 314, 315, 316, 317, 318];
             options = options.Where(x => !remove.Contains(x.id));
         } else if (TORMapOptions.gameMode == CustomGamemodes.Classic) 
             options = options.Where(x => !(x.type == CustomOption.CustomOptionType.Guesser || x == CustomOptionHolder.crewmateRolesFill));
@@ -836,7 +885,7 @@ class GameOptionsDataPatch
 
                 Color c = isIrrelevant ? Color.grey : Color.white;  // No use for now
                 if (isIrrelevant) continue;
-                sb.AppendLine(Helpers.cs(c, $"{option.name}: {option.selections[option.selection].ToString()}"));
+                sb.AppendLine(Helpers.cs(c, $"{option.name}: {option.selections[option.OptionSelection].ToString()}"));
             } else {
                 if (option == CustomOptionHolder.crewmateRolesCountMin) {
                     var optionName = CustomOptionHolder.cs(new Color(204f / 255f, 204f / 255f, 0, 1f), "Crewmate Roles");
@@ -882,7 +931,7 @@ class GameOptionsDataPatch
                 } else if ((option == CustomOptionHolder.crewmateRolesCountMax) || (option == CustomOptionHolder.neutralRolesCountMax) || (option == CustomOptionHolder.impostorRolesCountMax) || option == CustomOptionHolder.modifiersCountMax) {
                     continue;
                 } else {
-                    sb.AppendLine($"\n{option.name}: {option.selections[option.selection].ToString()}");
+                    sb.AppendLine($"\n{option.name}: {option.selections[option.OptionSelection].ToString()}");
                 }
             }
         }
@@ -1099,7 +1148,7 @@ public class HudManagerUpdate {
     public static Scroller Scroller;
     private static Vector3 LastPosition;
     private static float lastAspect;
-    private static bool setLastPosition = false;
+    private static bool setLastPosition;
 
     public static void Prefix(HudManager __instance) {
         if (__instance.GameSettings?.transform == null) return;

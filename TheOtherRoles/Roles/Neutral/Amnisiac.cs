@@ -12,9 +12,9 @@ namespace TheOtherRoles.Roles.Neutral;
 public class Amnisiac : RoleBase
 {
     public PlayerControl amnisiac;
-    public List<Arrow> localArrows = new();
+    public List<Arrow> localArrows = [];
     public Color color = new(0.5f, 0.7f, 1f, 1f);
-    public List<PoolablePlayer> poolIcons = new();
+    public List<PoolablePlayer> poolIcons = [];
 
     public bool showArrows = true;
     public bool resetRole;
@@ -36,7 +36,7 @@ public class Amnisiac : RoleBase
             foreach (var arrow in localArrows)
                 if (arrow?.arrow != null)
                     Object.Destroy(arrow.arrow);
-        localArrows = new List<Arrow>();
+        localArrows = [];
     }
     public override void OptionCreate()
     {

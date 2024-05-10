@@ -25,7 +25,7 @@ public class Bomber2 : RoleBase
     public bool hasAlerted = false;
     public int timeLeft = 0;
     public PlayerControl currentTarget = null;
-    public PlayerControl hasBomb = null;
+    public PlayerControl hasBomb;
 
     public CustomOption bomber2SpawnRate;
     public CustomOption bomber2BombCooldown;

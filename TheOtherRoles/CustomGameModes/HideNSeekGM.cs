@@ -7,19 +7,19 @@ using UnityEngine;
 namespace TheOtherRoles.CustomGameModes
 {
     public static class HideNSeek { // HideNSeek Gamemode
-        public static bool isHideNSeekGM = false;
-        public static TMPro.TMP_Text timerText = null;
-        public static Vent polusVent = null;
+        public static bool isHideNSeekGM;
+        public static TMPro.TMP_Text timerText;
+        public static Vent polusVent;
         public static bool isWaitingTimer = true;
         public static DateTime startTime = DateTime.UtcNow;
 
         public static float timer = 300f;
         public static float hunterVision = 0.5f;
         public static float huntedVision = 2f;
-        public static bool taskWinPossible = false;
+        public static bool taskWinPossible;
         public static float taskPunish = 10f;
         public static int impNumber = 2;
-        public static bool canSabotage = false;
+        public static bool canSabotage;
         public static float killCooldown = 10f;
         public static float hunterWaitingTime = 15f;
         public static bool isHunter() {
@@ -27,7 +27,7 @@ namespace TheOtherRoles.CustomGameModes
         }
 
         public static List<CachedPlayer> getHunters() {
-            List<CachedPlayer> hunters = new List<CachedPlayer>(CachedPlayer.AllPlayers);
+            List<CachedPlayer> hunters = [..CachedPlayer.AllPlayers];
             hunters.RemoveAll(x => !x.Data.Role.IsImpostor);
             return hunters;
         }
@@ -61,10 +61,10 @@ namespace TheOtherRoles.CustomGameModes
     }
 
     public static class Hunter {
-        public static List<Arrow> localArrows = new List<Arrow>();
-        public static List<byte> lightActive = new List<byte>();
-        public static bool arrowActive = false;
-        public static Dictionary<byte, int> playerKillCountMap = new Dictionary<byte, int>();
+        public static List<Arrow> localArrows = [];
+        public static List<byte> lightActive = [];
+        public static bool arrowActive;
+        public static Dictionary<byte, int> playerKillCountMap = new();
 
         public static float lightCooldown = 30f;
         public static float lightDuration = 5f;
@@ -101,8 +101,8 @@ namespace TheOtherRoles.CustomGameModes
                     if (arrow?.arrow != null)
                         UnityEngine.Object.Destroy(arrow.arrow);
             }
-            localArrows = new List<Arrow>();
-            lightActive = new List<byte>();
+            localArrows = [];
+            lightActive = [];
             arrowActive = false;
 
             lightCooldown = CustomOptionHolder.hunterLightCooldown.getFloat();
@@ -119,15 +119,15 @@ namespace TheOtherRoles.CustomGameModes
     }
 
     public static class Hunted {
-        public static List<byte> timeshieldActive = new List<byte>();
+        public static List<byte> timeshieldActive = [];
         public static int shieldCount = 3;
 
         public static float shieldCooldown = 30f;
         public static float shieldDuration = 5f;
         public static float shieldRewindTime = 3f;
-        public static bool taskPunish = false;
+        public static bool taskPunish;
         public static void clearAndReload() {
-            timeshieldActive = new List<byte>();
+            timeshieldActive = [];
             taskPunish = false;
 
             shieldCount = Mathf.RoundToInt(CustomOptionHolder.huntedShieldNumber.getFloat());

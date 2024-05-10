@@ -11,7 +11,7 @@ public class Guesser : RoleBase
     public PlayerControl niceGuesser;
 
     //public static PlayerControl evilGuesser;
-    public List<PlayerControl> evilGuesser = new();
+    public List<PlayerControl> evilGuesser = [];
     public Color color = new Color32(255, 255, 0, byte.MaxValue);
 
     public int remainingShotsEvilGuesser = 2;
@@ -60,7 +60,7 @@ public class Guesser : RoleBase
     public override void ClearAndReload()
     {
         niceGuesser = null;
-        evilGuesser = new List<PlayerControl>();
+        evilGuesser = [];
         guesserCantGuessSnitch = CustomOptionHolder.guesserCantGuessSnitchIfTaksDone.getBool();
         remainingShotsEvilGuesser = Mathf.RoundToInt(CustomOptionHolder.modifierAssassinNumberOfShots.getFloat());
         remainingShotsNiceGuesser = Mathf.RoundToInt(CustomOptionHolder.guesserNumberOfShots.getFloat());

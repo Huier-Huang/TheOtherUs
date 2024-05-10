@@ -11,9 +11,9 @@ namespace TheOtherRoles.Patches
     [Harmony]
     public class VitalsPatch
     {
-        static float vitalsTimer = 0f;
+        static float vitalsTimer;
         static TMPro.TextMeshPro TimeRemaining;
-        private static List<TMPro.TextMeshPro> hackerTexts = new List<TMPro.TextMeshPro>();
+        private static List<TMPro.TextMeshPro> hackerTexts = [];
 
         public static void ResetData()
         {
@@ -47,7 +47,7 @@ namespace TheOtherRoles.Patches
 
                 if (Hacker.hacker != null && CachedPlayer.LocalPlayer.Control == Hacker.hacker)
                 {
-                    hackerTexts = new List<TMPro.TextMeshPro>();
+                    hackerTexts = [];
                     foreach (VitalsPanel panel in __instance.vitals)
                     {
                         TMPro.TextMeshPro text = UnityEngine.Object.Instantiate(__instance.SabText, panel.transform);

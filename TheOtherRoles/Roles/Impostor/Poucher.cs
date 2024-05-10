@@ -10,7 +10,7 @@ public class Poucher : RoleBase
 {
     public PlayerControl poucher;
     public Color color = Palette.ImpostorRed;
-    public List<PlayerControl> killed = new();
+    public List<PlayerControl> killed = [];
 
     public CustomOption poucherSpawnRate;
 

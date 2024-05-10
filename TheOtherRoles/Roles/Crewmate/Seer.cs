@@ -9,7 +9,7 @@ namespace TheOtherRoles.Roles.Crewmate;
 public class Seer : RoleBase
 {
     public PlayerControl seer;
-    public List<Vector3> deadBodyPositions = new();
+    public List<Vector3> deadBodyPositions = [];
 
     public float soulDuration = 15f;
     public bool limitSoulDuration;

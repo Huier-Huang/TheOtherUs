@@ -146,10 +146,10 @@ $@"<size=60%> <color=#FCCE03FF>Special thanks to Smeggy, Scoom, Xer, Mr_Fluuff, 
 
         [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.LateUpdate))]
         public static class MOTD {
-            public static List<string> motds = new List<string>();
-            private static float timer = 0f;
+            public static List<string> motds = [];
+            private static float timer;
             private static float maxTimer = 5f;
-            private static int currentIndex = 0;
+            private static int currentIndex;
 
             public static void Postfix() {
                 if (motds.Count == 0) {
@@ -161,7 +161,7 @@ $@"<size=60%> <color=#FCCE03FF>Special thanks to Smeggy, Scoom, Xer, Mr_Fluuff, 
                 else return;
 
                 // fade in and out:
-                float alpha = Mathf.Clamp01(Mathf.Min(new float[] { timer, maxTimer - timer }));
+                float alpha = Mathf.Clamp01(Mathf.Min([timer, maxTimer - timer]));
                 if (motds.Count == 1) alpha = 1;
                 LogoPatch.motdText.color = LogoPatch.motdText.color.SetAlpha(alpha);
                 timer -= Time.deltaTime;

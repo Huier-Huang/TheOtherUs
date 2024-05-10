@@ -7,14 +7,13 @@ using TheOtherRoles.Objects;
 using TheOtherRoles.Patches;
 using TheOtherRoles.Utilities;
 using UnityEngine;
-using static TheOtherRoles.TheOtherRoles;
 
 namespace TheOtherRoles
 {
     [HarmonyPatch(typeof(HudManager), nameof(HudManager.Start))]
     static class HudManagerStartPatch
     {
-        private static bool initialized = false;
+        private static bool initialized;
 
         public static CustomButton engineerRepairButton;
         private static CustomButton janitorCleanButton;
@@ -86,7 +85,7 @@ namespace TheOtherRoles
         public static CustomButton propHuntAdminButton;
         public static CustomButton propHuntFindButton;
 
-        public static Dictionary<byte, List<CustomButton>> deputyHandcuffedButtons = null;
+        public static Dictionary<byte, List<CustomButton>> deputyHandcuffedButtons;
         public static PoolablePlayer targetDisplay;
         public static GameObject propSpriteHolder;
         public static SpriteRenderer propSpriteRenderer;
@@ -253,7 +252,7 @@ namespace TheOtherRoles
             if (deputyHandcuffedButtons.ContainsKey(CachedPlayer.LocalPlayer.PlayerId))
                 deputyHandcuffedButtons[CachedPlayer.LocalPlayer.PlayerId].Add(replacementHandcuffedButton);
             else
-                deputyHandcuffedButtons.Add(CachedPlayer.LocalPlayer.PlayerId, new List<CustomButton> { replacementHandcuffedButton });
+                deputyHandcuffedButtons.Add(CachedPlayer.LocalPlayer.PlayerId, [replacementHandcuffedButton]);
         }
         
         // Disables / Enables all Buttons (except the ones disabled in the Deputy class), and replaces them with new buttons.
@@ -470,7 +469,7 @@ namespace TheOtherRoles
                     },
                 () => { sheriffKillButton.Timer = sheriffKillButton.MaxTimer;},
                 __instance.KillButton.graphic.sprite,
-                CustomButton.ButtonPositions.upperRowRight,
+                CustomButton.DefButtonPositions.upperRowRight,
                 __instance,
                 KeyCode.Q
             );
@@ -1309,7 +1308,7 @@ namespace TheOtherRoles
                     return Jackal.currentTarget && CachedPlayer.LocalPlayer.Control.CanMove; },
                 () => { jackalKillButton.Timer = jackalKillButton.MaxTimer;},
                 __instance.KillButton.graphic.sprite,
-                //CustomButton.ButtonPositions.upperRowRight,
+                //CustomButton.DefButtonPositions.upperRowRight,
                 CustomButton.ButtonPositions.upperRowCenter,
                 __instance,
                 KeyCode.Q
@@ -1359,7 +1358,7 @@ namespace TheOtherRoles
                     return Sidekick.currentTarget && CachedPlayer.LocalPlayer.Control.CanMove; },
                 () => { sidekickKillButton.Timer = sidekickKillButton.MaxTimer;},
                 __instance.KillButton.graphic.sprite,
-                //CustomButton.ButtonPositions.upperRowRight,
+                //CustomButton.DefButtonPositions.upperRowRight,
                 CustomButton.ButtonPositions.upperRowCenter,
                 __instance,
                 KeyCode.Q

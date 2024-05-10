@@ -10,7 +10,7 @@ public class Pursuer : RoleBase
     public PlayerControl pursuer;
     public PlayerControl target;
     public Color color = GetColor<Lawyer>();
-    public List<PlayerControl> blankedList = new();
+    public List<PlayerControl> blankedList = [];
     public int blanks;
     public ResourceSprite blank = new("PursuerButton.png");
     public bool notAckedExiled;
@@ -23,7 +23,7 @@ public class Pursuer : RoleBase
     {
         pursuer = null;
         target = null;
-        blankedList = new List<PlayerControl>();
+        blankedList = [];
         blanks = 0;
         notAckedExiled = false;
 

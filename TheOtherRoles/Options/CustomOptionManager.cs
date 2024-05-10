@@ -151,7 +151,7 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
         foreach (var option in options)
         {
             writer.WritePacked(option.optionInfo.Id);
-            writer.Write(option.selection.Selection);
+            writer.Write(option.OptionSelection.Selection);
         }
     }
 
@@ -180,7 +180,7 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
                 var id = reader.ReadPackedInt32();
                 var selection = reader.ReadInt32();
                 Instance.TryGetOption(id, out var option);
-                option.selection.Selection = selection;
+                option.OptionSelection.Selection = selection;
                 break;
             }
             
@@ -203,7 +203,7 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
                 {
                     var id = reader.ReadInt32();
                     Instance.TryGetOption(id, out var option);
-                    option.selection.Selection = reader.ReadInt32();
+                    option.OptionSelection.Selection = reader.ReadInt32();
                 }
                 break;
             }

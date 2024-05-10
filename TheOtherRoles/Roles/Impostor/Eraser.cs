@@ -13,9 +13,9 @@ public class Eraser : RoleBase
     public PlayerControl eraser;
     public Color color = Palette.ImpostorRed;
 
-    public List<byte> alreadyErased = new();
+    public List<byte> alreadyErased = [];
 
-    public List<PlayerControl> futureErased = new();
+    public List<PlayerControl> futureErased = [];
     public PlayerControl currentTarget;
     public float cooldown = 30f;
     public bool canEraseAnyone;
@@ -31,11 +31,11 @@ public class Eraser : RoleBase
     public override void ClearAndReload()
     {
         eraser = null;
-        futureErased = new List<PlayerControl>();
+        futureErased = [];
         currentTarget = null;
         cooldown = eraserCooldown.getFloat();
         canEraseAnyone = eraserCanEraseAnyone.getBool();
-        alreadyErased = new List<byte>();
+        alreadyErased = [];
     }
     public override void OptionCreate()
     {

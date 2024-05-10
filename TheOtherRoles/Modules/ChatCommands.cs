@@ -1,9 +1,6 @@
-using Hazel;
 using System;
 using System.Linq;
-using TheOtherRoles.Utilities;
 using UnityEngine;
-using static TheOtherRoles.TheOtherRoles;
 
 namespace TheOtherRoles.Modules
 {

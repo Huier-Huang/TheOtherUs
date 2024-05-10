@@ -40,6 +40,8 @@ public static class TextHelper
         return (byte)(f * 255);
     }
 
+    public static string Format(this string s, params object[] obj) => string.Format(s, obj);
+
 
 #nullable enable
     internal static void StartRead(this Stream stream, Action<string, int> OnRead, out string AllText)

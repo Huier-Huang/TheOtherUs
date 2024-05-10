@@ -7,7 +7,7 @@ namespace TheOtherRoles.Roles.Modifier;
 [RegisterRole]
 public class Bait : RoleBase
 {
-    public List<PlayerControl> bait = new();
+    public List<PlayerControl> bait = [];
     public Dictionary<DeadPlayer, float> active = new();
     public Color color = new Color32(0, 247, 255, byte.MaxValue);
 
@@ -17,7 +17,7 @@ public class Bait : RoleBase
 
     public override void ClearAndReload()
     {
-        bait = new List<PlayerControl>();
+        bait = [];
         active = new Dictionary<DeadPlayer, float>();
         reportDelayMin = CustomOptionHolder.modifierBaitReportDelayMin.getFloat();
         reportDelayMax = CustomOptionHolder.modifierBaitReportDelayMax.getFloat();

@@ -16,7 +16,7 @@ public class Trapper : RoleBase
     public int rechargedTasks = 3;
     public int charges = 1;
     public int trapCountToReveal = 2;
-    public List<PlayerControl> playersOnMap = new();
+    public List<PlayerControl> playersOnMap = [];
     public bool anonymousMap;
     public int infoType; // 0 = Role, 1 = Good/Evil, 2 = Name
     public float trapDuration = 5f;
@@ -32,7 +32,7 @@ public class Trapper : RoleBase
         rechargedTasks = Mathf.RoundToInt(CustomOptionHolder.trapperRechargeTasksNumber.getFloat());
         charges = Mathf.RoundToInt(CustomOptionHolder.trapperMaxCharges.getFloat()) / 2;
         trapCountToReveal = Mathf.RoundToInt(CustomOptionHolder.trapperTrapNeededTriggerToReveal.getFloat());
-        playersOnMap = new List<PlayerControl>();
+        playersOnMap = [];
         anonymousMap = CustomOptionHolder.trapperAnonymousMap.getBool();
         infoType = CustomOptionHolder.trapperInfoType.getSelection();
         trapDuration = CustomOptionHolder.trapperTrapDuration.getFloat();

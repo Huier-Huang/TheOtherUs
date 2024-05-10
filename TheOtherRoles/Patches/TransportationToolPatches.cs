@@ -18,13 +18,13 @@ namespace TheOtherRoles.Patches
 
         // Zipline:
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(ZiplineBehaviour), nameof(ZiplineBehaviour.Use), new Type[] {typeof(PlayerControl), typeof(bool)})]
+        [HarmonyPatch(typeof(ZiplineBehaviour), nameof(ZiplineBehaviour.Use), [typeof(PlayerControl), typeof(bool)])]
         public static void prefix3(ZiplineBehaviour __instance, PlayerControl player, bool fromTop) {
             AntiTeleport.position = CachedPlayer.LocalPlayer.transform.position;
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(ZiplineBehaviour), nameof(ZiplineBehaviour.Use), new Type[] { typeof(PlayerControl), typeof(bool) })]
+        [HarmonyPatch(typeof(ZiplineBehaviour), nameof(ZiplineBehaviour.Use), [typeof(PlayerControl), typeof(bool)])]
         public static void postfix(ZiplineBehaviour __instance, PlayerControl player, bool fromTop) {
             // Fix camo:
             __instance.StartCoroutine(Effects.Lerp(fromTop ? __instance.downTravelTime : __instance.upTravelTime, new System.Action<float>((p) => {

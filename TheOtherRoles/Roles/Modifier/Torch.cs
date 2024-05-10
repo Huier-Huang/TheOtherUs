@@ -6,12 +6,12 @@ namespace TheOtherRoles.Roles.Modifier;
 [RegisterRole]
 public class Torch : RoleBase
 {
-    public List<PlayerControl> torch = new();
+    public List<PlayerControl> torch = [];
     public float vision = 1;
 
     public override void ClearAndReload()
     {
-        torch = new List<PlayerControl>();
+        torch = [];
         vision = CustomOptionHolder.modifierTorchVision;
     }
 

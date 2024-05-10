@@ -432,11 +432,8 @@ namespace TheOtherRoles
 
 
         public static CustomOption modifierShifter;
-        
-        public static CustomOption ResetButtonCooldown = new()
-        {
-            
-        };
+
+        public static CustomOption ResetButtonCooldown;
 
         public static CustomOption maxNumberOfMeetings;
         public static CustomOption blockSkippingInEmergencyMeetings;
@@ -554,7 +551,7 @@ namespace TheOtherRoles
         public static CustomOption propHuntFindCooldown;
         public static CustomOption propHuntFindDuration;
 
-        internal static Dictionary<byte, byte[]> blockedRolePairings = new Dictionary<byte, byte[]>();
+        internal static Dictionary<byte, byte[]> blockedRolePairings = new();
 
         public static string cs(Color c, string s)
         {
@@ -1073,7 +1070,7 @@ namespace TheOtherRoles
 
             //-------------------------- Hide N Seek 3000 - 3999 -------------------------- //
 
-            hideNSeekMap = new CustomOption(3020, Types.HideNSeekMain, cs(Color.yellow, "Map"), new string[] { "The Skeld", "Mira", "Polus", "Airship", "Fungle", "Submerged", "LI Map" }, null, true, onChange: () => { int map = hideNSeekMap.selection; if (map >= 3) map++; GameOptionsManager.Instance.currentNormalGameOptions.MapId = (byte)map; });
+            hideNSeekMap = new CustomOption(3020, Types.HideNSeekMain, cs(Color.yellow, "Map"), new string[] { "The Skeld", "Mira", "Polus", "Airship", "Fungle", "Submerged", "LI Map" }, null, true, onChange: () => { int map = hideNSeekMap.OptionSelection; if (map >= 3) map++; GameOptionsManager.Instance.currentNormalGameOptions.MapId = (byte)map; });
             hideNSeekHunterCount = new CustomOption(3000, Types.HideNSeekMain, cs(Color.yellow, "Number Of Hunters"), 1f, 1f, 3f, 1f);
             hideNSeekKillCooldown = new CustomOption(3021, Types.HideNSeekMain, cs(Color.yellow, "Kill Cooldown"), 10f, 2.5f, 60f, 2.5f);
             hideNSeekHunterVision = new CustomOption(3001, Types.HideNSeekMain, cs(Color.yellow, "Hunter Vision"), 0.5f, 0.25f, 2f, 0.25f);
@@ -1108,7 +1105,7 @@ namespace TheOtherRoles
             propHuntMap = new CustomOption(4020, Types.PropHunt, cs(Color.yellow, "Map"),
                 ["The Skeld", "Mira", "Polus", "Airship", "Fungle", "Submerged", "LI Map"], null, true, onChange: () =>
                 {
-                    int map = propHuntMap.selection; if (map >= 3) map++;
+                    int map = propHuntMap.OptionSelection; if (map >= 3) map++;
                     GameOptionsManager.Instance.currentNormalGameOptions.MapId = (byte)map;
                 });
             propHuntTimer = new CustomOption(4021, Types.PropHunt, cs(Color.yellow, "Timer In Min"), 5f, 1f, 30f, 0.5f);
@@ -1138,19 +1135,19 @@ namespace TheOtherRoles
             propHuntSpeedboostSpeed = new CustomOption(4019, Types.PropHunt, cs(Palette.CrewmateBlue, "Speedboost Ratio"), 2f, 1.25f, 5f, 0.25f, propHuntSpeedboostEnabled);
 
 
-            blockedRolePairings.Add((byte)RoleId.Vampire, new[] { (byte)RoleId.Warlock });
-            blockedRolePairings.Add((byte)RoleId.Warlock, new[] { (byte)RoleId.Vampire });
-            blockedRolePairings.Add((byte)RoleId.Spy, new[] { (byte)RoleId.Mini });
-            blockedRolePairings.Add((byte)RoleId.Mini, new[] { (byte)RoleId.Spy });
-            blockedRolePairings.Add((byte)RoleId.Vulture, new[] { (byte)RoleId.Cleaner });
-            blockedRolePairings.Add((byte)RoleId.Cleaner, new[] { (byte)RoleId.Vulture });
+            blockedRolePairings.Add((byte)RoleId.Vampire, [(byte)RoleId.Warlock]);
+            blockedRolePairings.Add((byte)RoleId.Warlock, [(byte)RoleId.Vampire]);
+            blockedRolePairings.Add((byte)RoleId.Spy, [(byte)RoleId.Mini]);
+            blockedRolePairings.Add((byte)RoleId.Mini, [(byte)RoleId.Spy]);
+            blockedRolePairings.Add((byte)RoleId.Vulture, [(byte)RoleId.Cleaner]);
+            blockedRolePairings.Add((byte)RoleId.Cleaner, [(byte)RoleId.Vulture]);
 
-            blockedRolePairings.Add((byte)RoleId.Mayor, new[] { (byte)RoleId.Watcher });
+            blockedRolePairings.Add((byte)RoleId.Mayor, [(byte)RoleId.Watcher]);
             blockedRolePairings.Add((byte)RoleId.Watcher, [(byte)RoleId.Mayor]);
-            blockedRolePairings.Add((byte)RoleId.Engineer, new[] { (byte)RoleId.Tunneler });
+            blockedRolePairings.Add((byte)RoleId.Engineer, [(byte)RoleId.Tunneler]);
             blockedRolePairings.Add((byte)RoleId.Tunneler, [(byte)RoleId.Engineer]);
-            blockedRolePairings.Add((byte)RoleId.Bomber2, new[] { (byte)RoleId.Bait });
-            blockedRolePairings.Add((byte)RoleId.Bait, new[] { (byte)RoleId.Bomber2 });
+            blockedRolePairings.Add((byte)RoleId.Bomber2, [(byte)RoleId.Bait]);
+            blockedRolePairings.Add((byte)RoleId.Bait, [(byte)RoleId.Bomber2]);
         }
     }
 }

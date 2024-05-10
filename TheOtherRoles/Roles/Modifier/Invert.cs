@@ -6,12 +6,12 @@ namespace TheOtherRoles.Roles.Modifier;
 [RegisterRole]
 public class Invert : RoleBase
 {
-    public List<PlayerControl> invert = new();
+    public List<PlayerControl> invert = [];
     public int meetings = 3;
 
     public override void ClearAndReload()
     {
-        invert = new List<PlayerControl>();
+        invert = [];
         meetings = (int)CustomOptionHolder.modifierInvertDuration.getFloat();
     }
 

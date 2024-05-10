@@ -17,7 +17,7 @@ namespace TheOtherRoles.Patches
 
 		public static Sprite Vent = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.Vent.png", 150f);
 
-		public static List<List<Vent>> VentNetworks = new();
+		public static List<List<Vent>> VentNetworks = [];
 
 		public static Dictionary<string, GameObject> mapIcons = new();
 
@@ -26,7 +26,7 @@ namespace TheOtherRoles.Patches
 				mapIcon.Destroy();
 			}
 			mapIcons = new();
-			VentNetworks = new();
+			VentNetworks = [];
 			herePoints = new();
 
         }
@@ -111,7 +111,7 @@ namespace TheOtherRoles.Patches
 
 				var network = GetNetworkFor(vent);
 				if (network == null) {
-					VentNetworks.Add(new(vent.NearbyVents.Where(x => x != null)) { vent });
+					VentNetworks.Add([..vent.NearbyVents.Where(x => x != null), vent]);
 				}
 				else {
 					if (!network.Any(x => x == vent)) network.Add(vent);

@@ -4,10 +4,10 @@ using UnityEngine;
 namespace TheOtherRoles.CustomGameModes
 {
     class GuesserGM { // Guesser Gamemode
-        public static List<GuesserGM> guessers = new List<GuesserGM>();
+        public static List<GuesserGM> guessers = [];
         public static Color color = new Color32(255, 255, 0, byte.MaxValue);
 
-        public PlayerControl guesser = null;
+        public PlayerControl guesser;
         public int shots = Mathf.RoundToInt(CustomOptionHolder.guesserGamemodeNumberOfShots.getFloat());
         public GuesserGM(PlayerControl player) {
             guesser = player;
@@ -32,7 +32,7 @@ namespace TheOtherRoles.CustomGameModes
         }
 
         public static void clearAndReload() {
-            guessers = new List<GuesserGM>();
+            guessers = [];
         }
 
         public static bool isGuesser(byte playerId) {

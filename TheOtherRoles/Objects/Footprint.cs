@@ -43,9 +43,9 @@ namespace TheOtherRoles.Objects
 
 
 
-        private readonly ConcurrentBag<Footprint> _pool = new();
-        private readonly List<Footprint> _activeFootprints = new();
-        private readonly List<Footprint> _toRemove = new();
+        private readonly ConcurrentBag<Footprint> _pool = [];
+        private readonly List<Footprint> _activeFootprints = [];
+        private readonly List<Footprint> _toRemove = [];
 
         [HideFromIl2Cpp]
         public void MakeFootprint(PlayerControl player) {

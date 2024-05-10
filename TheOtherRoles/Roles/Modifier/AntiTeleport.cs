@@ -7,7 +7,7 @@ namespace TheOtherRoles.Roles.Modifier;
 [RegisterRole]
 public class AntiTeleport : RoleBase
 {
-    public List<PlayerControl> antiTeleport = new();
+    public List<PlayerControl> antiTeleport = [];
     public Vector3 position;
 
     public override void ClearAndReload()

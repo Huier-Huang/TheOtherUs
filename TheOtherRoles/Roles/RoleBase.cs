@@ -39,7 +39,6 @@ public abstract class RoleBase : IDisposable
     public abstract RoleInfo RoleInfo { get; protected set; }
     public abstract Type RoleType { get; protected set; }
     public List<RoleControllerBase> Controllers { get; protected set; } = [];
-    
     public string ClassName { get; set; }
     
     #nullable enable

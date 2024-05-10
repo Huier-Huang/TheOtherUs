@@ -16,7 +16,7 @@ public class Cultist : RoleBase
     public PlayerControl currentTarget;
     //public PlayerControl currentFollower;
     public Color color = Palette.ImpostorRed;
-    public List<Arrow> localArrows = new();
+    public List<Arrow> localArrows = [];
     public bool chatTarget = true;
     public bool chatTarget2 = true;
     public bool isCultistGame = false;
@@ -34,7 +34,7 @@ public class Cultist : RoleBase
         if (localArrows != null)
             foreach (var arrow in localArrows.Where(arrow => arrow?.arrow != null))
                 Object.Destroy(arrow.arrow);
-        localArrows = new List<Arrow>();
+        localArrows = [];
         cultist = null;
         currentTarget = null;
         needsFollower = true;

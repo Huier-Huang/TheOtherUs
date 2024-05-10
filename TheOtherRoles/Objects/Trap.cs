@@ -8,18 +8,18 @@ using UnityEngine;
 namespace TheOtherRoles.Objects
 {
     class Trap {
-        public static List<Trap> traps = new List<Trap>();
-        public static Dictionary<byte, Trap> trapPlayerIdMap = new Dictionary<byte, Trap>();
+        public static List<Trap> traps = [];
+        public static Dictionary<byte, Trap> trapPlayerIdMap = new();
 
-        private static int instanceCounter = 0;
-        public int instanceId = 0;
+        private static int instanceCounter;
+        public int instanceId;
         public GameObject trap;
-        public bool revealed = false;
-        public bool triggerable = false;
-        private int usedCount = 0;
+        public bool revealed;
+        public bool triggerable;
+        private int usedCount;
         private int neededCount = Trapper.trapCountToReveal;
-        public List<PlayerControl> trappedPlayer = new List<PlayerControl>();
-        private Arrow arrow = new Arrow(Color.blue);
+        public List<PlayerControl> trappedPlayer = [];
+        private Arrow arrow = new(Color.blue);
 
         private static Sprite trapSprite;
         public static Sprite getTrapSprite() {
@@ -55,7 +55,7 @@ namespace TheOtherRoles.Objects
                 UnityEngine.Object.Destroy(t.arrow.arrow);
                 UnityEngine.Object.Destroy(t.trap); 
             }
-            traps = new List<Trap>();
+            traps = [];
             trapPlayerIdMap = new Dictionary<byte, Trap>();
             instanceCounter = 0;
         }

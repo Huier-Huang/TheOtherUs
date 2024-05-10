@@ -14,7 +14,7 @@ public class Vulture : RoleBase
 {
     public PlayerControl vulture;
     public Color color = new Color32(139, 69, 19, byte.MaxValue);
-    public List<Arrow> localArrows = new();
+    public List<Arrow> localArrows = [];
     public float cooldown = 30f;
     public int eatNumberToWin = 4;
     public int eatenBodies;
@@ -43,7 +43,7 @@ public class Vulture : RoleBase
         if (localArrows != null)
             foreach (var arrow in localArrows.Where(arrow => arrow?.arrow != null))
                 Object.Destroy(arrow.arrow);
-        localArrows = new List<Arrow>();
+        localArrows = [];
     }
     public override void OptionCreate()
     {

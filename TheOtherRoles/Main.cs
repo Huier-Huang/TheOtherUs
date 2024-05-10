@@ -57,7 +57,8 @@ namespace TheOtherRoles
         public static void UpdateRegions() {
             var serverManager = FastDestroyableSingleton<ServerManager>.Instance;
             var regions = new[] {
-                new StaticHttpRegionInfo("Custom", StringNames.NoTranslation, Ip.Value, new Il2CppReferenceArray<ServerInfo>(new ServerInfo[1] { new ServerInfo("Custom", Ip.Value, Port.Value, false) })).CastFast<IRegionInfo>()
+                new StaticHttpRegionInfo("Custom", StringNames.NoTranslation, Ip.Value, new Il2CppReferenceArray<ServerInfo>(
+                    [new ServerInfo("Custom", Ip.Value, Port.Value, false)])).CastFast<IRegionInfo>()
             };
 
             var currentRegion = serverManager.CurrentRegion;
@@ -179,8 +180,8 @@ namespace TheOtherRoles
     public static class DebugManager
     {
         //private static readonly string passwordHash = "d1f51dfdfd8d38027fd2ca9dfeb299399b5bdee58e6c0b3b5e9a45cd4e502848";
-        private static readonly System.Random random = new System.Random((int)DateTime.Now.Ticks);
-        private static List<PlayerControl> bots = new List<PlayerControl>();
+        private static readonly System.Random random = new((int)DateTime.Now.Ticks);
+        private static List<PlayerControl> bots = [];
 
         public static void Postfix(KeyboardJoystick __instance)
         {

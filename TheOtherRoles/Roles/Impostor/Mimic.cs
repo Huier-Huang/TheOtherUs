@@ -14,7 +14,7 @@ public class Mimic : RoleBase
     public PlayerControl mimic;
     public bool hasMimic;
     public Color color = Palette.ImpostorRed;
-    public List<PlayerControl> killed = new();
+    public List<PlayerControl> killed = [];
 
     public  CustomOption mimicSpawnRate;
 

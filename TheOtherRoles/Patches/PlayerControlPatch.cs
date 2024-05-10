@@ -257,11 +257,16 @@ namespace TheOtherRoles.Patches
                     target = setTarget(false, true);
                 }
                 else {
-                    target = setTarget(true, true, new List<PlayerControl>() { Spy.spy, Sidekick.wasTeamRed ? Sidekick.sidekick : null, Jackal.wasTeamRed ? Jackal.jackal : null });
+                    target = setTarget(true, true,
+                    [
+                        Spy.spy, Sidekick.wasTeamRed ? Sidekick.sidekick : null,
+                        Jackal.wasTeamRed ? Jackal.jackal : null
+                    ]);
                 }
             }
             else {
-                target = setTarget(true, true, new List<PlayerControl>() { Sidekick.wasImpostor ? Sidekick.sidekick : null, Jackal.wasImpostor ? Jackal.jackal : null });
+                target = setTarget(true, true,
+                    [Sidekick.wasImpostor ? Sidekick.sidekick : null, Jackal.wasImpostor ? Jackal.jackal : null]);
             }
 
             bool targetNearGarlic = false;
@@ -323,11 +328,14 @@ namespace TheOtherRoles.Patches
         static void eraserSetTarget() {
             if (Eraser.eraser == null || Eraser.eraser != CachedPlayer.LocalPlayer.Control) return;
 
-            List<PlayerControl> untargetables = new List<PlayerControl>();
+            List<PlayerControl> untargetables = [];
             if (Spy.spy != null) untargetables.Add(Spy.spy);
             if (Sidekick.wasTeamRed) untargetables.Add(Sidekick.sidekick);
             if (Jackal.wasTeamRed) untargetables.Add(Jackal.jackal);
-            Eraser.currentTarget = setTarget(onlyCrewmates: !Eraser.canEraseAnyone, untargetablePlayers: Eraser.canEraseAnyone ? new List<PlayerControl>() : untargetables);
+            Eraser.currentTarget = setTarget(onlyCrewmates: !Eraser.canEraseAnyone, untargetablePlayers: Eraser.canEraseAnyone ?
+                [
+                ]
+                : untargetables);
             setPlayerOutline(Eraser.currentTarget, Eraser.color);
         }
 
@@ -383,11 +391,16 @@ namespace TheOtherRoles.Patches
                     target = setTarget(false, true);
                 }
                 else {
-                    target = setTarget(true, true, new List<PlayerControl>() { Spy.spy, Sidekick.wasTeamRed ? Sidekick.sidekick : null, Jackal.wasTeamRed ? Jackal.jackal : null});
+                    target = setTarget(true, true,
+                    [
+                        Spy.spy, Sidekick.wasTeamRed ? Sidekick.sidekick : null,
+                        Jackal.wasTeamRed ? Jackal.jackal : null
+                    ]);
                 }
             }
             else {
-                target = setTarget(true, true, new List<PlayerControl>() { Sidekick.wasImpostor ? Sidekick.sidekick : null, Jackal.wasImpostor ? Jackal.jackal : null});
+                target = setTarget(true, true,
+                    [Sidekick.wasImpostor ? Sidekick.sidekick : null, Jackal.wasImpostor ? Jackal.jackal : null]);
             }
 
             FastDestroyableSingleton<HudManager>.Instance.KillButton.SetTarget(target); // Includes setPlayerOutline(target, Palette.ImpstorRed);
@@ -684,7 +697,7 @@ namespace TheOtherRoles.Patches
             List<PlayerControl> untargetables;
             if (Arsonist.douseTarget != null)
             {
-                untargetables = new();
+                untargetables = [];
                 foreach (CachedPlayer cachedPlayer in CachedPlayer.AllPlayers)
                 {
                     if (cachedPlayer.PlayerId != Arsonist.douseTarget.PlayerId)
@@ -1038,7 +1051,7 @@ namespace TheOtherRoles.Patches
             Medium.target = target;
         }
 
-        static bool mushroomSaboWasActive = false;
+        static bool mushroomSaboWasActive;
         static void morphlingAndCamouflagerUpdate() {
             bool mushRoomSaboIsActive = Helpers.MushroomSabotageActive();
             if (!mushroomSaboWasActive) mushroomSaboWasActive = mushRoomSaboIsActive;
@@ -1133,7 +1146,7 @@ namespace TheOtherRoles.Patches
             if (Witch.spellCastingTarget != null)
                 untargetables = PlayerControl.AllPlayerControls.ToArray().Where(x => x.PlayerId != Witch.spellCastingTarget.PlayerId).ToList(); // Don't switch the target from the the one you're currently casting a spell on
             else {
-                untargetables = new List<PlayerControl>(); // Also target players that have already been spelled, to hide spells that were blanks/blocked by shields
+                untargetables = []; // Also target players that have already been spelled, to hide spells that were blanks/blocked by shields
                 if (Spy.spy != null && !Witch.canSpellAnyone) untargetables.Add(Spy.spy);
                 if (Sidekick.wasTeamRed && !Witch.canSpellAnyone) untargetables.Add(Sidekick.sidekick);
                 if (Jackal.wasTeamRed && !Witch.canSpellAnyone) untargetables.Add(Jackal.jackal);
@@ -1145,7 +1158,7 @@ namespace TheOtherRoles.Patches
         static void ninjaSetTarget()
         {
             if (Ninja.ninja == null || Ninja.ninja != CachedPlayer.LocalPlayer.Control) return;
-            List<PlayerControl> untargetables = new List<PlayerControl>();
+            List<PlayerControl> untargetables = [];
             if (Spy.spy != null && !Spy.impostorsCanKillAnyone) untargetables.Add(Spy.spy);
             if (Mini.mini != null && !Mini.isGrownUp()) untargetables.Add(Mini.mini);
             if (Sidekick.wasTeamRed && !Spy.impostorsCanKillAnyone) untargetables.Add(Sidekick.sidekick);
@@ -1156,7 +1169,7 @@ namespace TheOtherRoles.Patches
 
         static void thiefSetTarget() {
             if (Thief.thief == null || Thief.thief != CachedPlayer.LocalPlayer.Control) return;
-            List<PlayerControl> untargetables = new List<PlayerControl>();
+            List<PlayerControl> untargetables = [];
             if (Mini.mini != null && !Mini.isGrownUp()) untargetables.Add(Mini.mini);
             Thief.currentTarget = setTarget(onlyCrewmates: false, untargetablePlayers: untargetables);
             setPlayerOutline(Thief.currentTarget, Thief.color);
@@ -1564,8 +1577,8 @@ namespace TheOtherRoles.Patches
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.MurderPlayer))]
     public static class MurderPlayerPatch
     {
-        public static bool resetToCrewmate = false;
-        public static bool resetToDead = false;
+        public static bool resetToCrewmate;
+        public static bool resetToDead;
 
         public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)]PlayerControl target)
         {
@@ -1741,7 +1754,7 @@ namespace TheOtherRoles.Patches
 
     [HarmonyPatch(typeof(KillAnimation), nameof(KillAnimation.CoPerformKill))]
     class KillAnimationCoPerformKillPatch {
-        public static bool hideNextAnimation = false;
+        public static bool hideNextAnimation;
         public static void Prefix(KillAnimation __instance, [HarmonyArgument(0)]ref PlayerControl source, [HarmonyArgument(1)]ref PlayerControl target) {
             if (hideNextAnimation)
                 source = target;
@@ -1751,7 +1764,7 @@ namespace TheOtherRoles.Patches
 
     [HarmonyPatch(typeof(KillAnimation), nameof(KillAnimation.SetMovement))]
     class KillAnimationSetMovementPatch {
-        private static int? colorId = null;
+        private static int? colorId;
         public static void Prefix(PlayerControl source, bool canMove) {
             Color color = source.cosmetics.currentBodySprite.BodySprite.material.GetColor("_BodyColor");
             if (Morphling.morphling != null && source.Data.PlayerId == Morphling.morphling.PlayerId) {
@@ -1875,7 +1888,8 @@ namespace TheOtherRoles.Patches
         }
     }
     
-    [HarmonyPatch(typeof(GameData), nameof(GameData.HandleDisconnect), new[] {typeof(PlayerControl), typeof(DisconnectReasons) })]
+    [HarmonyPatch(typeof(GameData), nameof(GameData.HandleDisconnect), [typeof(PlayerControl), typeof(DisconnectReasons)
+    ])]
     public static class GameDataHandleDisconnectPatch {
         public static void Prefix(GameData __instance, PlayerControl player, DisconnectReasons reason) {
             if (MeetingHud.Instance) {

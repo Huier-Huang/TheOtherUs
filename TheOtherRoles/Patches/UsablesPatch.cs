@@ -180,7 +180,7 @@ namespace TheOtherRoles.Patches
 
     [HarmonyPatch(typeof(VentButton), nameof(VentButton.SetTarget))]
     class VentButtonSetTargetPatch {
-        static Sprite defaultVentSprite = null;
+        static Sprite defaultVentSprite;
         static void Postfix(VentButton __instance) {
             // Trickster render special vent button
             if (Trickster.trickster != null && Trickster.trickster == CachedPlayer.LocalPlayer.Control) {
@@ -197,11 +197,10 @@ namespace TheOtherRoles.Patches
 
     internal class VisibleVentPatches
     {
-        public static int ShipAndObjectsMask = LayerMask.GetMask(new string[]
-        {
+        public static int ShipAndObjectsMask = LayerMask.GetMask([
             "Ship",
             "Objects"
-        });
+        ]);
 
         [HarmonyPatch(typeof(Vent), nameof(Vent.EnterVent))] //EnterVent
         public static class EnterVentPatch
@@ -422,13 +421,13 @@ namespace TheOtherRoles.Patches
 
     [HarmonyPatch]
     class VitalsMinigamePatch {
-        private static List<TMPro.TextMeshPro> hackerTexts = new List<TMPro.TextMeshPro>();
+        private static List<TMPro.TextMeshPro> hackerTexts = [];
 
         [HarmonyPatch(typeof(VitalsMinigame), nameof(VitalsMinigame.Begin))]
         class VitalsMinigameStartPatch {
             static void Postfix(VitalsMinigame __instance) {
                 if (Hacker.hacker != null && CachedPlayer.LocalPlayer.Control == Hacker.hacker) {
-                    hackerTexts = new List<TMPro.TextMeshPro>();
+                    hackerTexts = [];
                     foreach (VitalsPanel panel in __instance.vitals) {
                         TMPro.TextMeshPro text = UnityEngine.Object.Instantiate(__instance.SabText, panel.transform);
                         hackerTexts.Add(text);
@@ -481,7 +480,7 @@ namespace TheOtherRoles.Patches
 
     [HarmonyPatch]
     class AdminPanelPatch {
-        static Dictionary<SystemTypes, List<Color>> players = new Dictionary<SystemTypes, System.Collections.Generic.List<Color>>();
+        static Dictionary<SystemTypes, List<Color>> players = new();
         [HarmonyPatch(typeof(MapCountOverlay), nameof(MapCountOverlay.Update))]
         class MapCountOverlayUpdatePatch {
             static bool Prefix(MapCountOverlay __instance) {
@@ -515,7 +514,7 @@ namespace TheOtherRoles.Patches
                 for (int i = 0; i < __instance.CountAreas.Length; i++)
                 {
                     CounterArea counterArea = __instance.CountAreas[i];
-                    List<Color> roomColors = new List<Color>();
+                    List<Color> roomColors = [];
                     players.Add(counterArea.RoomType, roomColors);
 
                     if (!commsActive)
@@ -525,7 +524,7 @@ namespace TheOtherRoles.Patches
                         if (plainShipRoom != null && plainShipRoom.roomArea) {
 
 
-                            HashSet<int> hashSet = new HashSet<int>();
+                            HashSet<int> hashSet = [];
                             int num = plainShipRoom.roomArea.OverlapCollider(__instance.filter, __instance.buffer);
                             int num2 = 0;
                             for (int j = 0; j < num; j++) {
@@ -614,12 +613,12 @@ namespace TheOtherRoles.Patches
 
     [HarmonyPatch]
     class SurveillanceMinigamePatch {
-        private static int page = 0;
-        private static float timer = 0f;
+        private static int page;
+        private static float timer;
 
-        public static List<GameObject> nightVisionOverlays = null;
+        public static List<GameObject> nightVisionOverlays;
         private static Sprite overlaySprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.NightVisionOverlay.png", 350f);
-        public static bool nightVisionIsActive = false;
+        public static bool nightVisionIsActive;
         private static bool isLightsOut;
 
         [HarmonyPatch(typeof(SurveillanceMinigame), nameof(SurveillanceMinigame.Begin))]
@@ -723,7 +722,7 @@ namespace TheOtherRoles.Patches
         private static void nightVisionUpdate(SurveillanceMinigame SkeldCamsMinigame = null, PlanetSurveillanceMinigame SwitchCamsMinigame = null, FungleSurveillanceMinigame FungleCamMinigame = null) {
             GameObject closeButton = null;
             if (nightVisionOverlays == null) {
-                List<MeshRenderer> viewPorts = new();
+                List<MeshRenderer> viewPorts = [];
                 Transform viewablesTransform = null;
                 if (SkeldCamsMinigame != null) {
                     closeButton = SkeldCamsMinigame.Viewables.transform.Find("CloseButton").gameObject;
@@ -739,7 +738,7 @@ namespace TheOtherRoles.Patches
                     viewablesTransform = FungleCamMinigame.viewport.transform;
                 } else return;
 
-                nightVisionOverlays = new List<GameObject>();
+                nightVisionOverlays = [];
 
                 foreach (var renderer in viewPorts) {
                     GameObject overlayObject;

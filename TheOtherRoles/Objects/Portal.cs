@@ -8,12 +8,12 @@ namespace TheOtherRoles.Objects
 {
 
     public class Portal {
-        public static Portal firstPortal = null;
-        public static Portal secondPortal = null;
-        public static bool bothPlacedAndEnabled = false;
+        public static Portal firstPortal;
+        public static Portal secondPortal;
+        public static bool bothPlacedAndEnabled;
         public static Sprite[] portalFgAnimationSprites = new Sprite[205];
         public static Sprite portalSprite;
-        public static bool isTeleporting = false;
+        public static bool isTeleporting;
         public static float teleportDuration = 3.4166666667f;
         public string room;
 
@@ -144,7 +144,7 @@ namespace TheOtherRoles.Objects
             }
 
             // reset teleported players
-            teleportedPlayers = new List<tpLogEntry>();
+            teleportedPlayers = [];
         }
 
         private static void preloadSprites() {
@@ -160,7 +160,7 @@ namespace TheOtherRoles.Objects
             firstPortal = null;
             secondPortal = null;
             isTeleporting = false;
-            teleportedPlayers = new List<tpLogEntry>();
+            teleportedPlayers = [];
         }
 
     }

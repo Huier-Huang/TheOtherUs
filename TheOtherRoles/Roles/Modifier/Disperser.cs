@@ -18,7 +18,7 @@ public class Disperser : RoleBase
     {
         disperser = null;
         cooldown = CustomOptionHolder.modifierDisperserCooldown;
-        remainingDisperses = CustomOptionHolder.modifierDisperserNumberOfUses.selection.Selection;
+        remainingDisperses = CustomOptionHolder.modifierDisperserNumberOfUses.OptionSelection.Selection;
         dispersesToVent = CustomOptionHolder.modifierDisperserDispersesToVent;
     }
     

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace TheOtherRoles.Objects
 {
     class Garlic {
-        public static List<Garlic> garlics = new List<Garlic>();
+        public static List<Garlic> garlics = [];
 
         public GameObject garlic;
         private GameObject background;
@@ -43,7 +43,7 @@ namespace TheOtherRoles.Objects
         }
 
         public static void clearGarlics() {
-            garlics = new List<Garlic>();
+            garlics = [];
         }
 
         public static void UpdateAll() {

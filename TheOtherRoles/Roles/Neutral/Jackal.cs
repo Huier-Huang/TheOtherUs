@@ -16,7 +16,7 @@ public class Jackal : RoleBase, Invisable
     //public static Color color = new Color32(224, 197, 219, byte.MaxValue);
     public PlayerControl fakeSidekick;
     public PlayerControl currentTarget;
-    public List<PlayerControl> formerJackals = new();
+    public List<PlayerControl> formerJackals = [];
 
     public float cooldown = 30f;
     public float duration = 5f;

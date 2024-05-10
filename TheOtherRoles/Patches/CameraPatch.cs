@@ -10,7 +10,7 @@ namespace TheOtherRoles.Patches
     [Harmony]
     public class CameraPatch
     {
-        static float cameraTimer = 0f;
+        static float cameraTimer;
 
         public static void ResetData()
         {
@@ -35,8 +35,8 @@ namespace TheOtherRoles.Patches
         [HarmonyPatch]
         class SurveillanceMinigamePatch
         {
-            private static int page = 0;
-            private static float timer = 0f;
+            private static int page;
+            private static float timer;
             static TMPro.TextMeshPro TimeRemaining;
 
             public static void ResetData()

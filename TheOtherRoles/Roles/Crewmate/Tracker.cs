@@ -12,7 +12,7 @@ public class Tracker : RoleBase
 {
     public PlayerControl tracker;
     public Color color = new Color32(100, 58, 220, byte.MaxValue);
-    public List<Arrow> localArrows = new();
+    public List<Arrow> localArrows = [];
 
     public float updateIntervall = 5f;
     public bool resetTargetAfterMeeting;
@@ -20,7 +20,7 @@ public class Tracker : RoleBase
     public float corpsesTrackingCooldown = 30f;
     public float corpsesTrackingDuration = 5f;
     public float corpsesTrackingTimer;
-    public List<Vector3> deadBodyPositions = new();
+    public List<Vector3> deadBodyPositions = [];
 
     public PlayerControl currentTarget;
     public PlayerControl tracked;
@@ -51,7 +51,7 @@ public class Tracker : RoleBase
         if (localArrows != null)
             foreach (var a in localArrows.Where(a => a?.arrow != null))
                 Object.Destroy(a.arrow);
-        deadBodyPositions = new List<Vector3>();
+        deadBodyPositions = [];
         corpsesTrackingTimer = 0f;
         corpsesTrackingCooldown = CustomOptionHolder.trackerCorpsesTrackingCooldown.getFloat();
         corpsesTrackingDuration = CustomOptionHolder.trackerCorpsesTrackingDuration.getFloat();

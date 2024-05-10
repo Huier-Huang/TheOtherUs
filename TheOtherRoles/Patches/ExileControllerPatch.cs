@@ -109,7 +109,7 @@ namespace TheOtherRoles.Patches
                 allCameras.Add(camera);
             });
             MapUtilities.CachedShipStatus.AllCameras = allCameras.ToArray();
-            TORMapOptions.camerasToAdd = new List<SurvCamera>();
+            TORMapOptions.camerasToAdd = [];
 
             foreach (Vent vent in TORMapOptions.ventsToSeal)
             {
@@ -130,7 +130,7 @@ namespace TheOtherRoles.Patches
                 rend.color = Color.white;
                 vent.name = "SealedVent_" + vent.name;
             }
-            TORMapOptions.ventsToSeal = new List<Vent>();
+            TORMapOptions.ventsToSeal = [];
             // 1 = reset per turn
             if (TORMapOptions.restrictDevices == 1)
                 TORMapOptions.resetDeviceTimes();
@@ -160,7 +160,7 @@ namespace TheOtherRoles.Patches
         }
 
         // Workaround to add a "postfix" to the destroying of the exile controller (i.e. cutscene) and SpwanInMinigame of submerged
-        [HarmonyPatch(typeof(UnityEngine.Object), nameof(UnityEngine.Object.Destroy), new Type[] { typeof(GameObject) })]
+        [HarmonyPatch(typeof(UnityEngine.Object), nameof(UnityEngine.Object.Destroy), [typeof(GameObject)])]
         public static void Prefix(GameObject obj)
         {
             // Nightvision:
@@ -341,7 +341,8 @@ namespace TheOtherRoles.Patches
         }
     }
 
-    [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.GetString), new Type[] { typeof(StringNames), typeof(Il2CppReferenceArray<Il2CppSystem.Object>) })]
+    [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.GetString), [typeof(StringNames), typeof(Il2CppReferenceArray<Il2CppSystem.Object>)
+    ])]
     internal class ExileControllerMessagePatch
     {
         private static void Postfix(ref string __result, [HarmonyArgument(0)] StringNames id)

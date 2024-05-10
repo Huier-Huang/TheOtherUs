@@ -1,7 +1,9 @@
+extern alias JetBrains;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains::JetBrains.Annotations;
 
 namespace TheOtherRoles.Modules;
 

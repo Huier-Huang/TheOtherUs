@@ -10,7 +10,7 @@ namespace TheOtherRoles.Roles.Modifier;
 [RegisterRole]
 public class Chameleon : RoleBase
 {
-    public List<PlayerControl> chameleon = new();
+    public List<PlayerControl> chameleon = [];
     public float minVisibility = 0.2f;
     public float holdDuration = 1f;
     public float fadeDuration = 0.5f;
@@ -18,7 +18,7 @@ public class Chameleon : RoleBase
 
     public override void ClearAndReload()
     {
-        chameleon = new List<PlayerControl>();
+        chameleon = [];
         lastMoved = new Dictionary<byte, float>();
         holdDuration = CustomOptionHolder.modifierChameleonHoldDuration.getFloat();
         fadeDuration = CustomOptionHolder.modifierChameleonFadeDuration.getFloat();

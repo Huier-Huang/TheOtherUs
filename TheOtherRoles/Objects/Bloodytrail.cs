@@ -7,8 +7,8 @@ using static TheOtherRoles.TheOtherRoles;
 namespace TheOtherRoles.Objects
 {
     class Bloodytrail {
-        private static List<Bloodytrail> bloodytrail = new List<Bloodytrail>();
-        private static List<Sprite> sprites = new List<Sprite>();
+        private static List<Bloodytrail> bloodytrail = [];
+        private static List<Sprite> sprites = [];
         private Color color;
         private GameObject blood;
         private SpriteRenderer spriteRenderer;
@@ -22,9 +22,9 @@ namespace TheOtherRoles.Objects
         }
 
         public Bloodytrail(PlayerControl player, PlayerControl bloodyPlayer) {
-            this.color = Palette.PlayerColors[(int)bloodyPlayer.Data.DefaultOutfit.ColorId];
+            color = Palette.PlayerColors[(int)bloodyPlayer.Data.DefaultOutfit.ColorId];
             var sp = getBloodySprites();
-            var index = rnd.Next(0, sp.Count);
+            var index = sp.RandomIndex();
 
 
             blood = new GameObject("Blood" + index);
@@ -40,7 +40,6 @@ namespace TheOtherRoles.Objects
             spriteRenderer.sprite = sp[index];
             spriteRenderer.material = FastDestroyableSingleton<HatManager>.Instance.PlayerMaterial;
             bloodyPlayer.SetPlayerMaterialColors(spriteRenderer);
-            // spriteRenderer.color = color;
 
             blood.SetActive(true);
             bloodytrail.Add(this);

@@ -22,7 +22,7 @@ public class Deputy : RoleBase
     public float handcuffCooldown;
     public float handcuffDuration;
     public Dictionary<byte, float> handcuffedKnows = new();
-    public List<byte> handcuffedPlayers = new();
+    public List<byte> handcuffedPlayers = [];
     public bool keepsHandcuffsOnPromotion;
     public bool knowsSheriff;
     public int promotesToSheriff; // No: 0, Immediately: 1, After Meeting: 2
@@ -72,7 +72,7 @@ public class Deputy : RoleBase
     {
         deputy = null;
         currentTarget = null;
-        handcuffedPlayers = new List<byte>();
+        handcuffedPlayers = [];
         handcuffedKnows = new Dictionary<byte, float>();
         setAllButtonsHandcuffedStatus(false, true);
         promotesToSheriff = deputyGetsPromoted.getSelection();
