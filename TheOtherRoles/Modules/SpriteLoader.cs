@@ -32,7 +32,7 @@ public class SpriteLoader(DirectoryInfo directory)
         return list;
     }
     
-    public Sprite LoadSprite(Stream stream, bool DontUnload , Vector2 pivot, float pixelsPerUnit)
+    public static Sprite LoadSprite(Stream stream, bool DontUnload , Vector2 pivot, float pixelsPerUnit)
     {
         var texture = LoadTexture(stream, DontUnload);
         var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), pivot, pixelsPerUnit);
@@ -41,7 +41,7 @@ public class SpriteLoader(DirectoryInfo directory)
         return sprite;
     }
 
-    public Texture2D LoadTexture(Stream stream, bool DontUnload)
+    public static Texture2D LoadTexture(Stream stream, bool DontUnload)
     {
         var texture = new Texture2D(2, 2, TextureFormat.ARGB32, true);
         var byteTexture = stream.ReadFully();
@@ -49,5 +49,14 @@ public class SpriteLoader(DirectoryInfo directory)
         if (DontUnload)
             texture.DontDestroyOnLoad();
         return texture;
+    }
+
+    public static Sprite LoadHatSpriteFormDisk(Stream stream, string Name)
+    {
+        var texture = LoadTexture(stream, true);
+        var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.53f, 0.575f), texture.width * 0.375f);
+        sprite.name = Name;
+        sprite.DontDestroyOnLoad();
+        return sprite;
     }
 }

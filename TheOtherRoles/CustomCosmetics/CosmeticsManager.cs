@@ -15,7 +15,7 @@ namespace TheOtherRoles.CustomCosmetics;
 [Harmony]
 public class CosmeticsManager : ManagerBase<CosmeticsManager>
 {
-    public List<Sprite> sprites = [];
+    public readonly List<Sprite> sprites = [];
     public HashSet<Sprite> HatSprites => sprites.Where(n => n.name.StartsWith("Hats/")).ToHashSet();
     public HashSet<Sprite> VisorSprites => sprites.Where(n => n.name.StartsWith("Visors/")).ToHashSet();
     public HashSet<Sprite> NamePlateSprites => sprites.Where(n => n.name.StartsWith("NamePlates/")).ToHashSet();
@@ -25,12 +25,16 @@ public class CosmeticsManager : ManagerBase<CosmeticsManager>
     public static readonly string VisorDir = Path.Combine(CosmeticDir, "Visors");
     public static readonly string NamePlateDir = Path.Combine(CosmeticDir, "NamePlates");
     public static readonly string ManagerConfigDir = Path.Combine(CosmeticDir, "ManagerConfig");
+    public static readonly string LocalDir = Path.Combine(CosmeticDir, "Local");
+    public static readonly string LocalHatDir = Path.Combine(LocalDir, "Hats");
+    public static readonly string LocalVisorDir = Path.Combine(LocalDir, "Visors");
+    public static readonly string LocalNamePlateDir = Path.Combine(LocalDir, "NamePlates");
     
     public const string InnerslothPackageName = "Innersloth";
 
     static CosmeticsManager()
     {
-        string[] list = [CosmeticDir, HatDir, VisorDir, NamePlateDir, ManagerConfigDir];
+        string[] list = [CosmeticDir, HatDir, VisorDir, NamePlateDir, ManagerConfigDir, LocalDir, LocalHatDir, LocalVisorDir, LocalNamePlateDir];
         foreach (var path in list)
         {
             if (!Directory.Exists(path))
@@ -46,7 +50,7 @@ public class CosmeticsManager : ManagerBase<CosmeticsManager>
     
     public readonly HashSet<CosmeticsManagerConfig> configs = [];
 
-    public List<ICustomCosmetic> customCosmetics = [];
+    public readonly List<ICustomCosmetic> customCosmetics = [];
     public HashSet<CustomHat> CustomHats => customCosmetics.Where(n => n is CustomHat).Cast<CustomHat>().ToHashSet();
     public HashSet<CustomVisor> CustomVisors => customCosmetics.Where(n => n is CustomVisor).Cast<CustomVisor>().ToHashSet();
     public HashSet<CustomNamePlate> CustomNamePlates => customCosmetics.Where(n => n is CustomNamePlate).Cast<CustomNamePlate>().ToHashSet();
@@ -110,6 +114,98 @@ public class CosmeticsManager : ManagerBase<CosmeticsManager>
     {
         LoadConfigFormDisk(new DirectoryInfo(ManagerConfigDir));
         LoadSpriteFormDisk();
+        Task.Factory.StartNew(LoadFormDisk);
+    }
+
+    public void LoadFormDisk()
+    {
+        var hatPath = Path.Combine(LocalDir, "CustomHat.json");
+        if (File.Exists(hatPath))
+        {
+            var json = JsonDocument.Parse(File.ReadAllText(hatPath));
+            var hats = json.RootElement.GetProperty("hats").Deserialize<List<CustomHatConfig>>();
+            foreach (var hatConfig in hats)
+            {
+                var res = new[]
+                {
+                    hatConfig.Resource, hatConfig.BackResource, hatConfig.BackFlipResource, hatConfig.ClimbResource,
+                    hatConfig.FlipResource
+                }.Where(n => n != string.Empty);
+                foreach (var r in res)
+                {
+                    var p = Path.Combine(LocalHatDir, r);
+                    var s = SpriteLoader.LoadHatSpriteFormDisk(File.OpenRead(p), $"Hats/Local/{r}");
+                    sprites.Add(s);
+                }
+                
+                var hat = new CustomHat
+                {
+                    ManagerConfig = null,
+                    config = hatConfig,
+                    Resource = GetSprite(CustomCosmeticsFlags.Hat, hatConfig.Resource),
+                    BackSprite = GetSprite(CustomCosmeticsFlags.Hat, hatConfig.BackResource),
+                    BackFlipSprite = GetSprite(CustomCosmeticsFlags.Hat, hatConfig.BackFlipResource),
+                    ClimbSprite = GetSprite(CustomCosmeticsFlags.Hat, hatConfig.ClimbResource),
+                    FlipSprite = GetSprite(CustomCosmeticsFlags.Hat, hatConfig.FlipResource)
+                };
+                hat.data = hatConfig.createHatData(hat.Resource, hat.BackSprite, hat.ClimbSprite, out var id, out var view);
+                hat.Id = id;
+                hat.View = view;
+                customCosmetics.Add(hat);
+            }
+        }
+
+        var visorPath = Path.Combine(LocalDir, "CustomVisor.json");
+        if (File.Exists(visorPath))
+        {
+            var json = JsonDocument.Parse(File.ReadAllText(visorPath));
+            var visors = json.RootElement.GetProperty("Visors").Deserialize<List<CustomCosmeticConfig>>();
+            foreach (var visorConfig in visors)
+            {
+                var p = Path.Combine(LocalHatDir, visorConfig.Resource);
+                var s = SpriteLoader.LoadHatSpriteFormDisk(File.OpenRead(p), $"Visors/Local/{visorConfig.Resource}");
+                sprites.Add(s);
+                
+                var visor = new CustomVisor
+                {
+                    ManagerConfig = null,
+                    config = visorConfig,
+                    Resource = GetSprite(CustomCosmeticsFlags.Visor, visorConfig.Resource),
+                };
+                visor.data = visorConfig.createVisorData(visor.Resource, out var id, out var view);
+                visor.Id = id;
+                visor.View = view;
+                
+                customCosmetics.Add(visor);
+            }
+        }
+        
+        var NamePlatePath = Path.Combine(LocalDir, "CustomNamePlate.json");
+        if (File.Exists(NamePlatePath))
+        {
+            var json = JsonDocument.Parse(File.ReadAllText(NamePlatePath));
+            var namePlates = json.RootElement.GetProperty("NamePlates").Deserialize<List<CustomCosmeticConfig>>();
+            foreach (var namePlateConfig in namePlates)
+            {
+                var p = Path.Combine(LocalHatDir, namePlateConfig.Resource);
+                var s = SpriteLoader.LoadHatSpriteFormDisk(File.OpenRead(p), $"NamePlates/Local/{namePlateConfig.Resource}");
+                sprites.Add(s);
+                
+                var NamePlate = new CustomNamePlate
+                {
+                    ManagerConfig = null,
+                    config = namePlateConfig,
+                    Resource = GetSprite(CustomCosmeticsFlags.NamePlate, namePlateConfig.Resource)
+                };
+                NamePlate.data = namePlateConfig.createNamePlateData(NamePlate.Resource, out var id, out var view);
+                NamePlate.Id = id;
+                NamePlate.View = view;
+                
+                customCosmetics.Add(NamePlate);
+            }
+        }
+        
+        CheckAddAll();
     }
 
     private static bool AddEnd = false;
@@ -292,7 +388,11 @@ public class CosmeticsManager : ManagerBase<CosmeticsManager>
                 customCosmetics.Add(NamePlate);
             }
         }
+        CheckAddAll();
+    }
 
+    public void CheckAddAll()
+    {
         if (
             CustomHats.Any(n => HatManager.Instance.allHats.All(y => y.ProductId != n.Id))
             ||
