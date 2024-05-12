@@ -81,7 +81,6 @@ internal static class TORMapOptions
         restrictVitalsTime = restrictVitalsTimeMax = CustomOptionHolder.restrictVents.getFloat();
         disableCamsRoundOne = CustomOptionHolder.disableCamsRound1.getBool();
         CustomOptionHolder.randomGameStartPosition.getBool();
-        /*allowModGuess = CustomOptionHolder.allowModGuess.getBool();*/
         firstKillPlayer = null;
         isRoundOne = true;
     }
@@ -94,10 +93,8 @@ internal static class TORMapOptions
         ghostsSeeVotes = Main.GhostsSeeVotes.Value;
         showRoleSummary = Main.ShowRoleSummary.Value;
         showLighterDarker = Main.ShowLighterDarker.Value;
-        /*toggleCursor = Main.ToggleCursor.Value;*/
         enableSoundEffects = Main.EnableSoundEffects.Value;
         enableHorseMode = Main.EnableHorseMode.Value;
-        /*ShowVentsOnMap = Main.ShowVentsOnMap.Value;*/
     }
 
     public static void resetDeviceTimes()

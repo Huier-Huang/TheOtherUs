@@ -29,10 +29,6 @@
         <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" Aliases="JetBrains"/>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Modules\CustomHats\Extensions\" />
-    </ItemGroup>
-
     <Target Name="Date" BeforeTargets="BeforeBuild">  <!--Will make the compile time available s.t. we can let betas expire-->
         <WriteLinesToFile File="$(IntermediateOutputPath)gen.cs" Lines="static partial class Builtin { public static long CompileTime = $([System.DateTime]::UtcNow.Ticks) %3B }" Overwrite="true"/>
         <ItemGroup>

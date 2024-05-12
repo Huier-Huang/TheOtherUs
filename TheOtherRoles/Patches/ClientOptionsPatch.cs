@@ -34,17 +34,9 @@ public static class ClientOptionsPatch
         new SelectionBehaviour("Show Lighter / Darker",
             () => TORMapOptions.showLighterDarker = TheOtherRolesPlugin.ShowLighterDarker.Value =
                 !TheOtherRolesPlugin.ShowLighterDarker.Value, TheOtherRolesPlugin.ShowLighterDarker.Value),
-        new SelectionBehaviour("Better Cursor",
-            () => TORMapOptions.toggleCursor =
-                TheOtherRolesPlugin.ToggleCursor.Value = !TheOtherRolesPlugin.ToggleCursor.Value,
-            TheOtherRolesPlugin.ToggleCursor.Value),
         new SelectionBehaviour("Enable Sound Effects",
             () => TORMapOptions.enableSoundEffects = TheOtherRolesPlugin.EnableSoundEffects.Value =
                 !TheOtherRolesPlugin.EnableSoundEffects.Value, TheOtherRolesPlugin.EnableSoundEffects.Value),
-        new SelectionBehaviour("Show Vents On Map",
-            () => TORMapOptions.ShowVentsOnMap =
-                TheOtherRolesPlugin.ShowVentsOnMap.Value = !TheOtherRolesPlugin.ShowVentsOnMap.Value,
-            TheOtherRolesPlugin.ShowVentsOnMap.Value)
     ];
 
     private static GameObject popUp;
