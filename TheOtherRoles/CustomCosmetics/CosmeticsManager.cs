@@ -72,6 +72,34 @@ public class CosmeticsManager : ManagerBase<CosmeticsManager>
         return namePlate == null;
     }
     
+    public bool TryGetHat(HatData data, [MaybeNullWhen(false)]out CustomHat Hat)
+    {
+        var hat = CustomHats.FirstOrDefault(n => n.data == data);
+        Hat = hat;
+        return hat == null;
+    }
+    
+    public bool TryGetHat(string Id, [MaybeNullWhen(false)]out CustomHat data)
+    {
+        var hat = CustomHats.FirstOrDefault(n => n.Id == Id);
+        data = hat;
+        return hat == null;
+    }
+    
+    public bool TryGetVisor(string Id, [MaybeNullWhen(false)]out CustomVisor data)
+    {
+        var visor = CustomVisors.FirstOrDefault(n => n.Id == Id);
+        data = visor;
+        return visor == null;
+    }
+    
+    public bool TryGetNamePlate(string Id, [MaybeNullWhen(false)]out CustomNamePlate data)
+    {
+        var namePlate = CustomNamePlates.FirstOrDefault(n => n.Id == Id);
+        data = namePlate;
+        return namePlate == null;
+    }
+    
     public void DefConfigCreateAndInit()
     {
         InitManager();
@@ -86,12 +114,16 @@ public class CosmeticsManager : ManagerBase<CosmeticsManager>
 
     private static bool AddEnd = false;
     
-    [HarmonyPatch(typeof(HatManager), nameof(HatManager.Instantiate)), HarmonyPostfix]
+    [HarmonyPatch(typeof(HatManager))]
+    [HarmonyPatch(nameof(HatManager.GetHatById))]
+    [HarmonyPatch(nameof(HatManager.GetVisorById))]
+    [HarmonyPatch(nameof(HatManager.GetNamePlateById))]
+    [HarmonyPatch(nameof(HatManager.Instantiate))]
+    [HarmonyPostfix]
     private static void OnHatManager_InstantiatePostfix(HatManager __instance)
     {
         if (AddEnd)
             return;
-        
         var hatList = __instance.allHats.ToList();
         hatList.AddRange(Instance.CustomHats.Where(n => hatList.All(y => y.ProductId != n.Id)).Select(n => (HatData)n.data));
         __instance.allHats = hatList.ToArray();
@@ -103,7 +135,6 @@ public class CosmeticsManager : ManagerBase<CosmeticsManager>
         var NamePlateList = __instance.allNamePlates.ToList();
         NamePlateList.AddRange(Instance.CustomNamePlates.Where(n => NamePlateList.All(y => y.ProductId != n.Id)).Select(n => (NamePlateData)n.data));
         __instance.allNamePlates = NamePlateList.ToArray();
-        
         AddEnd = true;
     }
     
@@ -261,6 +292,15 @@ public class CosmeticsManager : ManagerBase<CosmeticsManager>
                 customCosmetics.Add(NamePlate);
             }
         }
+
+        if (
+            CustomHats.Any(n => HatManager.Instance.allHats.All(y => y.ProductId != n.Id))
+            ||
+            CustomVisors.Any(n => HatManager.Instance.allVisors.All(y => y.ProductId != n.Id))
+            ||
+            CustomNamePlates.Any(n => HatManager.Instance.allNamePlates.All(y => y.ProductId != n.Id))
+        )
+            AddEnd = false;
     }
 }
 

@@ -161,8 +161,7 @@ public partial class TheOtherRolesPlugin : BasePlugin
             .StartTask(() => DependentDownload.Instance.DownLoadDependentFormMap("Excel"), "LoadDependentFormMap Excel")
             .StartTask(LanguageManager.Instance.Load, "LoadLanguage")
             .StartTask(CustomOptionHolder.Load, "LoadOption")
-            .StartTask(CustomColors.Load, "LoadColor")
-            .StartTask(CustomHatManager.LoadHats, "LoadHat");
+            .StartTask(CustomColors.Load, "LoadColor");
         
         Info("OnTranslationController_Initialized_Load End");
     }
