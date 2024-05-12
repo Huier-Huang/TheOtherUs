@@ -1141,13 +1141,19 @@ internal class GameOptionsDataPatch
         return hudString;
     }
 
-
+    public static readonly OptionTextBuilder builder = new(CustomOptionManager.Instance.options);
+    public static int CurrentPage = 0;
+    
     [HarmonyPatch(typeof(IGameOptionsExtensions), nameof(IGameOptionsExtensions.ToHudString))]
     private static void Postfix(ref string __result)
     {
         if (GameOptionsManager.Instance.currentGameOptions.GameMode == GameModes.HideNSeek)
             return; // Allow Vanilla Hide N Seek
-        __result = buildAllOptions(__result);
+        
+        __result = builder
+            .SetParentText(__result)
+            .BuildAll()
+            .GetPageText(CurrentPage);
     }
 }
 
@@ -1185,12 +1191,10 @@ public class AddToKillDistanceSetting
     {
         //prevents indexoutofrange exception breaking the setting if long happens to be selected
         //when host opens the laptop
-        if (__instance.Title == StringNames.GameKillDistance && __instance.Value == 3)
-        {
-            __instance.Value = 1;
-            GameOptionsManager.Instance.currentNormalGameOptions.KillDistance = 1;
-            GameManager.Instance.LogicOptions.SyncOptions();
-        }
+        if (__instance.Title != StringNames.GameKillDistance || __instance.Value != 3) return;
+        __instance.Value = 1;
+        GameOptionsManager.Instance.currentNormalGameOptions.KillDistance = 1;
+        GameManager.Instance.LogicOptions.SyncOptions();
     }
 
     [HarmonyPatch(typeof(StringOption), nameof(StringOption.OnEnable))]
@@ -1207,11 +1211,9 @@ public class AddToKillDistanceSetting
     [HarmonyPrefix]
     public static void Prefix(ref StringNames stringName, ref string value)
     {
-        if (stringName == StringNames.GameKillDistance)
-        {
-            var index = GameOptionsManager.Instance.currentNormalGameOptions.KillDistance;
-            value = GameOptionsData.KillDistanceStrings[index];
-        }
+        if (stringName != StringNames.GameKillDistance) return;
+        var index = GameOptionsManager.Instance.currentNormalGameOptions.KillDistance;
+        value = GameOptionsData.KillDistanceStrings[index];
     }
 
     [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.GetString),
@@ -1219,13 +1221,10 @@ public class AddToKillDistanceSetting
     [HarmonyPriority(Priority.Last)]
     public static bool Prefix(ref string __result, ref StringNames id)
     {
-        if ((int)id == 49999)
-        {
-            __result = "Very Short";
-            return false;
-        }
+        if ((int)id != 49999) return true;
+        __result = "Very Short";
+        return false;
 
-        return true;
     }
 
     public static void addKillDistance()
@@ -1251,7 +1250,7 @@ public static class GameOptionsNextPagePatch
         if (Input.GetKeyDown(KeyCode.Alpha7) || Input.GetKeyDown(KeyCode.Keypad7)) TheOtherRolesPlugin.optionsPage = 6;
         if (Input.GetKeyDown(KeyCode.F1))
             HudManagerUpdate.ToggleSettings(HudManager.Instance);
-        if (TheOtherRolesPlugin.optionsPage >= GameOptionsDataPatch.maxPage) TheOtherRolesPlugin.optionsPage = 0;
+        if (Main.optionsPage >= GameOptionsDataPatch.maxPage) Main.optionsPage = 0;
 
         if (page != TheOtherRolesPlugin.optionsPage)
         {
@@ -1276,8 +1275,8 @@ public class GameSettingsScalePatch
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 public class HudManagerUpdate
 {
-    public static float
-        MinX, /*-5.3F*/
+    private static float
+        MinX,
         MinY = 2.9F;
 
 

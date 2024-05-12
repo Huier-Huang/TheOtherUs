@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Reactor.Utilities.Extensions;
+using TheOtherRoles.Modules.Components;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -104,8 +105,9 @@ public sealed class OptionTab
 
     public void CreateTab(OptionTabMenuBase optionTabMenuBase)
     {
+        var parent = optionTabMenuBase.RoleTab.transform.parent;
         TabHighlightGameObject =
-            Object.Instantiate(optionTabMenuBase.RoleTab, optionTabMenuBase.RoleTab.transform.parent);
+            Object.Instantiate(optionTabMenuBase.RoleTab, parent);
         TabHighlightSpriteRenderer = TabHighlightGameObject.transform.FindChild("Hat Button")
             .FindChild("Tab Background")
             .GetComponent<SpriteRenderer>();
@@ -120,6 +122,9 @@ public sealed class OptionTab
             optionTabMenuBase.CurrentTab = this;
             optionTabMenuBase.UpdateOptionTab();
         }));
+        
+        TabGameObject = Object.Instantiate(optionTabMenuBase.RoleTab, parent);
+        TabGameObject.AddComponent<CustomOptionUpdateComponent>();
     }
 
     public void SetActive(bool active)

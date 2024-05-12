@@ -11,6 +11,7 @@ using Hazel;
 using InnerNet;
 using Reactor.Networking;
 using Reactor.Networking.Attributes;
+using TheOtherRoles.CustomCosmetics;
 using TheOtherRoles.Modules.CustomHats;
 using TheOtherRoles.Modules.Languages;
 using TheOtherRoles.Options;
@@ -132,17 +133,20 @@ public partial class TheOtherRolesPlugin : BasePlugin
         MainMenuPatch.addSceneChangeCallbacks();
         _ = RoleInfo.loadReadme();
         AddToKillDistanceSetting.addKillDistance();
-        TaskQueue.Instance.StartTask(() =>
-        {
-            AttributeManager.Instance
-                .Init()
-                .Set(Assembly.GetExecutingAssembly())
-                .Add<RegisterRole>(_RoleManager)
-                .Add<OnEvent>()
-                .Add<RPCMethod>()
-                .Add<RPCListener>()
-                .Start();
-        }, "RegisterAttributes");
+
+        TaskQueue.Instance
+            .StartTask(() => 
+            { 
+                AttributeManager.Instance
+                    .Init()
+                    .Set(Assembly.GetExecutingAssembly())
+                    .Add<RegisterRole>(_RoleManager)
+                    .Add<OnEvent>()
+                    .Add<RPCMethod>()
+                    .Add<RPCListener>()
+                    .Start(); 
+            }, "RegisterAttributes")
+            .StartTask(CosmeticsManager.Instance.DefConfigCreateAndInit, "DefConfigCreate");
 
         Info("Loading TOR completed!");
     }
@@ -150,17 +154,17 @@ public partial class TheOtherRolesPlugin : BasePlugin
     internal static void OnTranslationController_Initialized_Load()
     {
         DependentDownload.Instance.CheckLoad();
-        DependentDownload.Instance.DownLoadDependentMap(
-            "https://raw.githubusercontent.com/SpexGH/TheOtherUs/the-other-us/LoadDependent/");
-        TaskQueue.Instance.StartTask(() => DependentDownload.Instance.DownLoadDependentFormMap("Csv"),
-            "LoadDependentFormMap Csv");
-        TaskQueue.Instance.StartTask(() => DependentDownload.Instance.DownLoadDependentFormMap("Excel"),
-            "LoadDependentFormMap Excel");
+        DependentDownload.Instance.DownLoadDependentMap("https://raw.githubusercontent.com/SpexGH/TheOtherUs/the-other-us/LoadDependent/");
 
-        TaskQueue.Instance.StartTask(CustomColors.Load, "LoadColor");
-        TaskQueue.Instance.StartTask(CustomHatManager.LoadHats, "LoadHat");
-        TaskQueue.Instance.StartTask(LanguageManager.Instance.Load, "LoadLanguage");
-        TaskQueue.Instance.StartTask(CustomOptionHolder.Load, "LoadOption");
+        TaskQueue.Instance
+            .StartTask(() => DependentDownload.Instance.DownLoadDependentFormMap("Csv"), "LoadDependentFormMap Csv")
+            .StartTask(() => DependentDownload.Instance.DownLoadDependentFormMap("Excel"), "LoadDependentFormMap Excel")
+            .StartTask(LanguageManager.Instance.Load, "LoadLanguage")
+            .StartTask(CustomOptionHolder.Load, "LoadOption")
+            .StartTask(CustomColors.Load, "LoadColor")
+            .StartTask(CustomHatManager.LoadHats, "LoadHat");
+        
+        Info("OnTranslationController_Initialized_Load End");
     }
 }
 
@@ -184,7 +188,7 @@ public static class ChatControllerAwakePatch
     }
 }
 
-// Debugging tools
+/*// Debugging tools
 [HarmonyPatch(typeof(KeyboardJoystick), nameof(KeyboardJoystick.Update))]
 public static class DebugManager
 {
@@ -238,4 +242,4 @@ public static class DebugManager
         return new string(Enumerable.Repeat(chars, length)
             .Select(s => s[random.Next(s.Length)]).ToArray());
     }
-}
+}*/

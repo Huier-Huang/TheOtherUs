@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.IO;
 using AmongUs.Data.Legacy;
 using TheOtherRoles.Modules.Languages;
 
@@ -25,5 +26,11 @@ public static class DownloadHelper
                 .Replace("https://raw.githubusercontent.com", $"{FastUrl}/https://raw.githubusercontent.com");
 
         return url;
+    }
+
+    public static string ReadToEnd(this Stream stream)
+    {
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
     }
 }

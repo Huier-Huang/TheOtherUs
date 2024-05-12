@@ -13,8 +13,8 @@ public class TaskQueue : ManagerBase<TaskQueue>
     public Queue<Task> Tasks = [];
 
     public bool TaskStarting;
-
-    public void StartTask(Action action, string Id)
+    
+    public TaskQueue StartTask(Action action, string Id)
     {
         var task = new Task(() =>
         {
@@ -32,7 +32,9 @@ public class TaskQueue : ManagerBase<TaskQueue>
         });
         Tasks.Enqueue(task);
 
-        if (!TaskStarting) StartNew();
+        if (!TaskStarting) 
+            StartNew();
+        return this;
     }
 
     public void StartNew()

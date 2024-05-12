@@ -9,19 +9,43 @@ public class OptionTextBuilder(ICollection options, BuildRule rule)
     private int page = options.Count / 50;
 
     private BuildRule Rule = rule;
+
+    private string ParentText = string.Empty;
+
+    public OptionTextBuilder SetParentText(string text)
+    {
+        ParentText = text;
+        return this;
+    }
     
     public OptionTextBuilder SetBuildPage(int index)
     {
         page = index;
         return this;
     }
+
+    public OptionTextBuilder SetOptions(ICollection option)
+    {
+        options = option;
+        return this;
+    }
     
-    public string BuildAll()
+    public OptionTextBuilder BuildAll()
+    {
+        return this;
+    }
+
+    public OptionTextBuilder Build(OptionTypes type)
+    {
+        return this;
+    }
+
+    public string GetPageText(int page)
     {
         return string.Empty;
     }
-
-    public string Build(OptionTypes type)
+    
+    public string GetAllText()
     {
         return string.Empty;
     }

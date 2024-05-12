@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
+using TheOtherRoles.CustomCosmetics;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
@@ -26,7 +27,7 @@ public static class CustomHatManager
 
     static CustomHatManager()
     {
-        Loader = TheOtherRolesPlugin.Instance.AddComponent<HatsLoader>();
+        Loader = Main.Instance.AddComponent<HatsLoader>();
     }
 
     internal static string CustomSkinsDirectory =>
@@ -259,8 +260,8 @@ public static class CustomHatManager
 
         foreach (var s in hatFiles)
         {
-            var value = s.Substring(0, s.LastIndexOf("HorseSpecialHat") + 17);
-            if (value.Contains(".")) value.Remove(value.LastIndexOf("."));
+            var value = s[..(s.LastIndexOf("HorseSpecialHat", StringComparison.Ordinal) + 17)];
+            if (value.Contains('.')) value.Remove(value.LastIndexOf(".", StringComparison.Ordinal));
             if (!hatFilesSorted.ContainsKey(value)) hatFilesSorted.Add(value, []);
             hatFilesSorted[value].Add(s);
         }
