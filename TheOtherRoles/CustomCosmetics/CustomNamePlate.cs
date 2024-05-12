@@ -8,4 +8,12 @@ public class CustomNamePlate : ICustomCosmetic
     public Sprite Resource { get; set; }
     public CosmeticData data { get; set; }
     public CosmeticsManagerConfig ManagerConfig { get; set; }
+    
+    public string Id { get; set; }
+
+    public NamePlateViewData View
+    {
+        get;
+        set;
+    }
 }

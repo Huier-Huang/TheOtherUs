@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -11,6 +12,7 @@ using UnityEngine;
 
 namespace TheOtherRoles.CustomCosmetics;
 
+[Harmony]
 public class CosmeticsManager : ManagerBase<CosmeticsManager>
 {
     public List<Sprite> sprites = [];
@@ -23,6 +25,8 @@ public class CosmeticsManager : ManagerBase<CosmeticsManager>
     public static readonly string VisorDir = Path.Combine(CosmeticDir, "Visors");
     public static readonly string NamePlateDir = Path.Combine(CosmeticDir, "NamePlates");
     public static readonly string ManagerConfigDir = Path.Combine(CosmeticDir, "ManagerConfig");
+    
+    public const string InnerslothPackageName = "Innersloth";
 
     static CosmeticsManager()
     {
@@ -40,13 +44,34 @@ public class CosmeticsManager : ManagerBase<CosmeticsManager>
         hasCosmetics = CustomCosmeticsFlags.Hat
     };
     
-    public HashSet<CosmeticsManagerConfig> configs = [];
+    public readonly HashSet<CosmeticsManagerConfig> configs = [];
 
     public List<ICustomCosmetic> customCosmetics = [];
     public HashSet<CustomHat> CustomHats => customCosmetics.Where(n => n is CustomHat).Cast<CustomHat>().ToHashSet();
     public HashSet<CustomVisor> CustomVisors => customCosmetics.Where(n => n is CustomVisor).Cast<CustomVisor>().ToHashSet();
     public HashSet<CustomNamePlate> CustomNamePlates => customCosmetics.Where(n => n is CustomNamePlate).Cast<CustomNamePlate>().ToHashSet();
 
+    public bool TryGetHatView(string Id, [MaybeNullWhen(false)]out HatViewData data)
+    {
+        var hat = CustomHats.FirstOrDefault(n => n.Id == Id);
+        data = hat?.View;
+        return hat == null;
+    }
+    
+    public bool TryGetVisorView(string Id, [MaybeNullWhen(false)]out VisorViewData data)
+    {
+        var visor = CustomVisors.FirstOrDefault(n => n.Id == Id);
+        data = visor?.View;
+        return visor == null;
+    }
+    
+    public bool TryGetNamePlateView(string Id, [MaybeNullWhen(false)]out NamePlateViewData data)
+    {
+        var namePlate = CustomNamePlates.FirstOrDefault(n => n.Id == Id);
+        data = namePlate?.View;
+        return namePlate == null;
+    }
+    
     public void DefConfigCreateAndInit()
     {
         InitManager();
@@ -57,6 +82,29 @@ public class CosmeticsManager : ManagerBase<CosmeticsManager>
     {
         LoadConfigFormDisk(new DirectoryInfo(ManagerConfigDir));
         LoadSpriteFormDisk();
+    }
+
+    private static bool AddEnd = false;
+    
+    [HarmonyPatch(typeof(HatManager), nameof(HatManager.Instantiate)), HarmonyPostfix]
+    private static void OnHatManager_InstantiatePostfix(HatManager __instance)
+    {
+        if (AddEnd)
+            return;
+        
+        var hatList = __instance.allHats.ToList();
+        hatList.AddRange(Instance.CustomHats.Where(n => hatList.All(y => y.ProductId != n.Id)).Select(n => (HatData)n.data));
+        __instance.allHats = hatList.ToArray();
+        
+        var VisorList = __instance.allVisors.ToList();
+        VisorList.AddRange(Instance.CustomVisors.Where(n => VisorList.All(y => y.ProductId != n.Id)).Select(n => (VisorData)n.data));
+        __instance.allVisors = VisorList.ToArray();
+        
+        var NamePlateList = __instance.allNamePlates.ToList();
+        NamePlateList.AddRange(Instance.CustomNamePlates.Where(n => NamePlateList.All(y => y.ProductId != n.Id)).Select(n => (NamePlateData)n.data));
+        __instance.allNamePlates = NamePlateList.ToArray();
+        
+        AddEnd = true;
     }
     
     public void LoadConfigFormDisk(DirectoryInfo dir)
@@ -159,7 +207,9 @@ public class CosmeticsManager : ManagerBase<CosmeticsManager>
                     ClimbSprite = GetSprite(CustomCosmeticsFlags.Hat, hatConfig.ClimbResource),
                     FlipSprite = GetSprite(CustomCosmeticsFlags.Hat, hatConfig.FlipResource)
                 };
-                hat.data = hatConfig.createHatData(hat.Resource, hat.BackSprite, hat.ClimbSprite);
+                hat.data = hatConfig.createHatData(hat.Resource, hat.BackSprite, hat.ClimbSprite, out var id, out var view);
+                hat.Id = id;
+                hat.View = view;
                 customCosmetics.Add(hat);
             }
         }
@@ -180,7 +230,9 @@ public class CosmeticsManager : ManagerBase<CosmeticsManager>
                     config = visorConfig,
                     Resource = GetSprite(CustomCosmeticsFlags.Visor, visorConfig.Resource),
                 };
-                visor.data = visorConfig.createVisorData(visor.Resource);
+                visor.data = visorConfig.createVisorData(visor.Resource, out var id, out var view);
+                visor.Id = id;
+                visor.View = view;
                 
                 customCosmetics.Add(visor);
             }
@@ -202,7 +254,9 @@ public class CosmeticsManager : ManagerBase<CosmeticsManager>
                     config = namePlateConfig,
                     Resource = GetSprite(CustomCosmeticsFlags.NamePlate, namePlateConfig.Resource)
                 };
-                NamePlate.data = namePlateConfig.createNamePlateData(NamePlate.Resource);
+                NamePlate.data = namePlateConfig.createNamePlateData(NamePlate.Resource, out var id, out var view);
+                NamePlate.Id = id;
+                NamePlate.View = view;
                 
                 customCosmetics.Add(NamePlate);
             }

@@ -14,4 +14,12 @@ public class CustomHat : ICustomCosmetic
     #nullable disable
     public CosmeticData data { get; set; }
     public CosmeticsManagerConfig ManagerConfig { get; set; }
+    
+    public string Id { get; set; }
+
+    public HatViewData View
+    {
+        get;
+        set;
+    }
 }

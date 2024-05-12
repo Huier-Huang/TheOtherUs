@@ -10,6 +10,8 @@ public interface ICustomCosmetic
     public CosmeticData data { get; set; }
     
     public CosmeticsManagerConfig ManagerConfig { get; set; }
+    
+    public string Id { get; set; }
 };
 
 public class CustomCosmeticConfig

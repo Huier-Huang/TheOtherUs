@@ -30,7 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="CustomCosmetics\Pathces\" />
+      <Folder Include="Modules\CustomHats\Extensions\" />
     </ItemGroup>
 
     <Target Name="Date" BeforeTargets="BeforeBuild">  <!--Will make the compile time available s.t. we can let betas expire-->
