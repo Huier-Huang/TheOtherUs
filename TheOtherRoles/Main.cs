@@ -1,24 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using AmongUs.Data;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Unity.IL2CPP;
-using Hazel;
 using InnerNet;
 using Reactor.Networking;
 using Reactor.Networking.Attributes;
 using TheOtherRoles.CustomCosmetics;
-using TheOtherRoles.Modules.CustomHats;
 using TheOtherRoles.Modules.Languages;
 using TheOtherRoles.Options;
 using TheOtherRoles.Patches;
 using UnityEngine;
-using Object = UnityEngine.Object;
-using Random = System.Random;
 
 namespace TheOtherRoles;
 
@@ -138,13 +132,13 @@ public partial class TheOtherRolesPlugin : BasePlugin
             .StartTask(() => 
             { 
                 AttributeManager.Instance
-                    .Init()
-                    .Set(Assembly.GetExecutingAssembly())
+                    .SetInit()
+                    .Add<MonoRegisterAndDontDestroy>()
                     .Add<RegisterRole>(_RoleManager)
                     .Add<OnEvent>()
                     .Add<RPCMethod>()
                     .Add<RPCListener>()
-                    .Start(); 
+                    .Start();  
             }, "RegisterAttributes")
             .StartTask(CosmeticsManager.Instance.DefConfigCreateAndInit, "DefConfigCreate");
 

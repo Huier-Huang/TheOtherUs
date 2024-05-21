@@ -37,7 +37,7 @@ public class Mayor : RoleBase
     public Sprite getMeetingSprite()
     {
         if (emergencySprite) return emergencySprite;
-        emergencySprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.EmergencyButton.png", 550f);
+        emergencySprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.EmergencyButton.png", 550f);
         return emergencySprite;
     }
 

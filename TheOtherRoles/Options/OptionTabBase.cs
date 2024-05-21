@@ -43,6 +43,11 @@ public abstract class OptionTabMenuBase
         SetTabPos();
     }
 
+    public virtual Transform GetTransform(CustomOption option)
+    {
+        return option.optionBehaviour?.transform;
+    }
+
     public virtual void SetOptions(GameOptionsMenu __instance, OptionTab menu)
     {
     }
@@ -147,4 +152,16 @@ public class ClassicTabMenu : OptionTabMenuBase
     {
         OptionTabs.Add(TORSettings);
     }
+}
+
+public class GuesserTabMenu : OptionTabMenuBase
+{
+}
+
+public class HideNSeekTabMenu : OptionTabMenuBase
+{
+}
+
+public class PropHuntTabMenu : OptionTabMenuBase
+{
 }

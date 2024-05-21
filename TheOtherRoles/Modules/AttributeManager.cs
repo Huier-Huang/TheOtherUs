@@ -12,21 +12,32 @@ public class AttributeManager : ManagerBase<AttributeManager>
     private readonly Dictionary<Type, MethodInfo> _methodInfos = [];
     private readonly Dictionary<Type, object[]> CreateTargets = [];
     private Assembly? targetAssembly;
+    private Assembly GetAssembly;
+    private List<Type> _types = [];
+    private List<MethodInfo> _methods = [];
+    private List<ConstructorInfo> _constructors = [];
+    private List<EventInfo> _events = [];
+    private List<FieldInfo> _fields = [];
+    
 
-    public AttributeManager Set(Assembly assembly)
+    
+    public AttributeManager SetInit(Assembly? assembly = null)
     {
         targetAssembly = assembly;
-        return this;
-    }
-
-    public AttributeManager Init()
-    {
-        var types = Assembly.GetCallingAssembly().GetTypes().Where(n => n.IsSubclassOf(typeof(RegisterAttribute)));
-        foreach (var type in types)
+        GetAssembly = targetAssembly ?? Assembly.GetCallingAssembly();
+        _types = GetAssembly.GetTypes().ToList();
+        _methods = _types.SelectMany(n => n.GetMethods()).ToList();
+        _constructors = _types.SelectMany(n => n.GetConstructors()).ToList();
+        _events = _types.SelectMany(n => n.GetEvents()).ToList();
+        _fields = _types.SelectMany(n => n.GetFields()).ToList();
+        
+        foreach (var type in _types.Where(n => n.IsSubclassOf(typeof(RegisterAttribute))))
         {
-            var method = type.GetMethods(BindingFlags.Static).FirstOrDefault(n => n.Name == "Register");
-            if (method != null)
-                _methodInfos.Add(type, method);
+            foreach (var method in type.GetMethods(BindingFlags.Static)
+                         .Where(n => n.IsDefined(typeof(RegisterAttribute))))
+            {
+                    _methodInfos.Add(type, method);
+            }
         }
 
         return this;
@@ -34,13 +45,44 @@ public class AttributeManager : ManagerBase<AttributeManager>
 
     public void Start()
     {
+        var isNo = targetAssembly=
         targetAssembly ??= Assembly.GetCallingAssembly();
         foreach (var (type, objects) in CreateTargets)
         {
-            var arg = new List<object> { targetAssembly };
-            arg.AddRange(objects);
-            if (_methodInfos.TryGetValue(type, out var method) && method.GetGenericArguments().Length == arg.Count)
-                method.Invoke(null, arg.ToArray());
+            try
+            {
+                if (!_methodInfos.TryGetValue(type, out var method)) continue;
+                var arguments = method.GetGenericArguments();
+                if (arguments[0] == typeof(Assembly))
+                {
+                    var arg = new List<object> { targetAssembly };
+                    arg.AddRange(objects);
+                    method.Invoke(null, arg.ToArray());
+                }
+
+                if (targetAssembly != GetAssembly) continue;
+                if (arguments[0] == typeof(List<Type>))
+                {
+                    var types = _types.Where(n => n.IsDefined(type)).ToList();
+                    var arg = new List<object> { types };
+                    arg.AddRange(objects);
+
+                    method.Invoke(null, arg.ToArray());
+                }
+                
+                if (arguments[0] == typeof(List<MethodInfo>))
+                {
+                    var types = _methods.Where(n => n.IsDefined(type)).ToList();
+                    var arg = new List<object> { types };
+                    arg.AddRange(objects);
+
+                    method.Invoke(null, arg.ToArray());
+                }
+            }
+            catch (Exception e)
+            {
+                Exception(e);
+            }
         }
     }
 
@@ -56,4 +98,5 @@ public class AttributeManager : ManagerBase<AttributeManager>
     }
 }
 
+[MeansImplicitUse]
 public class RegisterAttribute : Attribute;

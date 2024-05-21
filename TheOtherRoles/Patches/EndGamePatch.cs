@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TheOtherRoles.CustomGameModes;
+using TheOtherRoles.CustomGameMode;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -300,7 +300,7 @@ public class OnGameEndPatch
             .TotalMilliseconds / 1000;
 
         // Reset Settings
-        if (TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek) ShipStatusPatch.resetVanillaSettings();
+        if (MapOptions.gameMode == CustomGameModes.HideNSeek) ShipStatusPatch.resetVanillaSettings();
         RPCProcedure.resetVariables();
     }
 }
@@ -431,7 +431,7 @@ public class EndGameManagerSetUpPatch
             else if (cond == WinCondition.AdditionalAlivePursuerWin)
                 textRenderer.text += $"\n{Helpers.cs(Pursuer.color, "The Pursuer survived")}";
 
-        if (TORMapOptions.showRoleSummary || HideNSeek.isHideNSeekGM || PropHunt.isPropHuntGM)
+        if (MapOptions.showRoleSummary || HideNSeek.isHideNSeekGM || PropHunt.isPropHuntGM)
         {
             var position = Camera.main.ViewportToWorldPoint(new Vector3(0f, 1f, Camera.main.nearClipPlane));
             var roleSummary = Object.Instantiate(__instance.WinText.gameObject);

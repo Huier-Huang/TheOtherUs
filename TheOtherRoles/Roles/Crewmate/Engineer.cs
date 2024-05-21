@@ -38,7 +38,7 @@ public class Engineer : RoleBase
     public Sprite getButtonSprite()
     {
         if (buttonSprite) return buttonSprite;
-        buttonSprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.RepairButton.png", 115f);
+        buttonSprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.RepairButton.png", 115f);
         return buttonSprite;
     }
 

@@ -60,6 +60,7 @@ public class Sheriff : RoleBase
 
     public override RoleInfo RoleInfo { get; protected set; } = roleInfo;
     public override Type RoleType { get; protected set; } = typeof(Sheriff);
+    public override CustomRoleOption roleOption { get; set; }
 
     public void replaceCurrentSheriff(PlayerControl deputy)
     {

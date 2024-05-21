@@ -8,15 +8,13 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
-namespace TheOtherRoles.Modules;
+namespace TheOtherRoles.Patches;
 
 [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start))]
 public class MainMenuPatch
 {
-    private static bool horseButtonState = TORMapOptions.enableHorseMode;
-
-    //private static Sprite horseModeOffSprite = null;
-    //private static Sprite horseModeOnSprite = null;
+    private static bool horseButtonState = MapOptions.enableHorseMode;
+    
     private static AnnouncementPopUp popUp;
 
     private static void Prefix(MainMenuManager __instance)
@@ -155,7 +153,7 @@ ugackMiner53 - Idea and core code for the Prop Hunt game mode</size>";
         SceneManager.add_sceneLoaded((Action<Scene, LoadSceneMode>)((scene, _) =>
         {
             if (!scene.name.Equals("MatchMaking", StringComparison.Ordinal)) return;
-            TORMapOptions.gameMode = Helper.CustomGameModes.Classic;
+            MapOptions.gameMode = CustomGameModes.Classic;
             // Add buttons For Guesser Mode, Hide N Seek in this scene.
             // find "HostLocalGameButton"
             var template = Object.FindObjectOfType<HostLocalGameButton>();
@@ -170,7 +168,7 @@ ugackMiner53 - Idea and core code for the Prop Hunt game mode</size>";
             guesserButtonPassiveButton.OnClick = new Button.ButtonClickedEvent();
             guesserButtonPassiveButton.OnClick.AddListener((Action)(() =>
             {
-                TORMapOptions.gameMode = Helper.CustomGameModes.Guesser;
+                MapOptions.gameMode = CustomGameModes.Guesser;
                 template.OnClick();
             }));
 
@@ -182,7 +180,7 @@ ugackMiner53 - Idea and core code for the Prop Hunt game mode</size>";
             HideNSeekButtonPassiveButton.OnClick = new Button.ButtonClickedEvent();
             HideNSeekButtonPassiveButton.OnClick.AddListener((Action)(() =>
             {
-                TORMapOptions.gameMode = Helper.CustomGameModes.HideNSeek;
+                MapOptions.gameMode = CustomGameModes.HideNSeek;
                 template.OnClick();
             }));
 
@@ -194,7 +192,7 @@ ugackMiner53 - Idea and core code for the Prop Hunt game mode</size>";
             PropHuntButtonPassiveButton.OnClick = new Button.ButtonClickedEvent();
             PropHuntButtonPassiveButton.OnClick.AddListener((Action)(() =>
             {
-                TORMapOptions.gameMode = Helper.CustomGameModes.PropHunt;
+                MapOptions.gameMode = CustomGameModes.PropHunt;
                 template.OnClick();
             }));
 

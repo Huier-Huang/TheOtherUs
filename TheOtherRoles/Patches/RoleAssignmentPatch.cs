@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
-using TheOtherRoles.CustomGameModes;
+using TheOtherRoles.CustomGameMode;
 using UnityEngine;
 
 namespace TheOtherRoles.Patches;
@@ -24,9 +24,9 @@ internal class GameOptionsDataGetAdjustedNumImpostorsPatch
 {
     public static void Postfix(ref int __result)
     {
-        if (TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek || TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt)
+        if (MapOptions.gameMode == CustomGameModes.HideNSeek || MapOptions.gameMode == CustomGameModes.PropHunt)
         {
-            var impCount = TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek
+            var impCount = MapOptions.gameMode == CustomGameModes.HideNSeek
                 ? Mathf.RoundToInt(CustomOptionHolder.hideNSeekHunterCount.getFloat())
                 : CustomOptionHolder.propHuntNumberOfHunters.getQuantity();
             __result = impCount;
@@ -45,9 +45,9 @@ internal class GameOptionsDataValidatePatch
 {
     public static void Postfix(GameOptionsData __instance)
     {
-        if (TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek ||
+        if (MapOptions.gameMode == CustomGameModes.HideNSeek ||
             GameOptionsManager.Instance.CurrentGameOptions.GameMode != GameModes.Normal) return;
-        if (TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt)
+        if (MapOptions.gameMode == CustomGameModes.PropHunt)
             __instance.NumImpostors = CustomOptionHolder.propHuntNumberOfHunters.getQuantity();
         __instance.NumImpostors = GameOptionsManager.Instance.CurrentGameOptions.NumImpostors;
     }
@@ -62,7 +62,7 @@ internal class RoleManagerSelectRolesPatch
 
     //private static bool isEvilGuesser;
     private static readonly List<Tuple<byte, byte>> playerRoleMap = [];
-    public static bool isGuesserGamemode => TORMapOptions.gameMode == Helper.CustomGameModes.Guesser;
+    public static bool isGuesserGamemode => MapOptions.gameMode == CustomGameModes.Guesser;
 
     public static void Postfix()
     {
@@ -70,7 +70,7 @@ internal class RoleManagerSelectRolesPatch
             (byte)CustomRPC.ResetVaribles, SendOption.Reliable);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
         RPCProcedure.resetVariables();
-        if (TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek || TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt ||
+        if (MapOptions.gameMode == CustomGameModes.HideNSeek || MapOptions.gameMode == CustomGameModes.PropHunt ||
             GameOptionsManager.Instance.currentGameOptions.GameMode == GameModes.HideNSeek)
             return; // Don't assign Roles in Hide N Seek
         if (CustomOptionHolder.activateRoles.getBool()) // Don't assign Roles in Tutorial or if deactivated

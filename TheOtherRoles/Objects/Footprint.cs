@@ -35,7 +35,7 @@ public class FootprintHolder : MonoBehaviour
     }
 
     private static Sprite FootprintSprite => _footprintSprite ??=
-        Helpers.loadSpriteFromResources("TheOtherRoles.Resources.Footprint.png", 600f);
+        UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.Footprint.png", 600f);
 
     private static bool AnonymousFootprints => TheOtherRoles.Detective.anonymousFootprints;
     private static float FootprintDuration => TheOtherRoles.Detective.footprintDuration;

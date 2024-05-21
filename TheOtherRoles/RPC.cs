@@ -7,7 +7,7 @@ using Assets.CoreScripts;
 using Hazel;
 using InnerNet;
 using PowerTools;
-using TheOtherRoles.CustomGameModes;
+using TheOtherRoles.CustomGameMode;
 using TheOtherRoles.Objects;
 using TheOtherRoles.Options;
 using TheOtherRoles.Patches;
@@ -15,7 +15,7 @@ using TMPro;
 using UnityEngine;
 using static TheOtherRoles.GameHistory;
 using static TheOtherRoles.HudManagerStartPatch;
-using static TheOtherRoles.TORMapOptions;
+using static TheOtherRoles.MapOptions;
 using Object = UnityEngine.Object;
 
 namespace TheOtherRoles;
@@ -184,7 +184,7 @@ public static class RPCProcedure
 
     public static void shareGamemode(byte gm)
     {
-        gameMode = (Helper.CustomGameModes)gm;
+        gameMode = (CustomGameModes)gm;
     }
 
     public static void stopStart(byte playerId)
@@ -2091,7 +2091,7 @@ public static class RPCProcedure
     /*
              public static void useAdminTime(float time)
             {
-                TORMapOptions.restrictAdminTime -= time;
+                MapOptions.restrictAdminTime -= time;
             }
             */
 
@@ -2209,7 +2209,7 @@ public static class RPCProcedure
             rend.transform.SetParent(playerVoteArea.transform);
             rend.gameObject.layer = playerVoteArea.Megaphone.gameObject.layer;
             rend.transform.localPosition = new Vector3(-0.5f, 0.2f, -1f);
-            rend.sprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.ChatOverlay.png", 130f);
+            rend.sprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.ChatOverlay.png", 130f);
             if (playerControl.PlayerId != localPlayerId) rend.gameObject.SetActive(true);
             FastDestroyableSingleton<HudManager>.Instance.StartCoroutine(Effects.Lerp(2f,
                 (Action<float>)delegate(float p)

@@ -12,7 +12,7 @@ public abstract class RoleControllerBase : IDisposable
         _RoleManager._AllControllerBases.Add(this);
     }
 
-    public abstract RoleBase _RoleBase { get; set; }
+    public abstract RoleBase _RoleBase { get; protected set; }
 
     public PlayerControl Player { get; protected set; }
 

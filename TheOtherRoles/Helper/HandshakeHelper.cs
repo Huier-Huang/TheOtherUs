@@ -32,7 +32,7 @@ public static class HandshakeHelper
     {
         if (CachedPlayer.LocalPlayer == null) return;
         FastRpcWriter.StartNewRpcWriter(CustomRPC.ShareGamemode)
-            .Write((byte)TORMapOptions.gameMode)
+            .Write((byte)MapOptions.gameMode)
             .RPCSend();
     }
 

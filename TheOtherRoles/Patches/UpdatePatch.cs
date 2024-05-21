@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using InnerNet;
-using TheOtherRoles.CustomGameModes;
+using TheOtherRoles.CustomGameMode;
 using TheOtherRoles.Objects;
 using UnityEngine;
 
@@ -276,7 +276,7 @@ internal class HudManagerUpdatePatch
         }
 
         // Display lighter / darker color for all alive players
-        if (CachedPlayer.LocalPlayer != null && MeetingHud.Instance != null && TORMapOptions.showLighterDarker)
+        if (CachedPlayer.LocalPlayer != null && MeetingHud.Instance != null && MapOptions.showLighterDarker)
             foreach (var player in MeetingHud.Instance.playerStates)
             {
                 var target = Helpers.playerById(player.TargetPlayerId);
@@ -383,8 +383,8 @@ internal class HudManagerUpdatePatch
 
     private static void updateSabotageButton(HudManager __instance)
     {
-        if (MeetingHud.Instance || TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek ||
-            TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt) __instance.SabotageButton.Hide();
+        if (MeetingHud.Instance || MapOptions.gameMode == CustomGameModes.HideNSeek ||
+            MapOptions.gameMode == CustomGameModes.PropHunt) __instance.SabotageButton.Hide();
     }
 
     private static void updateMapButton(HudManager __instance)

@@ -119,7 +119,7 @@ public class GameStartManagerPatch
                     copiedStartButton = Object.Instantiate(gameObject, gameObject.transform.parent);
                     copiedStartButton.transform.localPosition = __instance.StartButton.transform.localPosition;
                     copiedStartButton.GetComponent<SpriteRenderer>().sprite =
-                        Helpers.loadSpriteFromResources("TheOtherRoles.Resources.StopClean.png", 180f);
+                        UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.StopClean.png", 180f);
                     copiedStartButton.SetActive(true);
                     var startButtonText = copiedStartButton.GetComponentInChildren<TextMeshPro>();
                     startButtonText.text = "STOP";
@@ -189,7 +189,7 @@ public class GameStartManagerPatch
                     copiedStartButton = Object.Instantiate(gameObject, gameObject.transform.parent);
                     copiedStartButton.transform.localPosition = __instance.StartButton.transform.localPosition;
                     copiedStartButton.GetComponent<SpriteRenderer>().sprite =
-                        Helpers.loadSpriteFromResources("TheOtherRoles.Resources.StopClean.png", 180f);
+                        UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.StopClean.png", 180f);
                     copiedStartButton.SetActive(true);
                     var startButtonText = copiedStartButton.GetComponentInChildren<TextMeshPro>();
                     startButtonText.text = "STOP";
@@ -246,14 +246,14 @@ public class GameStartManagerPatch
             var continueStart = !HandshakeHelper.CurrentMismatch;
 
             if (continueStart &&
-                (TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek ||
-                 TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt) &&
+                (MapOptions.gameMode == CustomGameModes.HideNSeek ||
+                 MapOptions.gameMode == CustomGameModes.PropHunt) &&
                 GameOptionsManager.Instance.CurrentGameOptions.MapId != 6)
             {
-                byte mapId = TORMapOptions.gameMode switch
+                byte mapId = MapOptions.gameMode switch
                 {
-                    Helper.CustomGameModes.HideNSeek => (byte)CustomOptionHolder.hideNSeekMap.getSelection(),
-                    Helper.CustomGameModes.PropHunt => (byte)CustomOptionHolder.propHuntMap.getSelection(),
+                    CustomGameModes.HideNSeek => (byte)CustomOptionHolder.hideNSeekMap.getSelection(),
+                    CustomGameModes.PropHunt => (byte)CustomOptionHolder.propHuntMap.getSelection(),
                     _ => 0
                 };
                 if (mapId >= 3) mapId++;

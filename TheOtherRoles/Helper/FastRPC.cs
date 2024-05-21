@@ -407,11 +407,10 @@ internal class RPCListener : RegisterAttribute
         OnRPC += n => Info($"{RPCId} {n.Tag} {n.Length}");
     }
 
-    public static void Register(Assembly assembly)
+    [Register]
+    public static void Register(List<MethodInfo> methods)
     {
-        var types = assembly.GetTypes().SelectMany(n => n.GetMethods())
-            .Where(n => n.IsDefined(typeof(RPCListener)));
-        types.Do(n =>
+        methods.Do(n =>
         {
             var listener = n.GetCustomAttribute<RPCListener>();
             if (listener == null) return;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using InnerNet;
-using TheOtherRoles.CustomGameModes;
+using TheOtherRoles.CustomGameMode;
 using TMPro;
 using UnityEngine;
 
@@ -64,11 +64,11 @@ Design by <color=#FCCE03FF>Bavari</color>";
             }
             else
             {
-                var gameModeText = TORMapOptions.gameMode switch
+                var gameModeText = MapOptions.gameMode switch
                 {
-                    Helper.CustomGameModes.HideNSeek => "Hide 'N Seek",
-                    Helper.CustomGameModes.Guesser => "Guesser",
-                    Helper.CustomGameModes.PropHunt => "Prop Hunt",
+                    CustomGameModes.HideNSeek => "Hide 'N Seek",
+                    CustomGameModes.Guesser => "Guesser",
+                    CustomGameModes.PropHunt => "Prop Hunt",
                     _ => string.Empty
                 };
                 if (gameModeText != "") gameModeText = Helpers.cs(Color.yellow, gameModeText) + "\n";
@@ -103,7 +103,7 @@ Design by <color=#FCCE03FF>Bavari</color>";
 
             renderer = torLogo.AddComponent<SpriteRenderer>();
             loadSprites();
-            renderer.sprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.Banner.png", 300f);
+            renderer.sprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.Banner.png", 300f);
 
             instance = __instance;
             loadSprites();
@@ -138,31 +138,12 @@ Design by <color=#FCCE03FF>Bavari</color>";
         public static void loadSprites()
         {
             if (bannerSprite == null)
-                bannerSprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.Banner.png", 300f);
+                bannerSprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.Banner.png", 300f);
             if (banner2Sprite == null)
-                banner2Sprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.Banner2.png", 300f);
+                banner2Sprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.Banner2.png", 300f);
             if (horseBannerSprite == null)
-                horseBannerSprite =
-                    Helpers.loadSpriteFromResources("TheOtherRoles.Resources.bannerTheHorseRoles.png", 300f);
-        }
-
-        public static void updateSprite()
-        {
-            loadSprites();
-            if (renderer != null)
-            {
-                var fadeDuration = 1f;
-                instance.StartCoroutine(Effects.Lerp(fadeDuration, new Action<float>(p =>
-                {
-                    renderer.color = new Color(1, 1, 1, 1 - p);
-                    if (p == 1)
-                    {
-                        renderer.sprite = TORMapOptions.enableHorseMode ? horseBannerSprite : bannerSprite;
-                        instance.StartCoroutine(Effects.Lerp(fadeDuration,
-                            new Action<float>(p => { renderer.color = new Color(1, 1, 1, p); })));
-                    }
-                })));
-            }
+                horseBannerSprite =/**/
+                    UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.bannerTheHorseRoles.png", 300f);
         }
     }
 

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TheOtherRoles.CustomGameModes;
+namespace TheOtherRoles.CustomGameMode;
 
 internal class GuesserGM
 {

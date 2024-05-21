@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Hazel;
 using Il2CppSystem.Collections.Generic;
-using TheOtherRoles.CustomGameModes;
+using TheOtherRoles.CustomGameMode;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -40,7 +40,7 @@ internal class IntroCutsceneOnDestroyPatch
                 CachedPlayer.LocalPlayer.Control.SetKillTimer(ResetButtonCooldown.killCooldown);
                 player.cosmetics.nameText.text = data.PlayerName;
                 player.SetFlipX(true);
-                TORMapOptions.playerIcons[p.PlayerId] = player;
+                MapOptions.playerIcons[p.PlayerId] = player;
                 player.gameObject.SetActive(false);
 
                 if (CachedPlayer.LocalPlayer.Control == Arsonist.arsonist && p != Arsonist.arsonist)
@@ -115,11 +115,11 @@ internal class IntroCutsceneOnDestroyPatch
             MapData.RandomSpawnAllPlayers();
 
         // First kill
-        if (AmongUsClient.Instance.AmHost && TORMapOptions.shieldFirstKill && TORMapOptions.firstKillName != "" &&
+        if (AmongUsClient.Instance.AmHost && MapOptions.shieldFirstKill && MapOptions.firstKillName != "" &&
             !HideNSeek.isHideNSeekGM && !PropHunt.isPropHuntGM)
         {
             var target = PlayerControl.AllPlayerControls.ToArray().ToList()
-                .FirstOrDefault(x => x.Data.PlayerName.Equals(TORMapOptions.firstKillName));
+                .FirstOrDefault(x => x.Data.PlayerName.Equals(MapOptions.firstKillName));
             if (target != null)
             {
                 var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
@@ -130,7 +130,7 @@ internal class IntroCutsceneOnDestroyPatch
             }
         }
 
-        TORMapOptions.firstKillName = "";
+        MapOptions.firstKillName = "";
 
         if (HideNSeek.isHideNSeekGM)
         {

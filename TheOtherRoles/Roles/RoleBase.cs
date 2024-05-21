@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TheOtherRoles.Options;
 
 namespace TheOtherRoles.Roles;
 
@@ -9,6 +10,7 @@ public abstract class RoleBase : IDisposable
 
     public abstract RoleInfo RoleInfo { get; protected set; }
     public abstract Type RoleType { get; protected set; }
+    public abstract CustomRoleOption roleOption { get; set; }
     public List<RoleControllerBase> Controllers { get; protected set; } = [];
     public string ClassName { get; set; }
 

@@ -234,6 +234,11 @@ public static class MapData
         else
             RandomSpawnToMap(spawnPlayers);
     }
+    
+    public static void RandomSpawnAllPlayersToVent() => RandomSpawnToVent(CachedPlayer.AllPlayers.Select(n => n.Control));
+    
+    public static void RandomSpawnAllPlayersToMap() => RandomSpawnToMap(CachedPlayer.AllPlayers.Select(n => n.Control));
+
 
     public static void RandomSpawnToMap(IEnumerable<PlayerControl> spawnPlayer)
     {

@@ -8,22 +8,6 @@ namespace TheOtherRoles.Modules;
 [HarmonyPatch]
 public static class ChatCommands
 {
-    public static bool isLover(this PlayerControl player)
-    {
-        return !(player == null) && (player == Lovers.lover1 || player == Lovers.lover2);
-    }
-
-    public static bool isTeamCultist(this PlayerControl player)
-    {
-        return !(player == null) && (player == Cultist.cultist || player == Follower.follower) &&
-               Cultist.cultist != null && Follower.follower != null;
-    }
-
-    public static bool isTeamCultistAndLover(this PlayerControl player)
-    {
-        return !(player == null) && (player == Follower.follower || player == player.getPartner()) &&
-               player.getPartner() != null && Follower.follower != null;
-    }
 
     [HarmonyPatch(typeof(ChatController), nameof(ChatController.SendChat))]
     private static class SendChatPatch
@@ -34,130 +18,62 @@ public static class ChatCommands
             var handled = false;
             if (AmongUsClient.Instance.GameState != InnerNetClient.GameStates.Started)
             {
-                if (text.ToLower().StartsWith("/kick "))
+                var strings = text.ToLower().Split(string.Empty);
+                var Command = strings[0].Replace("/", string.Empty);
+                
+                switch (Command)
                 {
-                    var playerName = text.Substring(6);
-                    PlayerControl target =
-                        CachedPlayer.AllPlayers.FirstOrDefault(x => x.Data.PlayerName.Equals(playerName));
-                    if (target != null && AmongUsClient.Instance != null && AmongUsClient.Instance.CanBan())
-                    {
-                        var client = AmongUsClient.Instance.GetClient(target.OwnerId);
-                        if (client != null)
+                    case "kick":
+                    case "ban":
+                        var playerName =  strings[1];
+                        PlayerControl target =
+                            CachedPlayer.AllPlayers.FirstOrDefault(x => x.Data.PlayerName.Equals(playerName));
+                        if (target != null && AmongUsClient.Instance != null && AmongUsClient.Instance.CanBan())
                         {
-                            AmongUsClient.Instance.KickPlayer(client.Id, false);
-                            handled = true;
+                            var client = AmongUsClient.Instance.GetClient(target.OwnerId);
+                            if (client != null)
+                            {
+                                AmongUsClient.Instance.KickPlayer(client.Id, Command == "ban");
+                                handled = true;
+                            }
                         }
-                    }
-                }
-                else if (text.ToLower().StartsWith("/ban "))
-                {
-                    var playerName = text[6..];
-                    PlayerControl target =
-                        CachedPlayer.AllPlayers.FirstOrDefault(x => x.Data.PlayerName.Equals(playerName));
-                    if (target != null && AmongUsClient.Instance != null && AmongUsClient.Instance.CanBan())
-                    {
-                        var client = AmongUsClient.Instance.GetClient(target.OwnerId);
-                        if (client != null)
+                        break;
+                    
+                    case "gm":
+                        var mode = strings[1];
+                        CustomGameModes? gameMode = mode switch
                         {
-                            AmongUsClient.Instance.KickPlayer(client.Id, true);
-                            handled = true;
+                            "prop" or "ph" => CustomGameModes.PropHunt,
+                            "guess" or "gm" => CustomGameModes.Guesser,
+                            "hide" or "hn" => CustomGameModes.HideNSeek,
+                            _ => null
+                        };
+
+                        if (gameMode == null) break;
+
+                        if (AmongUsClient.Instance.AmHost)
+                        {
+                            var writer = FastRpcWriter.StartNewRpcWriter(CustomRPC.ShareGamemode)
+                                .Write(gameMode);
+                            writer.RPCSend();
+                            RPCProcedure.shareGamemode((byte)gameMode);
                         }
-                    }
-                }
-                else if (text.ToLower().StartsWith("/gm"))
-                {
-                    var gm = text[4..].ToLower();
-                    var gameMode = Helper.CustomGameModes.Classic;
-                    if (gm.StartsWith("prop") || gm.StartsWith("ph"))
-                        gameMode = Helper.CustomGameModes.PropHunt;
+                        else
+                        {
+                            __instance.AddChat(CachedPlayer.LocalPlayer.Control,
+                                "Nice try, but you have to be the host to use this feature");
+                        }
 
-                    if (gm.StartsWith("guess") || gm.StartsWith("gm"))
-                        gameMode = Helper.CustomGameModes.Guesser;
-
-                    if (gm.StartsWith("hide") || gm.StartsWith("hn"))
-                        gameMode = Helper.CustomGameModes.HideNSeek;
-                    // else its classic!
-
-                    if (AmongUsClient.Instance.AmHost)
-                    {
-                        var writer = FastRpcWriter.StartNewRpcWriter(CustomRPC.ShareGamemode)
-                            .Write(gameMode);
-                        writer.RPCSend();
-                        RPCProcedure.shareGamemode((byte)gameMode);
-                    }
-                    else
-                    {
-                        __instance.AddChat(CachedPlayer.LocalPlayer.Control,
-                            "Nice try, but you have to be the host to use this feature");
-                    }
-
-                    handled = true;
+                        handled = true;
+                        break;
                 }
             }
 
-            if (AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay)
-            {
-                if (text.ToLower().Equals("/murder"))
-                {
-                    CachedPlayer.LocalPlayer.Control.Exiled();
-                    FastDestroyableSingleton<HudManager>.Instance.KillOverlay.ShowKillAnimation(
-                        CachedPlayer.LocalPlayer.Data, CachedPlayer.LocalPlayer.Data);
-                    handled = true;
-                }
-                else if (text.ToLower().StartsWith("/color "))
-                {
-                    handled = true;
-                    int col;
-                    if (!int.TryParse(text.Substring(7), out col))
-                        __instance.AddChat(CachedPlayer.LocalPlayer.Control,
-                            "Unable to parse color id\nUsage: /color {id}");
-                    col = Math.Clamp(col, 0, Palette.PlayerColors.Length - 1);
-                    CachedPlayer.LocalPlayer.Control.SetColor(col);
-                    __instance.AddChat(CachedPlayer.LocalPlayer.Control, "Changed color succesfully");
-                    ;
-                }
-            }
+            if (!handled) return true;
+            __instance.freeChatField.Clear();
+            __instance.quickChatMenu.Clear();
 
-            if (text.ToLower().StartsWith("/tp ") && CachedPlayer.LocalPlayer.Data.IsDead)
-            {
-                var playerName = text.Substring(4).ToLower();
-                PlayerControl target =
-                    CachedPlayer.AllPlayers.FirstOrDefault(x => x.Data.PlayerName.ToLower().Equals(playerName));
-                if (target != null)
-                {
-                    CachedPlayer.LocalPlayer.transform.position = target.transform.position;
-                    handled = true;
-                }
-            }
-
-            if (text.ToLower().StartsWith("/team") && CachedPlayer.LocalPlayer.Control.isLover() &&
-                CachedPlayer.LocalPlayer.Control.isTeamCultist())
-            {
-                if (Cultist.cultist == CachedPlayer.LocalPlayer.Control)
-                    Cultist.chatTarget = Helpers.flipBitwise(Cultist.chatTarget);
-                if (Follower.follower == CachedPlayer.LocalPlayer.Control)
-                    Follower.chatTarget = Helpers.flipBitwise(Follower.chatTarget);
-                handled = true;
-            }
-
-            if (text.ToLower().StartsWith("/role"))
-            {
-                var localRole = RoleInfo.getRoleInfoForPlayer(CachedPlayer.LocalPlayer.Control, false).FirstOrDefault();
-                if (localRole != RoleInfo.impostor && localRole != RoleInfo.crewmate)
-                {
-                    var info = RoleInfo.GetRoleDescription(localRole);
-                    __instance.AddChat(CachedPlayer.LocalPlayer.Control, info);
-                    handled = true;
-                }
-            }
-
-            if (handled)
-            {
-                __instance.freeChatField.Clear();
-                __instance.quickChatMenu.Clear();
-            }
-
-            return !handled;
+            return false;
         }
     }
 
@@ -173,7 +89,7 @@ public static class ChatCommands
                 __instance.Chat.SetVisible(true);
 
             if (Multitasker.multitasker.FindAll(x => x.PlayerId == CachedPlayer.LocalPlayer.PlayerId).Count > 0 ||
-                TORMapOptions.transparentTasks)
+                MapOptions.transparentTasks)
             {
                 if (PlayerControl.LocalPlayer.Data.IsDead || PlayerControl.LocalPlayer.Data.Disconnected) return;
                 if (!Minigame.Instance) return;

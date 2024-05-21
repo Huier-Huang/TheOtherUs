@@ -32,14 +32,14 @@ public class Blackmailer : RoleBase
     public static Sprite getBlackmailOverlaySprite()
     {
         if (overlaySprite) return overlaySprite;
-        overlaySprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.BlackmailerOverlay.png", 100f);
+        overlaySprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.BlackmailerOverlay.png", 100f);
         return overlaySprite;
     }
 
     public static Sprite getBlackmailLetterSprite()
     {
         if (overlaySprite) return overlaySprite;
-        overlaySprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.BlackmailerLetter.png", 115f);
+        overlaySprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.BlackmailerLetter.png", 115f);
         return overlaySprite;
     }
 

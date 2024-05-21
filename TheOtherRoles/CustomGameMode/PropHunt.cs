@@ -11,7 +11,7 @@ using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace TheOtherRoles.CustomGameModes;
+namespace TheOtherRoles.CustomGameMode;
 
 [HarmonyPatch]
 internal class PropHunt
@@ -80,7 +80,7 @@ internal class PropHunt
     public static void clearAndReload()
     {
         remainingShots.Clear();
-        isPropHuntGM = TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt;
+        isPropHuntGM = MapOptions.gameMode == CustomGameModes.PropHunt;
         numberOfHunters = CustomOptionHolder.propHuntNumberOfHunters.getQuantity();
         initialBlackoutTime = CustomOptionHolder.hunterInitialBlackoutTime.getFloat();
         //maxMissesBeforeDeath = CustomOptionHolder.hunterMaxMissesBeforeDeath.getQuantity();
@@ -121,7 +121,7 @@ internal class PropHunt
 
     public static Sprite getIntroSprite(int index)
     {
-        return Helpers.loadSpriteFromResources($"TheOtherRoles.Resources.IntroAnimation.intro_{index + 1000}.png", 150f,
+        return UnityHelper.loadSpriteFromResources($"TheOtherRoles.Resources.IntroAnimation.intro_{index + 1000}.png", 150f,
             false);
     }
 
@@ -188,7 +188,7 @@ internal class PropHunt
             poolablesBackground.AddComponent<SpriteRenderer>();
             if (poolablesBackgroundSprite == null)
                 poolablesBackgroundSprite =
-                    Helpers.loadSpriteFromResources("TheOtherRoles.Resources.poolablesBackground.jpg", 200f);
+                    UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.poolablesBackground.jpg", 200f);
         }
 
         poolablesBackground.transform.SetParent(HudManager.Instance.transform);
@@ -204,8 +204,8 @@ internal class PropHunt
 
         foreach (var pc in PlayerControl.AllPlayerControls)
         {
-            if (!TORMapOptions.playerIcons.ContainsKey(pc.PlayerId)) continue;
-            var poolablePlayer = TORMapOptions.playerIcons[pc.PlayerId];
+            if (!MapOptions.playerIcons.ContainsKey(pc.PlayerId)) continue;
+            var poolablePlayer = MapOptions.playerIcons[pc.PlayerId];
             if (pc.Data.IsDead)
             {
                 poolablePlayer.setSemiTransparent(true);
@@ -391,42 +391,42 @@ internal class PropHunt
     public static Sprite getDisguiseButtonSprite()
     {
         if (disguiseButtonSprite) return disguiseButtonSprite;
-        disguiseButtonSprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.DisguiseButton.png", 115f);
+        disguiseButtonSprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.DisguiseButton.png", 115f);
         return disguiseButtonSprite;
     }
 
     public static Sprite getUnstuckButtonSprite()
     {
         if (unstuckButtonSprite) return unstuckButtonSprite;
-        unstuckButtonSprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.UnStuck.png", 115f);
+        unstuckButtonSprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.UnStuck.png", 115f);
         return unstuckButtonSprite;
     }
 
     public static Sprite getRevealButtonSprite()
     {
         if (revealButtonSprite) return revealButtonSprite;
-        revealButtonSprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.Reveal.png", 115f);
+        revealButtonSprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.Reveal.png", 115f);
         return revealButtonSprite;
     }
 
     public static Sprite getInvisButtonSprite()
     {
         if (invisButtonSprite) return invisButtonSprite;
-        invisButtonSprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.InvisButton.png", 115f);
+        invisButtonSprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.InvisButton.png", 115f);
         return invisButtonSprite;
     }
 
     public static Sprite getFindButtonSprite()
     {
         if (findButtonSprite) return findButtonSprite;
-        findButtonSprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.FindButton.png", 115f);
+        findButtonSprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.FindButton.png", 115f);
         return findButtonSprite;
     }
 
     public static Sprite getSpeedboostButtonSprite()
     {
         if (speedboostButtonSprite) return speedboostButtonSprite;
-        speedboostButtonSprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.SpeedboostButton.png", 115f);
+        speedboostButtonSprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.SpeedboostButton.png", 115f);
         return speedboostButtonSprite;
     }
 
@@ -625,14 +625,14 @@ internal class PropHunt
     public static void MapSetPostfix()
     {
         // Make sure the map in the settings is in sync with the map from li
-        if ((TORMapOptions.gameMode != Helper.CustomGameModes.PropHunt &&
-             TORMapOptions.gameMode != Helper.CustomGameModes.HideNSeek) || AmongUsClient.Instance.IsGameStarted) return;
+        if ((MapOptions.gameMode != CustomGameModes.PropHunt &&
+             MapOptions.gameMode != CustomGameModes.HideNSeek) || AmongUsClient.Instance.IsGameStarted) return;
         int map = GameOptionsManager.Instance.currentGameOptions.MapId;
         if (map > 3) map--;
-        if (TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek)
+        if (MapOptions.gameMode == CustomGameModes.HideNSeek)
             if (CustomOptionHolder.hideNSeekMap.OptionSelection != map)
                 CustomOptionHolder.hideNSeekMap.updateSelection(map);
-        if (TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt)
+        if (MapOptions.gameMode == CustomGameModes.PropHunt)
             if (CustomOptionHolder.propHuntMap.OptionSelection != map)
                 CustomOptionHolder.propHuntMap.updateSelection(map);
     }
@@ -725,10 +725,10 @@ internal class PropHunt
 
     [HarmonyPatch(typeof(MapBehaviour), nameof(MapBehaviour.Show))]
     [HarmonyPrefix]
-    public static void MapBehaviourShowPatch(MapBehaviour __instance, ref MapOptions opts)
+    public static void MapBehaviourShowPatch(MapBehaviour __instance, ref global::MapOptions opts)
     {
         if (!isPropHuntGM) return;
-        if (opts.Mode == MapOptions.Modes.Sabotage) opts.Mode = MapOptions.Modes.Normal;
+        if (opts.Mode == global::MapOptions.Modes.Sabotage) opts.Mode = global::MapOptions.Modes.Normal;
     }
 
 

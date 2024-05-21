@@ -9,23 +9,26 @@ namespace TheOtherRoles.Roles.Crewmate;
 [RegisterRole]
 public class BodyGuard : RoleBase
 {
-    public PlayerControl bodyguard;
-    public CustomOption bodyGuardFlash;
-
-    public CustomButton bodyGuardGuardButton;
-    public CustomOption bodyGuardResetTargetAfterMeeting;
-
-    public CustomOption bodyGuardSpawnRate;
-    public Color color = new Color32(145, 102, 64, byte.MaxValue);
     public PlayerControl currentTarget;
     private readonly ResourceSprite guardButtonSprite = new("Shield.png");
     public PlayerControl guarded;
     public bool guardFlash;
     public bool reset = true;
     public bool usedGuard;
+    
+    public class BodyGuardController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase { get; protected set; } = Get<BodyGuard>();
+    }
 
-    public override RoleInfo RoleInfo { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Color = new Color32(145, 102, 64, byte.MaxValue),
+        GetRole = Get<BodyGuard>,
+        CreateRoleController = n => new BodyGuardController(n)
+    };
     public override Type RoleType { get; protected set; }
+    public override CustomRoleOption roleOption { get; set; }
 
     public void resetGuarded()
     {
@@ -35,20 +38,21 @@ public class BodyGuard : RoleBase
 
     public override void ClearAndReload()
     {
-        bodyguard = null;
         guardFlash = bodyGuardFlash;
         reset = bodyGuardResetTargetAfterMeeting;
         guarded = null;
         usedGuard = false;
     }
 
+    public CustomOption bodyGuardFlash;
+
+    public CustomButton bodyGuardGuardButton;
+    public CustomOption bodyGuardResetTargetAfterMeeting;
     public override void OptionCreate()
     {
-        bodyGuardSpawnRate = new CustomRoleOption()
-            new CustomOption(8820, "Bodyguard".ColorString(color), CustomOptionHolder.rates, null, true);
-        bodyGuardResetTargetAfterMeeting = new CustomOption(8821, "Reset Target After Meeting", true,
-            bodyGuardSpawnRate);
-        bodyGuardFlash = new CustomOption(8822, Types.Crewmate, "Show Flash On Death", true, bodyGuardSpawnRate);
+        roleOption = new CustomRoleOption(this, "Bodyguard");
+        bodyGuardResetTargetAfterMeeting = new CustomOption("Reset Target After Meeting", OptionTypes.Role, new BoolOptionSelection(), roleOption);
+        bodyGuardFlash = new CustomOption("Show Flash On Death", OptionTypes.Role, new BoolOptionSelection(),roleOption);
     }
 
     public override void ButtonCreate(HudManager _hudManager)
@@ -64,8 +68,7 @@ public class BodyGuard : RoleBase
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
                 RPCProcedure.bodyGuardGuardPlayer(currentTarget.PlayerId);
             },
-            () => bodyguard != null && bodyguard == CachedPlayer.LocalPlayer.Control &&
-                  !CachedPlayer.LocalPlayer.Data.IsDead,
+            RoleIsAlive<BodyGuard>,
             () =>
             {
                 if (!usedGuard)

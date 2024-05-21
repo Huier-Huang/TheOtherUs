@@ -46,7 +46,7 @@ public class ResourceSprite(
         if (_sprite != null && _sprite.pixelsPerUnit == _pixel)
             return _sprite;
 
-        _sprite = Helpers.loadSpriteFromResources(GetPath(), _pixel, _cache);
+        _sprite = UnityHelper.loadSpriteFromResources(GetPath(), _pixel, _cache);
         return _sprite;
     }
 

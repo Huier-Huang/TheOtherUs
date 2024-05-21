@@ -11,7 +11,7 @@ using AmongUs.GameOptions;
 using Hazel;
 using InnerNet;
 using Reactor.Utilities.Extensions;
-using TheOtherRoles.CustomGameModes;
+using TheOtherRoles.CustomGameMode;
 using TheOtherRoles.Objects;
 using TheOtherRoles.Patches;
 using TheOtherRoles.Roles.Crewmate;
@@ -169,7 +169,7 @@ public static class Helpers
 
     public static bool isCamoComms()
     {
-        return isCommsActive() && TORMapOptions.camoComms;
+        return isCommsActive() && MapOptions.camoComms;
     }
 
     public static bool isActiveCamoComms()
@@ -302,68 +302,7 @@ public static class Helpers
         if (Jackal.jackal != null && Jackal.jackal == player && Jackal.isInvisable) return true;
         return false;
     }
-
-    public static Sprite loadSpriteFromResources(string path, float pixelsPerUnit, bool cache = true)
-    {
-        try
-        {
-            if (cache && CachedSprites.TryGetValue(path + pixelsPerUnit, out var sprite)) return sprite;
-            var texture = loadTextureFromResources(path);
-            sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f),
-                pixelsPerUnit);
-            if (cache) sprite.hideFlags |= HideFlags.HideAndDontSave | HideFlags.DontSaveInEditor;
-            if (!cache) return sprite;
-            return CachedSprites[path + pixelsPerUnit] = sprite;
-        }
-        catch
-        {
-            System.Console.WriteLine("Error loading sprite from path: " + path);
-        }
-
-        return null;
-    }
-
-    public static unsafe Texture2D loadTextureFromResources(string path)
-    {
-        try
-        {
-            var texture = new Texture2D(2, 2, TextureFormat.ARGB32, true);
-            var assembly = Assembly.GetExecutingAssembly();
-            var stream = assembly.GetManifestResourceStream(path);
-            var length = stream.Length;
-            var byteTexture = new Il2CppStructArray<byte>(length);
-            stream.Read(new Span<byte>(IntPtr.Add(byteTexture.Pointer, IntPtr.Size * 4).ToPointer(), (int)length));
-            if (path.Contains("HorseHats")) byteTexture = new Il2CppStructArray<byte>(byteTexture.Reverse().ToArray());
-            ImageConversion.LoadImage(texture, byteTexture, false);
-            return texture;
-        }
-        catch
-        {
-            System.Console.WriteLine("Error loading texture from resources: " + path);
-        }
-
-        return null;
-    }
-
-    public static Texture2D loadTextureFromDisk(string path)
-    {
-        try
-        {
-            if (File.Exists(path))
-            {
-                var texture = new Texture2D(2, 2, TextureFormat.ARGB32, true);
-                var byteTexture = Il2CppSystem.IO.File.ReadAllBytes(path);
-                ImageConversion.LoadImage(texture, byteTexture, false);
-                return texture;
-            }
-        }
-        catch
-        {
-            Error("Error loading texture from disk: " + path);
-        }
-
-        return null;
-    }
+    
 
     public static AudioClip loadAudioClipFromResources(string path, string clipName = "UNNAMED_TOR_AUDIO_CLIP")
     {
@@ -566,7 +505,7 @@ public static class Helpers
     public static bool shouldShowGhostInfo()
     {
         return (CachedPlayer.LocalPlayer.Control != null && CachedPlayer.LocalPlayer.Control.Data.IsDead &&
-                TORMapOptions.ghostsSeeInformation) ||
+                MapOptions.ghostsSeeInformation) ||
                AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Ended;
     }
 
@@ -683,7 +622,7 @@ public static class Helpers
         if (SurveillanceMinigamePatch.nightVisionIsActive) return true;
         if (Ninja.isInvisble && Ninja.ninja == target) return true;
         if (Jackal.isInvisable && Jackal.jackal == target) return true;
-        if (TORMapOptions.hideOutOfSightNametags && gameStarted && !source.Data.IsDead &&
+        if (MapOptions.hideOutOfSightNametags && gameStarted && !source.Data.IsDead &&
             PhysicsHelpers.AnythingBetween(localPlayer.GetTruePosition(), target.GetTruePosition(),
                 Constants.ShadowMask, false)) return true;
         /*
@@ -696,7 +635,7 @@ public static class Helpers
             }
         }
         */
-        if (!TORMapOptions.hidePlayerNames) return false; // All names are visible
+        if (!MapOptions.hidePlayerNames) return false; // All names are visible
         if (source == null || target == null) return true;
         if (source == target) return false; // Player sees his own name
         if (source.Data.Role.IsImpostor && (target.Data.Role.IsImpostor || target == Spy.spy ||
@@ -906,7 +845,7 @@ public static class Helpers
             return MurderAttemptResult.PerformKill;
 
         // Handle first kill attempt
-        if (TORMapOptions.shieldFirstKill && TORMapOptions.firstKillPlayer == target)
+        if (MapOptions.shieldFirstKill && MapOptions.firstKillPlayer == target)
             return MurderAttemptResult.SuppressKill;
 
         // Handle blank shot

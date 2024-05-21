@@ -62,7 +62,7 @@ public class BountyHunter : RoleBase
         arrow = null;
         if (cooldownText != null && cooldownText.gameObject != null) Object.Destroy(cooldownText.gameObject);
         cooldownText = null;
-        foreach (var p in TORMapOptions.playerIcons.Values.Where(p => p != null && p.gameObject != null))
+        foreach (var p in MapOptions.playerIcons.Values.Where(p => p != null && p.gameObject != null))
             p.gameObject.SetActive(false);
 
 

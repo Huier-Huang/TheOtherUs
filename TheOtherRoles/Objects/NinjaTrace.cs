@@ -66,7 +66,7 @@ internal class NinjaTrace
     public static Sprite getTraceSprite()
     {
         if (TraceSprite) return TraceSprite;
-        TraceSprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.NinjaTraceW.png", 225f);
+        TraceSprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.NinjaTraceW.png", 225f);
         return TraceSprite;
     }
 

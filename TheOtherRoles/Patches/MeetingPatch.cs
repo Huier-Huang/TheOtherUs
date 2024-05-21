@@ -7,7 +7,7 @@ using TheOtherRoles.Objects;
 using TheOtherRoles.Options;
 using TMPro;
 using UnityEngine;
-using static TheOtherRoles.TORMapOptions;
+using static TheOtherRoles.MapOptions;
 using Object = UnityEngine.Object;
 
 namespace TheOtherRoles.Patches;

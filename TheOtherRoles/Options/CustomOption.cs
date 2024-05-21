@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using AmongUs.GameOptions;
 using Hazel;
 using Reactor.Utilities.Extensions;
+using TheOtherRoles.Modules.Components;
 using TheOtherRoles.Roles.Crewmate;
 using TheOtherRoles.Roles.Modifier;
 using TheOtherRoles.Roles.Neutral;
@@ -14,6 +15,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
+using Color = UnityEngine.Color;
 
 namespace TheOtherRoles.Options;
 
@@ -25,26 +27,66 @@ public enum OptionTypes
 }
 
 public class CustomRoleOption(RoleBase @base, string Title)
-    : CustomOption(Title, OptionTypes.Role, new StringOptionSelection(0, roleRateStrings))
+    : CustomParentOption(Title, OptionTypes.Role, new StringOptionSelection(0, roleRateStrings), color:@base.RoleInfo.Color)
 {
     public static readonly string[] roleRateStrings = ["0%","10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"];
     public int Rate => 10 * OptionSelection.Selection;
     public RoleBase roleBase = @base;
 }
 
-public class CustomModeOption(Helper.CustomGameModes mode, string Title, OptionSelectionBase selection)
-    : CustomOption(Title, OptionTypes.Mode, selection)
+public class CustomModeOption(CustomGameModes mode, string Title, OptionSelectionBase selection, Color color = default)
+    : CustomParentOption(Title, OptionTypes.Mode, selection, color)
 {
-    public Helper.CustomGameModes mode = mode;
+    public CustomGameModes mode = mode;
+}
+
+public class CustomParentOption(string Title, OptionTypes type, OptionSelectionBase selection, Color color)
+    : CustomOption(Title, type, selection, default, color)
+{
+    public override void Create(OptionTabMenuBase optionTabMenuBase)
+    {
+        base.Create(optionTabMenuBase);
+    }
 }
 
 public class CustomOption
 {
     [JsonIgnore] 
-    public OptionBehaviour optionBehaviour;
+    #nullable enable
+    public OptionBehaviour? optionBehaviour;
+    #nullable disable
+    
+    [JsonIgnore] 
+    public Color Color { get; set; } = Color.white;
+
+    [JsonIgnore] public int Selection => OptionSelection.Selection;
+
+    public virtual void Create(OptionTabMenuBase optionTabMenuBase, Transform Parent)
+    {
+        var stringOption = Object.Instantiate(optionTabMenuBase.StringOptionTemplate, Parent);
+        stringOption.OnValueChanged = new Action<OptionBehaviour>(o => { });
+        if (EnabledTranslate)
+        {
+            stringOption.TitleText.Destroy();
+            stringOption.TitleText = stringOption.gameObject.AddComponent<TranslateText>();
+            var TitleText = (TranslateText)stringOption.TitleText;
+            TitleText.Id = TranslateId;
+            
+            
+            stringOption.ValueText.Destroy();
+            stringOption.ValueText = stringOption.gameObject.AddComponent<TranslateText>();
+            var ValueText = (TranslateText)stringOption.ValueText;
+            ValueText.Id = OptionSelection.translateId;
+        }
+        stringOption.TitleText.text = Title;
+        stringOption.Value = stringOption.oldValue = OptionSelection.Selection;
+        stringOption.ValueText.text = OptionSelection;
+
+        optionBehaviour = stringOption;
+    }
 
 
-    public CustomOption(string Title, OptionTypes type, OptionSelectionBase selection, CustomOption Parent = default)
+    public CustomOption(string Title, OptionTypes type, OptionSelectionBase selection, CustomOption Parent, Color color = default)
     {
         optionType = type;
         selection.option = this;
@@ -57,8 +99,12 @@ public class CustomOption
         if (Parent != null)
         {
             optionInfo.Parent = Parent.optionInfo;
+            Color = Parent.Color;
             Parent.optionInfo.Children.Add(optionInfo);
         }
+
+        if (color != default)
+            Color = color;
 
         CustomOptionManager.Instance.Register(this);
     }
@@ -100,7 +146,6 @@ public class CustomOption
     }
 
     public string Title => EnabledTranslate ? optionInfo.Title.Translate() : optionInfo.Title;
-
 
     // Getter
     public static implicit operator bool(CustomOption option)
@@ -148,34 +193,35 @@ public class CustomOption
     }
 }
 
-[HarmonyPatch(typeof(GameOptionsMenu), nameof(GameOptionsMenu.Start))]
-internal class GameOptionsMenuStartPatch
+[HarmonyPatch(typeof(GameOptionsMenu))]
+internal static class GameOptionsMenuStartPatch
 {
+    public static OptionTabMenuBase optionTabMenu;
+    
+    [HarmonyPatch(nameof(GameOptionsMenu.Start)), HarmonyPostfix]
+    private static void GameOptionMenuStartPatch(GameOptionsMenu __instance)
+    {
+        optionTabMenu = MapOptions.gameMode switch
+        {
+            CustomGameModes.Classic => new ClassicTabMenu(),
+            CustomGameModes.Guesser => new GuesserTabMenu(),
+            CustomGameModes.HideNSeek => new HideNSeekTabMenu(),
+            CustomGameModes.PropHunt => new PropHuntTabMenu(),
+            _ => new ClassicTabMenu()
+        };
+        
+        optionTabMenu.CreateTabMenu(__instance);
+    }
     public static void Postfix(GameOptionsMenu __instance)
     {
-        switch (TORMapOptions.gameMode)
-        {
-            case Helper.CustomGameModes.Classic:
-                createClassicTabs(__instance);
-                break;
-            case Helper.CustomGameModes.Guesser:
-                createGuesserTabs(__instance);
-                break;
-            case Helper.CustomGameModes.HideNSeek:
-                createHideNSeekTabs(__instance);
-                break;
-            case Helper.CustomGameModes.PropHunt:
-                createPropHuntTabs(__instance);
-                break;
-        }
-
+        
         // create copy to clipboard and paste from clipboard buttons.
         var template = GameObject.Find("CloseButton");
         var copyButton = Object.Instantiate(template, template.transform.parent);
         copyButton.transform.localPosition += Vector3.down * 0.8f;
         var copyButtonPassive = copyButton.GetComponent<PassiveButton>();
         var copyButtonRenderer = copyButton.GetComponent<SpriteRenderer>();
-        copyButtonRenderer.sprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.CopyButton.png", 175f);
+        copyButtonRenderer.sprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.CopyButton.png", 175f);
         copyButtonPassive.OnClick.RemoveAllListeners();
         copyButtonPassive.OnClick = new Button.ButtonClickedEvent();
         copyButtonPassive.OnClick.AddListener((Action)(() =>
@@ -192,7 +238,7 @@ internal class GameOptionsMenuStartPatch
         pasteButton.transform.localPosition += Vector3.down * 1.6f;
         var pasteButtonPassive = pasteButton.GetComponent<PassiveButton>();
         var pasteButtonRenderer = pasteButton.GetComponent<SpriteRenderer>();
-        pasteButtonRenderer.sprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.PasteButton.png", 175f);
+        pasteButtonRenderer.sprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.PasteButton.png", 175f);
         pasteButtonPassive.OnClick.RemoveAllListeners();
         pasteButtonPassive.OnClick = new Button.ButtonClickedEvent();
         pasteButtonPassive.OnClick.AddListener((Action)(() =>
@@ -728,7 +774,7 @@ internal class GameOptionsMenuStartPatch
         var tabHighlight = tab.transform.FindChild("Hat Button").FindChild("Tab Background")
             .GetComponent<SpriteRenderer>();
         tab.transform.FindChild("Hat Button").FindChild("Icon").GetComponent<SpriteRenderer>().sprite =
-            Helpers.loadSpriteFromResources(tabSpritePath, 100f);
+            UnityHelper.loadSpriteFromResources(tabSpritePath, 100f);
         tab.name = "tabName";
 
         return tabHighlight;
@@ -777,6 +823,7 @@ public class StringOptionPatches
         __instance.TitleText.text = option.Title;
         __instance.Value = __instance.oldValue = option.OptionSelection;
         __instance.ValueText.text = option.OptionSelection.GetString();
+        __instance.ValueText.color = __instance.TitleText.color = option.Color;
 
         return false;
     }
@@ -926,7 +973,7 @@ internal class GameOptionsDataPatch
     {
         var sb = new StringBuilder("\n");
         var options = CustomOption.options.Where(o => o.type == type);
-        if (TORMapOptions.gameMode == Helper.CustomGameModes.Guesser)
+        if (MapOptions.gameMode == CustomGameModes.Guesser)
         {
             if (type == CustomOption.CustomOptionType.General)
                 options = CustomOption.options.Where(o =>
@@ -934,18 +981,18 @@ internal class GameOptionsDataPatch
             List<int> remove = [308, 310, 311, 312, 313, 314, 315, 316, 317, 318];
             options = options.Where(x => !remove.Contains(x.id));
         }
-        else if (TORMapOptions.gameMode == Helper.CustomGameModes.Classic)
+        else if (MapOptions.gameMode == CustomGameModes.Classic)
         {
             options = options.Where(x =>
                 !(x.type == CustomOption.CustomOptionType.Guesser || x == CustomOptionHolder.crewmateRolesFill));
         }
-        else if (TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek)
+        else if (MapOptions.gameMode == CustomGameModes.HideNSeek)
         {
             options = options.Where(x =>
                 x.type == CustomOption.CustomOptionType.HideNSeekMain ||
                 x.type == CustomOption.CustomOptionType.HideNSeekRoles);
         }
-        else if (TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt)
+        else if (MapOptions.gameMode == CustomGameModes.PropHunt)
         {
             options = options.Where(x => x.type == CustomOption.CustomOptionType.PropHunt);
         }
@@ -979,9 +1026,9 @@ internal class GameOptionsDataPatch
 
         foreach (CustomOption option in options)
         {
-            if (TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek && option.type != CustomOptionType.HideNSeekMain &&
+            if (MapOptions.gameMode == CustomGameModes.HideNSeek && option.type != CustomOptionType.HideNSeekMain &&
                 option.type != CustomOptionType.HideNSeekRoles) continue;
-            if (TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt &&
+            if (MapOptions.gameMode == CustomGameModes.PropHunt &&
                 option.type != CustomOptionType.PropHunt) continue;
             if (option.parent != null)
             {
@@ -1075,7 +1122,7 @@ internal class GameOptionsDataPatch
             ? Helpers.cs(DateTime.Now.Second % 2 == 0 ? Color.white : Color.red, "(Use scroll wheel if necessary)\n\n")
             : "";
 
-        if (TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek)
+        if (MapOptions.gameMode == CustomGameModes.HideNSeek)
         {
             if (TheOtherRolesPlugin.optionsPage > 1) TheOtherRolesPlugin.optionsPage = 0;
             maxPage = 2;
@@ -1091,7 +1138,7 @@ internal class GameOptionsDataPatch
                     break;
             }
         }
-        else if (TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt)
+        else if (MapOptions.gameMode == CustomGameModes.PropHunt)
         {
             maxPage = 1;
             switch (counter)
@@ -1444,7 +1491,7 @@ public class HudManagerUpdate
                 __instance.MapButton.transform.localPosition + new Vector3(0, -0.66f, -500f);
             var renderer = toggleSettingsButtonObject.GetComponent<SpriteRenderer>();
             renderer.sprite =
-                Helpers.loadSpriteFromResources("TheOtherRoles.Resources.CurrentSettingsButton.png", 180f);
+                UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.CurrentSettingsButton.png", 180f);
             toggleSettingsButton = toggleSettingsButtonObject.GetComponent<PassiveButton>();
             toggleSettingsButton.OnClick.RemoveAllListeners();
             toggleSettingsButton.OnClick.AddListener((Action)(() => ToggleSettings(__instance)));

@@ -14,28 +14,28 @@ public static class ClientOptionsPatch
     private static readonly SelectionBehaviour[] AllOptions =
     [
         new SelectionBehaviour("Ghosts See Tasks & Other Info",
-            () => TORMapOptions.ghostsSeeInformation = TheOtherRolesPlugin.GhostsSeeInformation.Value =
+            () => MapOptions.ghostsSeeInformation = TheOtherRolesPlugin.GhostsSeeInformation.Value =
                 !TheOtherRolesPlugin.GhostsSeeInformation.Value, TheOtherRolesPlugin.GhostsSeeInformation.Value),
         new SelectionBehaviour("Ghosts Can See Votes",
-            () => TORMapOptions.ghostsSeeVotes =
+            () => MapOptions.ghostsSeeVotes =
                 TheOtherRolesPlugin.GhostsSeeVotes.Value = !TheOtherRolesPlugin.GhostsSeeVotes.Value,
             TheOtherRolesPlugin.GhostsSeeVotes.Value),
         new SelectionBehaviour("Ghosts Can See Roles",
-            () => TORMapOptions.ghostsSeeRoles =
+            () => MapOptions.ghostsSeeRoles =
                 TheOtherRolesPlugin.GhostsSeeRoles.Value = !TheOtherRolesPlugin.GhostsSeeRoles.Value,
             TheOtherRolesPlugin.GhostsSeeRoles.Value),
         new SelectionBehaviour("Ghosts Can Additionally See Modifier",
-            () => TORMapOptions.ghostsSeeModifier = TheOtherRolesPlugin.GhostsSeeModifier.Value =
+            () => MapOptions.ghostsSeeModifier = TheOtherRolesPlugin.GhostsSeeModifier.Value =
                 !TheOtherRolesPlugin.GhostsSeeModifier.Value, TheOtherRolesPlugin.GhostsSeeModifier.Value),
         new SelectionBehaviour("Show Role Summary",
-            () => TORMapOptions.showRoleSummary =
+            () => MapOptions.showRoleSummary =
                 TheOtherRolesPlugin.ShowRoleSummary.Value = !TheOtherRolesPlugin.ShowRoleSummary.Value,
             TheOtherRolesPlugin.ShowRoleSummary.Value),
         new SelectionBehaviour("Show Lighter / Darker",
-            () => TORMapOptions.showLighterDarker = TheOtherRolesPlugin.ShowLighterDarker.Value =
+            () => MapOptions.showLighterDarker = TheOtherRolesPlugin.ShowLighterDarker.Value =
                 !TheOtherRolesPlugin.ShowLighterDarker.Value, TheOtherRolesPlugin.ShowLighterDarker.Value),
         new SelectionBehaviour("Enable Sound Effects",
-            () => TORMapOptions.enableSoundEffects = TheOtherRolesPlugin.EnableSoundEffects.Value =
+            () => MapOptions.enableSoundEffects = TheOtherRolesPlugin.EnableSoundEffects.Value =
                 !TheOtherRolesPlugin.EnableSoundEffects.Value, TheOtherRolesPlugin.EnableSoundEffects.Value),
     ];
 

@@ -1,6 +1,6 @@
 using System;
 using Hazel;
-using TheOtherRoles.CustomGameModes;
+using TheOtherRoles.CustomGameMode;
 using TheOtherRoles.Objects;
 using TheOtherRoles.Options;
 using UnityEngine;

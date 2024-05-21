@@ -1,5 +1,5 @@
 using AmongUs.GameOptions;
-using TheOtherRoles.CustomGameModes;
+using TheOtherRoles.CustomGameMode;
 using UnityEngine;
 
 namespace TheOtherRoles.Patches;
@@ -156,13 +156,13 @@ public class ShipStatusPatch
         originalNumShortTasksOption = GameOptionsManager.Instance.currentNormalGameOptions.NumShortTasks;
         originalNumLongTasksOption = GameOptionsManager.Instance.currentNormalGameOptions.NumLongTasks;
 
-        if (TORMapOptions.gameMode != Helper.CustomGameModes.HideNSeek)
+        if (MapOptions.gameMode != CustomGameModes.HideNSeek)
         {
             var commonTaskCount = __instance.CommonTasks.Count;
             var normalTaskCount = __instance.ShortTasks.Count;
             var longTaskCount = __instance.LongTasks.Count;
 
-            if (TORMapOptions.gameMode == Helper.CustomGameModes.PropHunt)
+            if (MapOptions.gameMode == CustomGameModes.PropHunt)
                 commonTaskCount = normalTaskCount = longTaskCount = 0;
 
 

@@ -33,7 +33,7 @@ public class Hacker : RoleBase
     public Sprite getButtonSprite()
     {
         if (buttonSprite) return buttonSprite;
-        buttonSprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.HackerButton.png", 115f);
+        buttonSprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.HackerButton.png", 115f);
         return buttonSprite;
     }
 

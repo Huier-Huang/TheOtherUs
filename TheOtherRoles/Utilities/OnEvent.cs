@@ -12,15 +12,9 @@ public class OnEvent(string EventName) : RegisterAttribute
     public static List<OnEvent> onEvents = [];
     public string eventName = EventName;
 
-    [UsedImplicitly]
-    public static void Register(Assembly assembly)
+    [Register]
+    public static void Register(List<MethodInfo> methodInfos)
     {
-        var methodInfos = assembly
-            .GetTypes()
-            .SelectMany(n => n.GetMethods(BindingFlags.Static))
-            .Where(n => n.IsDefined(typeof(OnEvent)))
-            .ToList();
-
         foreach (var method in methodInfos)
         {
             var OnEvent = method.GetCustomAttribute<OnEvent>();

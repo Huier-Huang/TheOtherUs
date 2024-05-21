@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Hazel;
-using TheOtherRoles.CustomGameModes;
+using TheOtherRoles.CustomGameMode;
 using TheOtherRoles.Objects;
 using TheOtherRoles.Patches;
 using TMPro;
@@ -2501,8 +2501,8 @@ internal static class HudManagerStartPatch
                 arsonistButton.Timer = Arsonist.dousedEveryoneAlive() ? 0 : arsonistButton.MaxTimer;
 
                 foreach (PlayerControl p in Arsonist.dousedPlayers)
-                    if (TORMapOptions.playerIcons.ContainsKey(p.PlayerId))
-                        TORMapOptions.playerIcons[p.PlayerId].setSemiTransparent(false);
+                    if (MapOptions.playerIcons.ContainsKey(p.PlayerId))
+                        MapOptions.playerIcons[p.PlayerId].setSemiTransparent(false);
 
                 // Ghost Info
                 var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
@@ -3414,7 +3414,7 @@ internal static class HudManagerStartPatch
             },
             () => { return true; },
             () => { },
-            Helpers.loadSpriteFromResources("TheOtherRoles.Resources.MinusButton.png", 150f), // Invisible button!
+            UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.MinusButton.png", 150f), // Invisible button!
             new Vector3(0.4f, 2.8f, 0),
             __instance,
             KeyCode.KeypadPlus

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
-using TheOtherRoles.Options;
+using UnityEngine;
 
-namespace TheOtherRoles.Modules.Options;
+namespace TheOtherRoles.Options;
 
 public class OptionInfo
 {

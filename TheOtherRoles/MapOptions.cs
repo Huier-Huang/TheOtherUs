@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace TheOtherRoles;
 
-internal static class TORMapOptions
+internal static class MapOptions
 {
     // Set values
     public static int maxNumberOfMeetings = 10;
@@ -34,7 +34,7 @@ internal static class TORMapOptions
     public static bool disableCamsRoundOne;
     public static bool isRoundOne = true;
     public static bool camoComms;
-    public static Helper.CustomGameModes gameMode = Helper.CustomGameModes.Classic;
+    public static CustomGameModes gameMode = CustomGameModes.Classic;
 
     // Updating values
     public static int meetingsCount;
@@ -62,25 +62,23 @@ internal static class TORMapOptions
         camerasToAdd = [];
         ventsToSeal = [];
         playerIcons = new Dictionary<byte, PoolablePlayer>();
-        ;
 
-        maxNumberOfMeetings = Mathf.RoundToInt(CustomOptionHolder.maxNumberOfMeetings.getSelection());
-        blockSkippingInEmergencyMeetings = CustomOptionHolder.blockSkippingInEmergencyMeetings.getBool();
-        noVoteIsSelfVote = CustomOptionHolder.noVoteIsSelfVote.getBool();
-        hidePlayerNames = CustomOptionHolder.hidePlayerNames.getBool();
-        hideOutOfSightNametags = CustomOptionHolder.hideOutOfSightNametags.getBool();
-        hideVentAnim = CustomOptionHolder.hideVentAnimOnShadows.getBool();
-        allowParallelMedBayScans = CustomOptionHolder.allowParallelMedBayScans.getBool();
-        disableMedscanWalking = CustomOptionHolder.disableMedbayWalk.getBool();
-        camoComms = CustomOptionHolder.enableCamoComms.getBool();
-        shieldFirstKill = CustomOptionHolder.shieldFirstKill.getBool();
-        impostorSeeRoles = CustomOptionHolder.impostorSeeRoles.getBool();
-        transparentTasks = CustomOptionHolder.transparentTasks.getBool();
-        restrictDevices = CustomOptionHolder.restrictDevices.getSelection();
-        restrictCamerasTime = restrictCamerasTimeMax = CustomOptionHolder.restrictCameras.getFloat();
-        restrictVitalsTime = restrictVitalsTimeMax = CustomOptionHolder.restrictVents.getFloat();
-        disableCamsRoundOne = CustomOptionHolder.disableCamsRound1.getBool();
-        CustomOptionHolder.randomGameStartPosition.getBool();
+        maxNumberOfMeetings = Mathf.RoundToInt(CustomOptionHolder.maxNumberOfMeetings.Selection);
+        blockSkippingInEmergencyMeetings = CustomOptionHolder.blockSkippingInEmergencyMeetings;
+        noVoteIsSelfVote = CustomOptionHolder.noVoteIsSelfVote;
+        hidePlayerNames = CustomOptionHolder.hidePlayerNames;
+        hideOutOfSightNametags = CustomOptionHolder.hideOutOfSightNametags;
+        hideVentAnim = CustomOptionHolder.hideVentAnimOnShadows;
+        allowParallelMedBayScans = CustomOptionHolder.allowParallelMedBayScans;
+        disableMedscanWalking = CustomOptionHolder.disableMedbayWalk;
+        camoComms = CustomOptionHolder.enableCamoComms;
+        shieldFirstKill = CustomOptionHolder.shieldFirstKill;
+        impostorSeeRoles = CustomOptionHolder.impostorSeeRoles;
+        transparentTasks = CustomOptionHolder.transparentTasks;
+        restrictDevices = CustomOptionHolder.restrictDevices;
+        restrictCamerasTime = restrictCamerasTimeMax = CustomOptionHolder.restrictCameras;
+        restrictVitalsTime = restrictVitalsTimeMax = CustomOptionHolder.restrictVents;
+        disableCamsRoundOne = CustomOptionHolder.disableCamsRound1;
         firstKillPlayer = null;
         isRoundOne = true;
     }

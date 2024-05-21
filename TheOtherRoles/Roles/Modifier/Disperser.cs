@@ -39,7 +39,10 @@ public class Disperser : RoleBase
             Minigame.Instance.ForceClose();
 
         MapData.AllPlayerExitVent();
-        MapData.RandomSpawnAllPlayers();
+        if (CustomOptionHolder.modifierDisperserDispersesToVent)
+            MapData.RandomSpawnAllPlayersToVent();
+        else
+            MapData.RandomSpawnAllPlayersToMap();
         remainingDisperses--;
     }
 }

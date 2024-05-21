@@ -30,14 +30,14 @@ public class Jumper : RoleBase
     public Sprite getJumpMarkButtonSprite()
     {
         if (jumpMarkButtonSprite) return jumpMarkButtonSprite;
-        jumpMarkButtonSprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.JumperButton.png", 115f);
+        jumpMarkButtonSprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.JumperButton.png", 115f);
         return jumpMarkButtonSprite;
     }
 
     public Sprite getJumpButtonSprite()
     {
         if (jumpButtonSprite) return jumpButtonSprite;
-        jumpButtonSprite = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.JumperJumpButton.png", 115f);
+        jumpButtonSprite = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.JumperJumpButton.png", 115f);
         return jumpButtonSprite;
     }
 

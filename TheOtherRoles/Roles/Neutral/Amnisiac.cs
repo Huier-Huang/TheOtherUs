@@ -32,8 +32,8 @@ public class Amnisiac : RoleBase
     public override void ClearAndReload()
     {
         amnisiac = null;
-        showArrows = amnisiacShowArrows.getBool();
-        resetRole = amnisiacResetRole.getBool();
+        showArrows = amnisiacShowArrows;
+        resetRole = amnisiacResetRole;
         if (localArrows != null)
             foreach (var arrow in localArrows)
                 if (arrow?.arrow != null)

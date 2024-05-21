@@ -31,7 +31,7 @@ public static class TasksHandler
             var totalTasks = 0;
             var completedTasks = 0;
 
-            foreach (var playerInfo in GameData.Instance.AllPlayers.GetFastEnumerator())
+            foreach (var playerInfo in GameData.Instance.AllPlayers)
             {
                 if ((playerInfo.Object
                      && playerInfo.Object.hasAliveKillingLover())

@@ -6,7 +6,7 @@ using AmongUs.GameOptions;
 using Assets.CoreScripts;
 using Hazel;
 using InnerNet;
-using TheOtherRoles.CustomGameModes;
+using TheOtherRoles.CustomGameMode;
 using TheOtherRoles.Objects;
 using TMPro;
 using UnityEngine;
@@ -104,9 +104,9 @@ public static class PlayerControlFixedUpdatePatch
             }
 
             if (!Helpers.isCamoComms() && Camouflager.camouflageTimer <= 0f && !Helpers.MushroomSabotageActive() &&
-                TORMapOptions.firstKillPlayer != null && TORMapOptions.shieldFirstKill &&
-                ((target == TORMapOptions.firstKillPlayer && !isMorphedMorphling) ||
-                 (isMorphedMorphling && Morphling.morphTarget == TORMapOptions.firstKillPlayer)))
+                MapOptions.firstKillPlayer != null && MapOptions.shieldFirstKill &&
+                ((target == MapOptions.firstKillPlayer && !isMorphedMorphling) ||
+                 (isMorphedMorphling && Morphling.morphTarget == MapOptions.firstKillPlayer)))
             {
                 hasVisibleShield = true;
                 color = Color.blue;
@@ -730,7 +730,7 @@ public static class PlayerControlFixedUpdatePatch
                 p == CachedPlayer.LocalPlayer.Control || CachedPlayer.LocalPlayer.Data.IsDead ||
                 (CachedPlayer.LocalPlayer.Control == Slueth.slueth &&
                  Slueth.reported.Any(x => x.PlayerId == p.PlayerId)) ||
-                (TORMapOptions.impostorSeeRoles && Spy.spy == null && CachedPlayer.LocalPlayer.Data.Role.IsImpostor &&
+                (MapOptions.impostorSeeRoles && Spy.spy == null && CachedPlayer.LocalPlayer.Data.Role.IsImpostor &&
                  !CachedPlayer.LocalPlayer.Data.IsDead && p == (p.Data.Role.IsImpostor && !p.Data.IsDead)) ||
                 (CachedPlayer.LocalPlayer.Control == Poucher.poucher &&
                  Poucher.killed.Any(x => x.PlayerId == p.PlayerId)))
@@ -769,12 +769,12 @@ public static class PlayerControlFixedUpdatePatch
 
                 var (tasksCompleted, tasksTotal) = TasksHandler.taskInfo(p.Data);
                 var roleNames = RoleInfo.GetRolesString(p, true, false);
-                var roleText = RoleInfo.GetRolesString(p, true, TORMapOptions.ghostsSeeModifier);
+                var roleText = RoleInfo.GetRolesString(p, true, MapOptions.ghostsSeeModifier);
                 var taskInfo = tasksTotal > 0 ? $"<color=#FAD934FF>({tasksCompleted}/{tasksTotal})</color>" : "";
 
                 var playerInfoText = "";
                 var meetingInfoText = "";
-                if (p == CachedPlayer.LocalPlayer.Control || (TORMapOptions.impostorSeeRoles && Spy.spy == null &&
+                if (p == CachedPlayer.LocalPlayer.Control || (MapOptions.impostorSeeRoles && Spy.spy == null &&
                                                               CachedPlayer.LocalPlayer.Data.Role.IsImpostor &&
                                                               !CachedPlayer.LocalPlayer.Data.IsDead &&
                                                               p == (p.Data.Role.IsImpostor && !p.Data.IsDead)))
@@ -792,17 +792,17 @@ public static class PlayerControlFixedUpdatePatch
 
                     meetingInfoText = $"{roleNames} {taskInfo}".Trim();
                 }
-                else if (TORMapOptions.ghostsSeeRoles && TORMapOptions.ghostsSeeInformation)
+                else if (MapOptions.ghostsSeeRoles && MapOptions.ghostsSeeInformation)
                 {
                     playerInfoText = $"{roleText} {taskInfo}".Trim();
                     meetingInfoText = playerInfoText;
                 }
-                else if (TORMapOptions.ghostsSeeInformation)
+                else if (MapOptions.ghostsSeeInformation)
                 {
                     playerInfoText = $"{taskInfo}".Trim();
                     meetingInfoText = playerInfoText;
                 }
-                else if (TORMapOptions.ghostsSeeRoles || (Lawyer.lawyerKnowsRole &&
+                else if (MapOptions.ghostsSeeRoles || (Lawyer.lawyerKnowsRole &&
                                                           CachedPlayer.LocalPlayer.Control == Lawyer.lawyer &&
                                                           p == Lawyer.target))
                 {
@@ -999,7 +999,7 @@ public static class PlayerControlFixedUpdatePatch
                 Object.Destroy(BountyHunter.cooldownText.gameObject);
             BountyHunter.cooldownText = null;
             BountyHunter.bounty = null;
-            foreach (var p in TORMapOptions.playerIcons.Values)
+            foreach (var p in MapOptions.playerIcons.Values)
                 if (p != null && p.gameObject != null)
                     p.gameObject.SetActive(false);
             return;
@@ -1036,17 +1036,17 @@ public static class PlayerControlFixedUpdatePatch
             if (FastDestroyableSingleton<HudManager>.Instance != null &&
                 FastDestroyableSingleton<HudManager>.Instance.UseButton != null)
             {
-                foreach (var pp in TORMapOptions.playerIcons.Values) pp.gameObject.SetActive(false);
-                if (TORMapOptions.playerIcons.ContainsKey(BountyHunter.bounty.PlayerId) &&
-                    TORMapOptions.playerIcons[BountyHunter.bounty.PlayerId].gameObject != null)
-                    TORMapOptions.playerIcons[BountyHunter.bounty.PlayerId].gameObject.SetActive(true);
+                foreach (var pp in MapOptions.playerIcons.Values) pp.gameObject.SetActive(false);
+                if (MapOptions.playerIcons.ContainsKey(BountyHunter.bounty.PlayerId) &&
+                    MapOptions.playerIcons[BountyHunter.bounty.PlayerId].gameObject != null)
+                    MapOptions.playerIcons[BountyHunter.bounty.PlayerId].gameObject.SetActive(true);
             }
         }
 
         // Hide in meeting
-        if (MeetingHud.Instance && TORMapOptions.playerIcons.ContainsKey(BountyHunter.bounty.PlayerId) &&
-            TORMapOptions.playerIcons[BountyHunter.bounty.PlayerId].gameObject != null)
-            TORMapOptions.playerIcons[BountyHunter.bounty.PlayerId].gameObject.SetActive(false);
+        if (MeetingHud.Instance && MapOptions.playerIcons.ContainsKey(BountyHunter.bounty.PlayerId) &&
+            MapOptions.playerIcons[BountyHunter.bounty.PlayerId].gameObject != null)
+            MapOptions.playerIcons[BountyHunter.bounty.PlayerId].gameObject.SetActive(false);
 
         // Update Cooldown Text
         if (BountyHunter.cooldownText != null)
@@ -1915,7 +1915,7 @@ public static class MurderPlayerPatch
             target.clearAllTasks();
 
         // First kill (set before lover suicide)
-        if (TORMapOptions.firstKillName == "") TORMapOptions.firstKillName = target.Data.PlayerName;
+        if (MapOptions.firstKillName == "") MapOptions.firstKillName = target.Data.PlayerName;
 
         // Lover suicide trigger on murder
         if ((Lovers.lover1 != null && target == Lovers.lover1) || (Lovers.lover2 != null && target == Lovers.lover2))
@@ -2052,14 +2052,14 @@ public static class MurderPlayerPatch
             var bottomLeft = IntroCutsceneOnDestroyPatch.bottomLeft + new Vector3(-0.25f, -0.25f, 0);
             foreach (PlayerControl p in CachedPlayer.AllPlayers)
             {
-                if (!TORMapOptions.playerIcons.ContainsKey(p.PlayerId) || p.Data.Role.IsImpostor) continue;
+                if (!MapOptions.playerIcons.ContainsKey(p.PlayerId) || p.Data.Role.IsImpostor) continue;
                 if (p.Data.IsDead || p.Data.Disconnected)
                 {
-                    TORMapOptions.playerIcons[p.PlayerId].gameObject.SetActive(false);
+                    MapOptions.playerIcons[p.PlayerId].gameObject.SetActive(false);
                 }
                 else
                 {
-                    TORMapOptions.playerIcons[p.PlayerId].transform.localPosition =
+                    MapOptions.playerIcons[p.PlayerId].transform.localPosition =
                         bottomLeft + (Vector3.right * visibleCounter * 0.35f);
                     visibleCounter++;
                 }

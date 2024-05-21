@@ -32,7 +32,7 @@
     public static void clearAndReload() {
         Guesser.clearAndReload();
         GuesserGM.clearAndReload();
-        isGuesserGm = TORMapOptions.gameMode == CustomGameModes.Guesser;
+        isGuesserGm = MapOptions.gameMode == CustomGameMode.Guesser;
         if (isGuesserGm) {
             guesserCantGuessSnitch = CustomOptionHolder.guesserGamemodeCantGuessSnitchIfTaksDone.getBool();
             hasMultipleShotsPerMeeting = CustomOptionHolder.guesserGamemodeHasMultipleShotsPerMeeting.getBool();

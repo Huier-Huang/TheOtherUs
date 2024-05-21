@@ -17,6 +17,7 @@ public interface IOptionSelectionValue
 public abstract class OptionSelectionBase
 {
     [JsonIgnore] public CustomOption option { get; set; }
+    public virtual string translateId => string.Empty;
 
     public virtual void Decrease()
     {

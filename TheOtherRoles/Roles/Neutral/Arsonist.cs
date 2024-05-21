@@ -49,7 +49,7 @@ public class Arsonist : RoleBase
         douseTarget = null;
         triggerArsonistWin = false;
         dousedPlayers = [];
-        foreach (var p in TORMapOptions.playerIcons.Values.Where(p => p != null && p.gameObject != null))
+        foreach (var p in MapOptions.playerIcons.Values.Where(p => p != null && p.gameObject != null))
             p.gameObject.SetActive(false);
         cooldown = arsonistCooldown.getFloat();
         duration = arsonistDuration.getFloat();
@@ -127,8 +127,8 @@ public class Arsonist : RoleBase
                 arsonistButton.Timer = dousedEveryoneAlive() ? 0 : arsonistButton.MaxTimer;
 
                 foreach (var p in dousedPlayers)
-                    if (TORMapOptions.playerIcons.ContainsKey(p.PlayerId))
-                        TORMapOptions.playerIcons[p.PlayerId].setSemiTransparent(false);
+                    if (MapOptions.playerIcons.ContainsKey(p.PlayerId))
+                        MapOptions.playerIcons[p.PlayerId].setSemiTransparent(false);
 
                 // Ghost Info
                 var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,

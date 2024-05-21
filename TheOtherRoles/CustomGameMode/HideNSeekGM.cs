@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace TheOtherRoles.CustomGameModes;
+namespace TheOtherRoles.CustomGameMode;
 
 public static class HideNSeek
 {
@@ -45,7 +45,7 @@ public static class HideNSeek
 
     public static void clearAndReload()
     {
-        isHideNSeekGM = TORMapOptions.gameMode == Helper.CustomGameModes.HideNSeek;
+        isHideNSeekGM = MapOptions.gameMode == CustomGameModes.HideNSeek;
         if (timerText != null) Object.Destroy(timerText);
         timerText = null;
         if (polusVent != null) Object.Destroy(polusVent);
@@ -96,14 +96,14 @@ public static class Hunter
     public static Sprite getArrowSprite()
     {
         if (buttonSpriteArrow) return buttonSpriteArrow;
-        buttonSpriteArrow = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.HideNSeekArrowButton.png", 115f);
+        buttonSpriteArrow = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.HideNSeekArrowButton.png", 115f);
         return buttonSpriteArrow;
     }
 
     public static Sprite getLightSprite()
     {
         if (buttonSpriteLight) return buttonSpriteLight;
-        buttonSpriteLight = Helpers.loadSpriteFromResources("TheOtherRoles.Resources.LighterButton.png", 115f);
+        buttonSpriteLight = UnityHelper.loadSpriteFromResources("TheOtherRoles.Resources.LighterButton.png", 115f);
         return buttonSpriteLight;
     }
 

@@ -22,7 +22,7 @@ public class CameraPatch
     private static void UseCameraTime()
     {
         // Don't waste network traffic if we're out of time.
-        if (TORMapOptions.restrictDevices > 0 && TORMapOptions.restrictCamerasTime > 0f &&
+        if (MapOptions.restrictDevices > 0 && MapOptions.restrictCamerasTime > 0f &&
             CachedPlayer.LocalPlayer.Control.isAlive() && CachedPlayer.LocalPlayer.Control != Hacker.hacker &&
             CachedPlayer.LocalPlayer.Control != SecurityGuard.securityGuard)
         {
@@ -94,7 +94,7 @@ public class CameraPatch
                 if (cameraTimer > 0.1f)
                     UseCameraTime();
 
-                if (TORMapOptions.restrictDevices > 0)
+                if (MapOptions.restrictDevices > 0)
                 {
                     if (TimeRemaining == null)
                     {
@@ -107,13 +107,13 @@ public class CameraPatch
                         TimeRemaining.color = Palette.White;
                     }
 
-                    if (TORMapOptions.disableCamsRoundOne && TORMapOptions.isRoundOne)
+                    if (MapOptions.disableCamsRoundOne && MapOptions.isRoundOne)
                     {
                         __instance.Close();
                         return false;
                     }
 
-                    if (TORMapOptions.restrictCamerasTime <= 0f && CachedPlayer.LocalPlayer.Control != Hacker.hacker &&
+                    if (MapOptions.restrictCamerasTime <= 0f && CachedPlayer.LocalPlayer.Control != Hacker.hacker &&
                         CachedPlayer.LocalPlayer.Control != SecurityGuard.securityGuard &&
                         !CachedPlayer.LocalPlayer.Data.IsDead)
                     {
@@ -121,7 +121,7 @@ public class CameraPatch
                         return false;
                     }
 
-                    var timeString = TimeSpan.FromSeconds(TORMapOptions.restrictCamerasTime).ToString(@"mm\:ss\.ff");
+                    var timeString = TimeSpan.FromSeconds(MapOptions.restrictCamerasTime).ToString(@"mm\:ss\.ff");
                     TimeRemaining.text = string.Format("Remaining: {0}", timeString);
                     TimeRemaining.gameObject.SetActive(true);
                 }
@@ -217,7 +217,7 @@ public class CameraPatch
                 if (cameraTimer > 0.1f)
                     UseCameraTime();
 
-                if (TORMapOptions.restrictDevices > 0)
+                if (MapOptions.restrictDevices > 0)
                 {
                     if (TimeRemaining == null)
                     {
@@ -230,13 +230,13 @@ public class CameraPatch
                         TimeRemaining.color = Palette.White;
                     }
 
-                    if (TORMapOptions.disableCamsRoundOne && TORMapOptions.isRoundOne)
+                    if (MapOptions.disableCamsRoundOne && MapOptions.isRoundOne)
                     {
                         __instance.Close();
                         return false;
                     }
 
-                    if (TORMapOptions.restrictCamerasTime <= 0f && CachedPlayer.LocalPlayer.Control != Hacker.hacker &&
+                    if (MapOptions.restrictCamerasTime <= 0f && CachedPlayer.LocalPlayer.Control != Hacker.hacker &&
                         CachedPlayer.LocalPlayer.Control != SecurityGuard.securityGuard &&
                         !CachedPlayer.LocalPlayer.Data.IsDead)
                     {
@@ -244,7 +244,7 @@ public class CameraPatch
                         return false;
                     }
 
-                    var timeString = TimeSpan.FromSeconds(TORMapOptions.restrictCamerasTime).ToString(@"mm\:ss\.ff");
+                    var timeString = TimeSpan.FromSeconds(MapOptions.restrictCamerasTime).ToString(@"mm\:ss\.ff");
                     TimeRemaining.text = string.Format("Remaining: {0}", timeString);
                     TimeRemaining.gameObject.SetActive(true);
                 }
@@ -297,7 +297,7 @@ public class CameraPatch
                 if (cameraTimer > 0.1f)
                     UseCameraTime();
 
-                if (TORMapOptions.restrictDevices > 0)
+                if (MapOptions.restrictDevices > 0)
                 {
                     if (TimeRemaining == null)
                     {
@@ -310,7 +310,7 @@ public class CameraPatch
                         TimeRemaining.color = Palette.White;
                     }
 
-                    if (TORMapOptions.restrictCamerasTime <= 0f && CachedPlayer.LocalPlayer.Control != Hacker.hacker &&
+                    if (MapOptions.restrictCamerasTime <= 0f && CachedPlayer.LocalPlayer.Control != Hacker.hacker &&
                         CachedPlayer.LocalPlayer.Control != SecurityGuard.securityGuard &&
                         !CachedPlayer.LocalPlayer.Data.IsDead)
                     {
@@ -318,7 +318,7 @@ public class CameraPatch
                         return false;
                     }
 
-                    var timeString = TimeSpan.FromSeconds(TORMapOptions.restrictCamerasTime).ToString(@"mm\:ss\.ff");
+                    var timeString = TimeSpan.FromSeconds(MapOptions.restrictCamerasTime).ToString(@"mm\:ss\.ff");
                     TimeRemaining.text = string.Format("Remaining: {0}", timeString);
                     TimeRemaining.gameObject.SetActive(true);
                 }
