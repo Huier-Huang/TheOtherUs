@@ -10,6 +10,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      BepInExId: 691
+      BepInExName: BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.691%2B3ba398f
+
     steps:
       - uses: actions/cache@v2
         with:
@@ -33,10 +37,10 @@ jobs:
         run: sudo apt install wget
 
       - name: download BepInEx
-        run: wget https://builds.bepinex.dev/projects/bepinex_be/688/BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.688%2B4901521.zip
+        run: wget https://builds.bepinex.dev/projects/bepinex_be/${{ env.BepInExId }}/${{ env.BepInExName }}.zip
 
       - name: unzip BepInEx
-        run: unzip BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.688+4901521.zip -d ./Release/
+        run: unzip ${{ env.BepInExName }}.zip -d ./Release/
 
       - name: path
         run: sudo chmod -R 777 ./Release
