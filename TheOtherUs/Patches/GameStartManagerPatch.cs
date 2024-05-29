@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using InnerNet;
 using Reactor.Utilities.Extensions;
-using TheOtherUs.Helper;
-using TheOtherUs.Utilities;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -147,7 +145,7 @@ public class GameStartManagerPatch
                         __instance.StartButton.transform.localPosition + (Vector3.up * 0.6f);
             }
 
-            // Client update with handshake infos
+            // ClientPatch update with handshake infos
             else
             {
                 if (!HandshakeHelper.playerVersions.ContainsKey(AmongUsClient.Instance.HostId) ||

@@ -8,11 +8,13 @@ using Hazel;
 using InnerNet;
 using PowerTools;
 using TheOtherUs.CustomGameMode;
-using TheOtherUs.Helper;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
 using TheOtherUs.Patches;
-using TheOtherUs.Utilities;
+using TheOtherUs.Roles.Crewmate;
+using TheOtherUs.Roles.Impostor;
+using TheOtherUs.Roles.Modifier;
+using TheOtherUs.Roles.Neutral;
 using TMPro;
 using UnityEngine;
 using static TheOtherUs.GameHistory;
@@ -1422,18 +1424,7 @@ public static class RPCProcedure
         Deputy.remainingHandcuffs--;
         Deputy.handcuffedPlayers.Add(targetId);
     }
-
-    public static void deputyPromotes()
-    {
-        if (Deputy.deputy != null)
-        {
-            // Deputy should never be null here, but there appeared to be a race condition during testing, which was removed.
-            Sheriff.replaceCurrentSheriff(Deputy.deputy);
-            Sheriff.formerDeputy = Deputy.deputy;
-            Deputy.deputy = null;
-            // No clear and reload, as we need to keep the number of handcuffs left etc
-        }
-    }
+    
 
     public static void jackalCreatesSidekick(byte targetId)
     {
@@ -2670,9 +2661,6 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.DeputyUsedHandcuffs:
                 RPCProcedure.deputyUsedHandcuffs(reader.ReadByte());
-                break;
-            case CustomRPC.DeputyPromotes:
-                RPCProcedure.deputyPromotes();
                 break;
             case CustomRPC.JackalCreatesSidekick:
                 RPCProcedure.jackalCreatesSidekick(reader.ReadByte());

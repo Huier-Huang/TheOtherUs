@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Hazel;
-using TheOtherUs.Helper;
-using TheOtherUs.Modules;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Impostor;
@@ -30,7 +27,6 @@ public class Eraser : RoleBase
 
     public List<PlayerControl> futureErased = [];
     public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 
     public override void ClearAndReload()
     {

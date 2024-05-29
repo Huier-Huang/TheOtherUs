@@ -7,13 +7,10 @@ using System.Text.Json.Serialization;
 using AmongUs.GameOptions;
 using Hazel;
 using Reactor.Utilities.Extensions;
-using TheOtherUs.Helper;
 using TheOtherUs.Modules.Components;
-using TheOtherUs.Roles;
 using TheOtherUs.Roles.Crewmate;
 using TheOtherUs.Roles.Modifier;
 using TheOtherUs.Roles.Neutral;
-using TheOtherUs.Utilities;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,28 +26,62 @@ public enum OptionTypes
     Mode
 }
 
-public class CustomRoleOption(RoleBase @base, string Title)
-    : CustomParentOption(Title, OptionTypes.Role, new StringOptionSelection(0, roleRateStrings), color:@base.RoleInfo.Color)
+public class CustomRoleOption : CustomParentOption
 {
+    public CustomRoleOption(RoleBase @base, bool enableNumber = true, bool enableRate = true) 
+        : 
+        base(@base.RoleInfo.Name, OptionTypes.Role, new StringOptionSelection(0, roleRateStrings),  color:@base.RoleInfo.Color)
+    {
+        roleBase = @base;
+        EnabledTranslate = true;
+        TabType = TabTypes.Classic;
+        switch (enableNumber)
+        {
+            case true when enableRate:
+                numberOption = new CustomOption("Role Number", this, new IntOptionSelection(0, 0, 5, 1));
+                return;
+            case true:
+                OptionSelection = new IntOptionSelection(0, 0, 5, 1);
+                break;
+        }
+    }
+    
+    
     public static readonly string[] roleRateStrings = ["0%","10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"];
     public int Rate => 10 * OptionSelection.Selection;
-    public RoleBase roleBase = @base;
+    public RoleBase roleBase;
+    public CustomOption numberOption;
 }
 
-public class CustomModeOption(CustomGameModes mode, string Title, OptionSelectionBase selection, Color color = default)
-    : CustomParentOption(Title, OptionTypes.Mode, selection, color)
+public class CustomModeOption : CustomParentOption
 {
-    public CustomGameModes mode = mode;
+    public CustomGameModes mode;
+
+    public CustomModeOption(CustomGameModes mode, string Title, OptionSelectionBase selection, Color color = default) 
+        : base(Title, OptionTypes.Mode, selection, color)
+    {
+        this.mode = mode;
+        TabType = this.mode switch
+        {
+            CustomGameModes.Guesser => TabTypes.Guesser,
+            CustomGameModes.HideNSeek => TabTypes.HideNSeek,
+            CustomGameModes.PropHunt => TabTypes.PropHunt,
+            _ => TabTypes.Classic
+        };
+    }
+}
+
+public class CustomGeneralOption : CustomParentOption
+{
+    public CustomGeneralOption(string title, OptionSelectionBase selection, Color color = default) : base(title, OptionTypes.General, selection, color)
+    {
+        TabType = TabTypes.Classic;
+    }
 }
 
 public class CustomParentOption(string Title, OptionTypes type, OptionSelectionBase selection, Color color)
-    : CustomOption(Title, type, selection, default, color)
-{
-    public override void Create(OptionTabMenuBase optionTabMenuBase)
-    {
-        base.Create(optionTabMenuBase);
-    }
-}
+    : CustomOption(Title, type, selection, null, color);
+
 
 public class CustomOption
 {
@@ -63,6 +94,7 @@ public class CustomOption
     public Color Color { get; set; } = Color.white;
 
     [JsonIgnore] public int Selection => OptionSelection.Selection;
+    [JsonIgnore] public TabTypes TabType;
 
     public virtual void Create(OptionTabMenuBase optionTabMenuBase, Transform Parent)
     {
@@ -73,22 +105,29 @@ public class CustomOption
             stringOption.TitleText.Destroy();
             stringOption.TitleText = stringOption.gameObject.AddComponent<TranslateText>();
             var TitleText = (TranslateText)stringOption.TitleText;
-            TitleText.Id = TranslateId;
-            
-            
-            stringOption.ValueText.Destroy();
-            stringOption.ValueText = stringOption.gameObject.AddComponent<TranslateText>();
-            var ValueText = (TranslateText)stringOption.ValueText;
-            ValueText.Id = OptionSelection.translateId;
+            TitleText.Id = Title;
+
+            if (OptionSelection is StringOptionSelection selection)
+            {
+                stringOption.ValueText.Destroy();
+                stringOption.ValueText = stringOption.gameObject.AddComponent<TranslateText>();
+                var ValueText = (TranslateText)stringOption.ValueText;
+                ValueText.Id = selection.GetString();
+            }
         }
         stringOption.TitleText.text = Title;
         stringOption.Value = stringOption.oldValue = OptionSelection.Selection;
-        stringOption.ValueText.text = OptionSelection;
+        stringOption.ValueText.text = OptionSelection.GetString();
 
         optionBehaviour = stringOption;
     }
 
 
+    public CustomOption(string Title, CustomOption Parent, OptionSelectionBase selection, Color color = default)
+        : this(Title, Parent.optionType, selection, Parent, color)
+    {
+    }
+    
     public CustomOption(string Title, OptionTypes type, OptionSelectionBase selection, CustomOption Parent, Color color = default)
     {
         optionType = type;
@@ -103,6 +142,7 @@ public class CustomOption
         {
             optionInfo.Parent = Parent.optionInfo;
             Color = Parent.Color;
+            TabType = Parent.TabType;
             Parent.optionInfo.Children.Add(optionInfo);
         }
 
@@ -117,7 +157,7 @@ public class CustomOption
     [JsonIgnore] 
     public OptionEvent optionEvent { get; } = new();
 
-    public OptionSelection OptionSelection { get; set; }
+    public OptionSelectionBase OptionSelection { get; set; }
     public OptionInfo optionInfo { get; set; }
 
     /// <summary>
@@ -130,14 +170,14 @@ public class CustomOption
     ///     启用翻译
     /// </summary>
     [JsonIgnore]
-    public bool EnabledTranslate { get; set; } = false;
+    public bool EnabledTranslate { get; set; } = true;
 
 
-    /// <summary>
+    /*/// <summary>
     ///     翻译Id
     /// </summary>
     [JsonIgnore]
-    public string TranslateId { get; set; } = string.Empty;
+    public string TranslateId { get; set; } = string.Empty;*/
 
     public void ShareOptionChange()
     {
@@ -148,7 +188,7 @@ public class CustomOption
             .RPCSend();
     }
 
-    public string Title => EnabledTranslate ? optionInfo.Title.Translate() : optionInfo.Title;
+    public string Title => optionInfo.Title;
 
     // Getter
     public static implicit operator bool(CustomOption option)
@@ -390,11 +430,9 @@ internal static class GameOptionsMenuStartPatch
             [torOptions, impostorOptions, neutralOptions, crewmateOptions, modifierOptions],
             [torSettings, impostorSettings, neutralSettings, crewmateSettings, modifierSettings]
         );
-
-        adaptTaskCount(__instance);
     }
 
-    private static void createGuesserTabs(GameOptionsMenu __instance)
+    /*private static void createGuesserTabs(GameOptionsMenu __instance)
     {
         var isReturn = setNames(
             new Dictionary<string, string>
@@ -727,7 +765,7 @@ internal static class GameOptionsMenuStartPatch
         torTabHighlight.enabled = true;
         gameSettingMenu.RegularGameSettings.SetActive(false);
         gameSettingMenu.GameSettingsHightlight.enabled = false;
-    }
+    }*/
     
 
     private static void destroyOptions(List<List<OptionBehaviour>> optionBehavioursList)
@@ -811,7 +849,7 @@ internal static class GameOptionsMenuStartPatch
 [Harmony]
 public class StringOptionPatches
 {
-    [HarmonyPatch(typeof(StringOption), nameof(StringOption.OnEnable))]
+    /*[HarmonyPatch(typeof(StringOption), nameof(StringOption.OnEnable))]
     private static bool StringOption_OnEnable(StringOption __instance)
     {
         if (!CustomOptionManager.Instance.TryGetOption(__instance, out var option)) return true;
@@ -822,7 +860,7 @@ public class StringOptionPatches
         __instance.ValueText.color = __instance.TitleText.color = option.Color;
 
         return false;
-    }
+    }*/
 
     [HarmonyPatch(typeof(StringOption), nameof(StringOption.Increase))]
     private static bool StringOption_Increase(StringOption __instance)

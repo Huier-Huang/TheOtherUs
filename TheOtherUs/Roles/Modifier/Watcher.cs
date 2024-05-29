@@ -1,5 +1,4 @@
 using System;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Modifier;

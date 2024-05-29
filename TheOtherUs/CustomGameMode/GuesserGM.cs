@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace TheOtherUs.CustomGameMode;
 
-internal class GuesserGM
+internal class GuesserGM : CustomModeBase
 {
     // Guesser Gamemode
     public static List<GuesserGM> guessers = [];

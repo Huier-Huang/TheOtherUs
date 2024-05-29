@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using UnityEngine;
 
 namespace TheOtherUs.Utilities;
@@ -17,6 +18,49 @@ public sealed class CachedPlayer
     public CustomNetworkTransform NetTransform { get; init; }
     public GameData.PlayerInfo Data { get; set; }
     public byte PlayerId { get; set; }
+    
+    public bool CanMove => Control.CanMove; 
+    public bool IsDead => Control.Data.IsDead;
+
+    // GameStates Form TOH
+    public static class GameStates
+    { 
+        public static bool InGame = false;
+        
+        public static bool AlreadyDied = false;
+
+        /**********Check Game Status***********/ 
+        public static bool IsHost => AmongUsClient.Instance.HostId == AmongUsClient.Instance.ClientId;
+        
+        public static bool IsNormalGame =>
+        GameOptionsManager.Instance.CurrentGameOptions.GameMode is GameModes.Normal or GameModes.NormalFools;
+        
+        public static bool IsHideNSeek =>
+        GameOptionsManager.Instance.CurrentGameOptions.GameMode is GameModes.HideNSeek or GameModes.SeekFools;
+        public static bool IsLobby => AmongUsClient.Instance.GameState == InnerNet.InnerNetClient.GameStates.Joined; 
+        public static bool IsInGame => InGame; 
+        public static bool IsEnded => AmongUsClient.Instance.GameState == InnerNet.InnerNetClient.GameStates.Ended; 
+        public static bool IsNotJoined => AmongUsClient.Instance.GameState == InnerNet.InnerNetClient.GameStates.NotJoined; 
+        public static bool IsOnlineGame => AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame; 
+        public static bool IsLocalGame => AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame; 
+        public static bool IsFreePlay => AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay; 
+        public static bool IsInTask => InGame && !MeetingHud.Instance; 
+        public static bool IsMeeting => InGame && MeetingHud.Instance;
+        
+        public static bool IsVoting => IsMeeting &&
+                                       MeetingHud.Instance.state is MeetingHud.VoteStates.Voted
+                                           or MeetingHud.VoteStates.NotVoted;
+        
+        public static bool IsProceeding => IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Proceeding;
+
+        public static bool IsExilling => ExileController.Instance != null;
+        
+        public static bool IsCountDown => GameStartManager.InstanceExists &&
+                                          GameStartManager.Instance.startState == GameStartManager.StartingStates.Countdown;
+
+        /**********TOP ZOOM.cs***********/ 
+        public static bool IsShip => ShipStatus.Instance != null; 
+    }
 
     private bool Equals(CachedPlayer other)
     {
@@ -68,6 +112,7 @@ public sealed class CachedPlayer
     {
         return cache == null || player == null || cache.Control != player;
     }
+    
 }
 
 [HarmonyPatch]

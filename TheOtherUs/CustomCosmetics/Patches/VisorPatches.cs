@@ -1,6 +1,4 @@
-using System;
 using Rewired.Utils;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.CustomCosmetics.Patches;

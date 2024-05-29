@@ -6,9 +6,7 @@ using AmongUs.Data;
 using AmongUs.GameOptions;
 using Hazel;
 using Reactor.Utilities.Extensions;
-using TheOtherUs.Helper;
 using TheOtherUs.Patches;
-using TheOtherUs.Utilities;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -16,7 +14,7 @@ using Object = UnityEngine.Object;
 namespace TheOtherUs.CustomGameMode;
 
 [HarmonyPatch]
-internal class PropHunt
+internal class PropHunt : CustomModeBase
 {
     public static bool isPropHuntGM;
 

@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using TheOtherUs.Roles;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.Helper;
@@ -20,6 +18,11 @@ public static class RoleHelper
     public static bool RoleIsAlive<T>() where T : RoleBase
     {
         return _RoleManager._AllActiveRole.Contains(Get<T>());
+    }
+
+    public static bool RoleIs(this PlayerControl player, RoleTeam team)
+    {
+        return player.GetMainRole().RoleInfo.RoleTeam == team;
     }
 
     public static bool Is<T>(this PlayerControl player) where T : RoleBase
@@ -41,6 +44,11 @@ public static class RoleHelper
     {
         return player.GetRoles().Any(n => n.RoleInfo.RoleTeam == team);
     }
+    
+    public static bool hasImpVision(GameData.PlayerInfo player)
+    {
+        return player.GetRoles().Any(n => n.HasImpostorVision);
+    }
 
     public static Color GetColor<T>() where T : RoleBase
     {
@@ -50,6 +58,16 @@ public static class RoleHelper
     public static PlayerControl GetPlayer<T>() where T : RoleBase
     {
         return _RoleManager.PlayerAndRoles[Get<T>()].First();
+    }
+    
+    public static RoleBase GetRole(this GameData.PlayerInfo info)
+    {
+        return info.PlayerId.GetRole();
+    }
+    
+    public static RoleBase GetRole(this byte playerId)
+    {
+        return playerId.GetPlayer().GetRole();
     }
 
     public static RoleBase GetRole(this PlayerControl player)
@@ -74,6 +92,11 @@ public static class RoleHelper
                roles.FirstOrDefault(n => n.RoleInfo.RoleType == CustomRoleType.MainAndModifier);
     }
 
+    public static IEnumerable<RoleBase> GetRoles(this GameData.PlayerInfo player)
+    {
+        return player.PlayerId.GetPlayer().GetRoles();
+    }
+    
     public static IEnumerable<RoleBase> GetRoles(this PlayerControl player)
     {
         return _RoleManager.PlayerAndRoles.Where(n => n.Value.Contains(player)).Select(n => n.Key).ToList();

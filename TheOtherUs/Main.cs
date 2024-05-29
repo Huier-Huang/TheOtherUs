@@ -8,7 +8,7 @@ using InnerNet;
 using Reactor.Networking;
 using Reactor.Networking.Attributes;
 using TheOtherUs.CustomCosmetics;
-using TheOtherUs.Modules.Languages;
+using TheOtherUs.Languages;
 using TheOtherUs.Options;
 using TheOtherUs.Patches;
 using UnityEngine;
@@ -19,12 +19,11 @@ namespace TheOtherUs;
 [BepInDependency(SubmergedCompatibility.SUBMERGED_GUID, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInProcess("Among Us.exe")]
 [ReactorModFlags(ModFlags.RequireOnAllClients)]
+// ReSharper disable once ClassNeverInstantiated.Global
 public partial class TheOtherRolesPlugin : BasePlugin
 {
-    public static uint betaDays = 0; // amount of days for the build to be usable (0 for infinite!)
-
     public static readonly Version version = System.Version.Parse(Version);
-    public static TheOtherRolesPlugin Instance;
+    public static Main Instance;
 
     public static int optionsPage = 2;
 
@@ -88,9 +87,6 @@ public partial class TheOtherRolesPlugin : BasePlugin
         InitConsole();
         Instance = this;
 
-        _ = Helpers.checkBeta(); // Exit if running an expired beta
-        _ = CredentialsPatch.MOTD.loadMOTDs();
-
         DebugMode = Config.Bind("Custom", "Enable Debug Mode", "false");
         GhostsSeeInformation = Config.Bind("Custom", "Ghosts See Remaining Tasks", true);
         GhostsSeeRoles = Config.Bind("Custom", "Ghosts See Roles", true);
@@ -124,12 +120,17 @@ public partial class TheOtherRolesPlugin : BasePlugin
 
         SubmergedCompatibility.Initialize();
         MainMenuPatch.addSceneChangeCallbacks();
-        _ = RoleInfo.loadReadme();
         AddToKillDistanceSetting.addKillDistance();
+        
+        DependentDownload.Instance.CheckLoad();
+        DependentDownload.Instance.DownLoadDependentMap("https://raw.githubusercontent.com/SpexGH/TheOtherUs/the-other-us/LoadDependent/");
 
         TaskQueue.Instance
-            .StartTask(() => 
-            { 
+            .StartTask(DIYColor.SetColors, "LoadColor")
+            .StartTask(() => DependentDownload.Instance.DownLoadDependentFormMap("Csv"), "LoadDependentFormMap Csv")
+            .StartTask(() => DependentDownload.Instance.DownLoadDependentFormMap("Excel"), "LoadDependentFormMap Excel")
+            .StartTask(() =>
+            {
                 AttributeManager.Instance
                     .SetInit()
                     .Add<MonoRegisterAndDontDestroy>()
@@ -137,24 +138,21 @@ public partial class TheOtherRolesPlugin : BasePlugin
                     .Add<OnEvent>()
                     .Add<RPCMethod>()
                     .Add<RPCListener>()
-                    .Start();  
+                    .Start();
             }, "RegisterAttributes")
             .StartTask(CosmeticsManager.Instance.DefConfigCreateAndInit, "DefConfigCreate");
 
-        Info("Loading TOR completed!");
+        Info("Loading TheOtherUs completed!");
     }
 
     internal static void OnTranslationController_Initialized_Load()
     {
-        DependentDownload.Instance.CheckLoad();
-        DependentDownload.Instance.DownLoadDependentMap("https://raw.githubusercontent.com/SpexGH/TheOtherUs/the-other-us/LoadDependent/");
-
         TaskQueue.Instance
-            .StartTask(() => DependentDownload.Instance.DownLoadDependentFormMap("Csv"), "LoadDependentFormMap Csv")
-            .StartTask(() => DependentDownload.Instance.DownLoadDependentFormMap("Excel"), "LoadDependentFormMap Excel")
+            .StartTask(AnnouncementManager.Instance.DownLoadREADME, "DownloadREADME")
+            .StartTask(AnnouncementManager.Instance.DownloadAnnouncements, "DownLoadAnnouncements")
+            .StartTask(AnnouncementManager.Instance.DownloadMOTDs, "DownLoadMOTDs")
             .StartTask(LanguageManager.Instance.Load, "LoadLanguage")
-            .StartTask(CustomOptionHolder.Load, "LoadOption")
-            .StartTask(CustomColors.Load, "LoadColor");
+            .StartTask(CustomOptionHolder.Load, "LoadOption");
         
         Info("OnTranslationController_Initialized_Load End");
     }

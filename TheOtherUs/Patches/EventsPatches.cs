@@ -1,5 +1,3 @@
-using TheOtherUs.Utilities;
-
 namespace TheOtherUs.Patches;
 
 public static class EventsPatches

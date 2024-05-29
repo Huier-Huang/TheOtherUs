@@ -1,7 +1,5 @@
 ﻿
 using System.Linq;
-using Il2CppSystem;
-using Innersloth.Assets;
 using UnityEngine;
 
 namespace TheOtherUs.CustomCosmetics.Patches;
@@ -9,33 +7,7 @@ namespace TheOtherUs.CustomCosmetics.Patches;
 [HarmonyPatch(typeof(CosmeticsCache))]
 internal static class CosmeticsCachePatches
 {
-    /*[HarmonyPatch(typeof(HatData), nameof(HatData.CoLoadIcon)), HarmonyPrefix]
-    private static bool CoLoadHatIcon(HatData __instance, ref Action<Sprite, AddressableAsset> __result)
-    {
-        if (!CosmeticsManager.Instance.TryGetHat(__instance.ProductId, out var data)) return true;
-
-        __result.Invoke(data.Resource, data.Data.CreateAddressableAsset().Cast<AddressableAsset>());
-        return false;
-    }
     
-    [HarmonyPatch(typeof(NamePlateData), nameof(NamePlateData.CoLoadIcon)), HarmonyPrefix]
-    private static bool CoLoadNamePlateIcon(NamePlateData __instance, ref Action<Sprite, AddressableAsset> __result)
-    {
-        if (!CosmeticsManager.Instance.TryGetNamePlate(__instance.ProductId, out var data)) return true;
-
-        __result.Invoke(data.Resource, data.Data.CreateAddressableAsset());
-        return false;
-    }
-    
-    [HarmonyPatch(typeof(VisorData), nameof(VisorData.CoLoadIcon)), HarmonyPrefix]
-    private static bool CoLoadHatIcon(VisorData __instance, ref Action<Sprite, AddressableAsset> __result)
-    {
-        if (!CosmeticsManager.Instance.TryGetVisor(__instance.ProductId, out var data)) return true;
-
-        __result.Invoke(data.Resource, data.Data.CreateAddressableAsset());
-        return false;
-    }*/
-
     [HarmonyPatch(typeof(CosmeticData), nameof(CosmeticData.SetPreview)), HarmonyPrefix]
     private static bool SetPre(CosmeticData __instance, SpriteRenderer renderer, int color)
     {

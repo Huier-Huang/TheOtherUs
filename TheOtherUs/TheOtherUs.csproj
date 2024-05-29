@@ -21,15 +21,20 @@
 
     <ItemGroup>
         <PackageReference Include="AmongUs.GameLibs.Steam" Version="2024.3.5"/>
-        <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.688"/>
+        <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.691" />
         <PackageReference Include="BepInEx.IL2CPP.MSBuild" Version="2.1.0-rc.1"/>
         <PackageReference Include="BepInEx.AutoPlugin" Version="1.1.0"/>
         <PackageReference Include="EPPlus" Version="7.1.2" />
         <PackageReference Include="Reactor" Version="2.2.0"/>
         <PackageReference Include="Csv" Version="2.0.93"/>
-        <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" Aliases="JetBrains"/>
+        <PackageReference Include="JetBrains.Annotations" Version="2024.2.0-eap1" Aliases="JetBrains" />
         <PackageReference Include="Tomlyn" Version="0.17.0" />
         <PackageReference Include="YamlDotNet" Version="15.1.4" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Modules\EACS\" />
+      <Folder Include="Roles\Mode\" />
     </ItemGroup>
 
     <Target Name="Date" BeforeTargets="BeforeBuild">  <!--Will make the compile time available s.t. we can let betas expire-->

@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Hazel;
-using TheOtherUs.Helper;
-using TheOtherUs.Modules;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
 using TheOtherUs.Patches;
 using TheOtherUs.Roles.Modifier;
 using TheOtherUs.Roles.Neutral;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Impostor;

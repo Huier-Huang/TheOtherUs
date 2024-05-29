@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using TheOtherUs.Modules;
-using TheOtherUs.Utilities;
+using TheOtherUs.Roles.Assigns;
 
 namespace TheOtherUs.Roles;
 
@@ -18,6 +17,25 @@ public class CustomRoleManager : ManagerBase<CustomRoleManager>
 
     public readonly Dictionary<RoleBase, List<PlayerControl>> PlayerAndRoles = new();
 
+    #nullable enable
+    public IRoleAssign? RoleAssigner { get; private set; }
+    #nullable disable
+    public IRoleAssign getOrCreateAssigner()
+    {
+        return RoleAssigner ?? new RoleAssigner();
+    }
+
+    public void SetAssigner(IRoleAssign assign)
+    {
+        if (RoleAssigner != null)
+        {
+            RoleAssigner.Dispose();
+            RoleAssigner = null;
+        }
+        
+        RoleAssigner = assign;
+    }
+
     public void Register(RoleBase role)
     {
         _RoleBases.Add(role);
@@ -28,13 +46,14 @@ public class CustomRoleManager : ManagerBase<CustomRoleManager>
         PlayerAndRoles[@base].Remove(player);
         UpdateActiveRole();
         if (player != CachedPlayer.LocalPlayer) return;
-        foreach (var ControllerBase in LocalControllerBases)
+        var controllerBase = LocalControllerBases.FirstOrDefault(n => n._RoleBase == @base);
+        if (controllerBase != null)
         {
-            LocalControllerBases.Remove(ControllerBase);
-            ControllerBase.Dispose();
+            controllerBase.Dispose();
+            LocalControllerBases.Remove(controllerBase);
         }
 
-        foreach (var Base in LocalRoleBases) LocalRoleBases.Remove(Base);
+        LocalRoleBases.Remove(@base);
     }
 
     public void SetRole(RoleBase @base, PlayerControl player)

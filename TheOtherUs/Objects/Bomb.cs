@@ -1,7 +1,5 @@
 using System;
 using Hazel;
-using TheOtherUs.Helper;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.Objects;

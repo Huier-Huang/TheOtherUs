@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace TheOtherUs.Modules.Languages;
+namespace TheOtherUs.Languages;
 
 public abstract class LanguageLoaderBase
 {

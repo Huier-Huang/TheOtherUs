@@ -1,27 +1,21 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
-using System.Threading.Tasks;
 using AmongUs.GameOptions;
 using Hazel;
 using InnerNet;
 using Reactor.Utilities.Extensions;
 using TheOtherUs.CustomGameMode;
-using TheOtherUs.Modules;
 using TheOtherUs.Objects;
 using TheOtherUs.Patches;
 using TheOtherUs.Roles.Crewmate;
 using TheOtherUs.Roles.Impostor;
 using TheOtherUs.Roles.Modifier;
 using TheOtherUs.Roles.Neutral;
-using TheOtherUs.Utilities;
 using UnityEngine;
-using Object = Il2CppSystem.Object;
 
 namespace TheOtherUs.Helper;
 
@@ -55,11 +49,9 @@ public enum CustomGameModes
 
 public static class Helpers
 {
-    public static Dictionary<string, Sprite> CachedSprites = new();
     public static Sprite teamCultistChat = null;
     public static Sprite teamLoverChat = null;
-
-    public static bool zoomOutStatus;
+    
 
     /*
             public static Sprite getTeamCultistChatButtonSprite()
@@ -313,18 +305,16 @@ public static class Helpers
         {
             var assembly = Assembly.GetExecutingAssembly();
             var stream = assembly.GetManifestResourceStream(path);
-            var byteAudio = new byte[stream.Length];
-            _ = stream.Read(byteAudio, 0, (int)stream.Length);
+            var byteAudio = stream!.ReadFully();
             var samples = new float[byteAudio.Length / 4]; // 4 bytes per sample
-            int offset;
             for (var i = 0; i < samples.Length; i++)
             {
-                offset = i * 4;
+                var offset = i * 4;
                 samples[i] = (float)BitConverter.ToInt32(byteAudio, offset) / int.MaxValue;
             }
 
-            var channels = 2;
-            var sampleRate = 48000;
+            const int channels = 2;
+            const int sampleRate = 48000;
             var audioClip = AudioClip.Create(clipName, samples.Length / 2, channels, sampleRate, false);
             audioClip.hideFlags |= HideFlags.HideAndDontSave | HideFlags.DontSaveInEditor;
             audioClip.SetData(samples, 0);
@@ -332,7 +322,7 @@ public static class Helpers
         }
         catch
         {
-            System.Console.WriteLine("Error loading AudioClip from resources: " + path);
+            Error("loading AudioClip from resources: " + path);
         }
 
         return null;
@@ -535,31 +525,7 @@ public static class Helpers
     {
         shipStatus.RpcUpdateSystem(systemType, amount);
     }
-
-    public static bool isMira()
-    {
-        return GameOptionsManager.Instance.CurrentGameOptions.MapId == 1;
-    }
-
-    public static bool isAirship()
-    {
-        return GameOptionsManager.Instance.CurrentGameOptions.MapId == 4;
-    }
-
-    public static bool isSkeld()
-    {
-        return GameOptionsManager.Instance.CurrentGameOptions.MapId == 0;
-    }
-
-    public static bool isPolus()
-    {
-        return GameOptionsManager.Instance.CurrentGameOptions.MapId == 2;
-    }
-
-    public static bool isFungle()
-    {
-        return GameOptionsManager.Instance.CurrentGameOptions.MapId == 5;
-    }
+    
 
     public static bool MushroomSabotageActive()
     {
@@ -575,11 +541,7 @@ public static class Helpers
         player.cosmetics.nameText.color = new Color(player.cosmetics.nameText.color.r,
             player.cosmetics.nameText.color.g, player.cosmetics.nameText.color.b, alpha);
     }
-
-    public static string GetString(this TranslationController t, StringNames key, params Object[] parts)
-    {
-        return t.GetString(key, parts);
-    }
+    
 
     public static string cs(Color c, string s)
     {
@@ -587,7 +549,7 @@ public static class Helpers
             ToByte(c.a), s);
     }
 
-    public static int lineCount(string text)
+    public static int lineCount(this string text)
     {
         return text.Count(c => c == '\n');
     }
@@ -1125,9 +1087,8 @@ public static class Helpers
     {
         // This functions blocks the game from ending if specified crewmate roles are alive
         if (!CustomOptionHolder.blockGameEnd.getBool()) return false;
-        var powerCrewAlive = false;
+        bool powerCrewAlive = isRoleAlive(Sheriff.sheriff);
 
-        if (isRoleAlive(Sheriff.sheriff)) powerCrewAlive = true;
         if (isRoleAlive(Veteren.veteren)) powerCrewAlive = true;
         if (isRoleAlive(Mayor.mayor)) powerCrewAlive = true;
         if (isRoleAlive(Swapper.swapper)) powerCrewAlive = true;
@@ -1217,55 +1178,7 @@ public static class Helpers
 
         return null;
     }
-
-    public static bool isNeutral(PlayerControl player)
-    {
-        var roleInfo = RoleInfo.getRoleInfoForPlayer(player, false).FirstOrDefault();
-        if (roleInfo != null)
-            return roleInfo.isNeutral;
-        return false;
-    }
-
-    public static bool isKiller(PlayerControl player)
-    {
-        return isNeutral(player) &&
-               (player == Werewolf.werewolf ||
-                player == Swooper.swooper ||
-                player == Arsonist.arsonist ||
-                player == Jackal.jackal ||
-                player == Sidekick.sidekick);
-    }
-
-    public static bool isEvil(PlayerControl player)
-    {
-        return isNeutral(player) &&
-               player != Amnisiac.amnisiac &&
-               player != Pursuer.pursuer;
-    }
-
-    public static void toggleZoom(bool reset = false)
-    {
-        var orthographicSize = reset || zoomOutStatus ? 3f : 12f;
-
-        zoomOutStatus = !zoomOutStatus && !reset;
-        Camera.main.orthographicSize = orthographicSize;
-        foreach (var cam in Camera.allCameras)
-            if (cam != null && cam.gameObject.name == "UI Camera")
-                cam.orthographicSize =
-                    orthographicSize; // The UI is scaled too, else we cant click the buttons. Downside: map is super small.
-
-        if (HudManagerStartPatch.zoomOutButton != null)
-        {
-            HudManagerStartPatch.zoomOutButton.Sprite = zoomOutStatus
-                ? loadSpriteFromResources("TheOtherUs.Resources.PlusButton.png", 75f)
-                : loadSpriteFromResources("TheOtherUs.Resources.MinusButton.png", 150f);
-            HudManagerStartPatch.zoomOutButton.PositionOffset =
-                zoomOutStatus ? new Vector3(0f, 3f, 0) : new Vector3(0.4f, 2.8f, 0);
-        }
-
-        ResolutionManager.ResolutionChanged.Invoke((float)Screen.width / Screen.height, Screen.width, Screen.height,
-            Screen.fullScreen); // This will move button positions to the correct position.
-    }
+    
 
     private static long GetBuiltInTicks()
     {
@@ -1278,75 +1191,5 @@ public static class Helpers
         if (value == null) return 0;
         return (long)value;
     }
-
-    public static async Task checkBeta()
-    {
-        if (TheOtherRolesPlugin.betaDays > 0)
-        {
-            Message("Beta check");
-            var ticks = GetBuiltInTicks();
-            var compileTime =
-                new DateTime(ticks,
-                    DateTimeKind.Utc); // This may show as an error, but it is not, compilation will work!
-            Message($"Compiled at {compileTime.ToString(CultureInfo.InvariantCulture)}");
-            DateTime? now;
-            // Get time from the internet, so no-one can cheat it (so easily).
-            try
-            {
-                var client = new HttpClient();
-                using var response = await client.GetAsync("http://www.google.com/");
-                if (response.IsSuccessStatusCode)
-                {
-                    now = response.Headers.Date?.UtcDateTime;
-                }
-                else
-                {
-                    Message($"Could not get time from server: {response.StatusCode}");
-                    now = DateTime.UtcNow; //In case something goes wrong. 
-                }
-            }
-            catch (HttpRequestException)
-            {
-                now = DateTime.UtcNow;
-            }
-
-            if ((now - compileTime)?.TotalDays > TheOtherRolesPlugin.betaDays)
-            {
-                Message("Beta expired!");
-                BepInExUpdater.MessageBoxTimeout(BepInExUpdater.GetForegroundWindow(),
-                    "BETA is expired. You cannot play this version anymore.", "The Other Us Beta", 0, 0, 10000);
-                Application.Quit();
-            }
-            else
-            {
-                Message(
-                    $"Beta will remain runnable for {TheOtherRolesPlugin.betaDays - (now - compileTime)?.TotalDays} days!");
-            }
-        }
-    }
-
-    public static bool hasImpVision(GameData.PlayerInfo player)
-    {
-        return player.Role.IsImpostor
-               || (((Jackal.jackal != null && Jackal.jackal.PlayerId == player.PlayerId) ||
-                    Jackal.formerJackals.Any(x => x.PlayerId == player.PlayerId)) && Jackal.hasImpostorVision)
-               || (Sidekick.sidekick != null && Sidekick.sidekick.PlayerId == player.PlayerId &&
-                   Sidekick.hasImpostorVision)
-               || (Spy.spy != null && Spy.spy.PlayerId == player.PlayerId && Spy.hasImpostorVision)
-               || (Jester.jester != null && Jester.jester.PlayerId == player.PlayerId && Jester.hasImpostorVision)
-               || (Thief.thief != null && Thief.thief.PlayerId == player.PlayerId && Thief.hasImpostorVision)
-               || (Werewolf.werewolf != null && Werewolf.werewolf.PlayerId == player.PlayerId &&
-                   Werewolf.hasImpostorVision);
-    }
-
-    public static object TryCast(this Il2CppObjectBase self, Type type)
-    {
-        return AccessTools.Method(self.GetType(), nameof(Il2CppObjectBase.TryCast)).MakeGenericMethod(type)
-            .Invoke(self, Array.Empty<object>());
-    }
-
-    internal static int flipBitwise(int chatTarget)
-    {
-        throw new NotImplementedException();
-    }
+    
 }

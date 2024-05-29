@@ -1,7 +1,7 @@
 using System.IO;
 using System.Text.Json;
 
-namespace TheOtherUs.Modules.Languages;
+namespace TheOtherUs.Languages;
 
 public class JsonLoader : LanguageLoaderBase
 {

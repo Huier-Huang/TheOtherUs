@@ -14,10 +14,15 @@ public interface IOptionSelectionValue
     public bool GetBool();
 }
 
-public abstract class OptionSelectionBase
+public abstract class OptionSelectionBase : IOptionSelectionValue
 {
     [JsonIgnore] public CustomOption option { get; set; }
-    public virtual string translateId => string.Empty;
+
+    public virtual int Selection
+    {
+        get;
+        set;
+    }
 
     public virtual void Decrease()
     {
@@ -29,8 +34,36 @@ public abstract class OptionSelectionBase
         option.optionEvent.OnOptionChange(this);
     }
 
+    public abstract string GetString();
+
+    public abstract float GetFloat();
+
+    public abstract int GetInt();
+
+    public abstract bool GetBool();
+
     public virtual void InitFormJson()
     {
+    }
+    
+    public static implicit operator bool(OptionSelectionBase option)
+    {
+        return option.GetBool();
+    }
+
+    public static implicit operator float(OptionSelectionBase option)
+    {
+        return option.GetFloat();
+    }
+
+    public static implicit operator int(OptionSelectionBase option)
+    {
+        return option.GetInt();
+    }
+
+    public static implicit operator string(OptionSelectionBase option)
+    {
+        return option.GetString();
     }
 }
 
@@ -43,36 +76,22 @@ public abstract class OptionSelection(object[] selections, int def)
 
     public override string GetString()
     {
-        return Selections[Selection] as string;
+        return Selections[Value] as string;
     }
 
     public override float GetFloat()
     {
-        return Selections[Selection] is float ? (float)Selections[Selection] : 0;
+        return Selections[Value] is float ? (float)Selections[Value] : 0;
     }
 
     public override int GetInt()
     {
-        return Selections[Selection] is int ? (int)Selections[Selection] : 0;
+        return Selections[Value] is int ? (int)Selections[Value] : 0;
     }
 
     public override bool GetBool()
     {
-        return Selections[Selection] is bool && (bool)Selections[Selection];
-    }
-
-    public override void Increase()
-    {
-        if (Selection >= Max) return;
-        Selection++;
-        base.Increase();
-    }
-
-    public override void Decrease()
-    {
-        if (Selection <= Min) return;
-        Selection--;
-        base.Decrease();
+        return Selections[Value] is bool && (bool)Selections[Value];
     }
 
     // Getter
@@ -97,41 +116,49 @@ public abstract class OptionSelection(object[] selections, int def)
     }
 }
 
-public class BoolOptionSelection(bool Def = true) : OptionSelection(Switches.CastArray<object>(), Def ? 1 : 0)
+public class BoolOptionSelection(bool Def = true) : StringOptionSelection(Def ? 1 : 0, strings:Switches)
 {
     public static readonly string[] Switches = ["False", "True"];
 }
 
 public class StringOptionSelection(int Def, params string[] strings)
-    : OptionSelection(strings.CastArray<object>(), Def);
+    : IntOptionSelection(Def, 0, strings.Length - 1, 1)
+{
+    public string[] Strings = strings;
+    
+    public override string GetString()
+    {
+        return Strings[Value];
+    }
+}
 
 public abstract class StepOptionSelection<T>(T step, T min, T max, T def)
-    : OptionSelectionBase, IOptionSelectionValue where T : struct, IConvertible
+    : OptionSelectionBase where T : struct, IConvertible
 {
     public T Step { get; set; } = step;
     public T Min { get; set; } = min;
     public T Max { get; set; } = max;
-    public T Selection { get; set; } = def;
+    public T Value { get; set; } = def;
     public T Def { get; set; } = def;
 
-    public virtual string GetString()
+    public override string GetString()
     {
-        return Selection.ToString();
+        return Value.ToString();
     }
 
-    public virtual float GetFloat()
+    public override float GetFloat()
     {
-        return Selection.ToSingle(null);
+        return Value.ToSingle(null);
     }
 
-    public virtual int GetInt()
+    public override int GetInt()
     {
-        return Selection.ToInt32(null);
+        return Value.ToInt32(null);
     }
 
-    public virtual bool GetBool()
+    public override bool GetBool()
     {
-        return Selection.ToBoolean(null);
+        return Value.ToBoolean(null);
     }
 
     // Getter
@@ -159,27 +186,29 @@ public abstract class StepOptionSelection<T>(T step, T min, T max, T def)
 public class FloatOptionSelection(float Def, float min, float max, float step)
     : StepOptionSelection<float>(step, min, max, Def)
 {
+    public override int Selection => (int)((Value - Min) / step);
+
     public override float GetFloat()
     {
-        return Selection;
+        return Value;
     }
 
     public override int GetInt()
     {
-        return (int)Selection;
+        return (int)Value;
     }
 
     public override void Increase()
     {
-        if (Selection >= Max) return;
-        Selection += Step;
+        if (Value >= Max) return;
+        Value += Step;
         base.Increase();
     }
 
     public override void Decrease()
     {
-        if (Selection <= Min) return;
-        Selection -= Step;
+        if (Value <= Min) return;
+        Value -= Step;
         base.Decrease();
     }
 }
@@ -187,27 +216,40 @@ public class FloatOptionSelection(float Def, float min, float max, float step)
 public class IntOptionSelection(int Def, int min, int max, int step)
     : StepOptionSelection<int>(step, min, max, Def)
 {
+    public override int Selection
+    {
+        get
+        {
+            if (step == 1)
+            {
+                return Selection;
+            }
+
+            return (Value - Min) / step;
+        }
+    }
+
     public override float GetFloat()
     {
-        return Selection;
+        return Value;
     }
 
     public override int GetInt()
     {
-        return Selection;
+        return Value;
     }
 
     public override void Increase()
     {
-        if (Selection >= Max) return;
-        Selection += Step;
+        if (Value >= Max) return;
+        Value += Step;
         base.Increase();
     }
 
     public override void Decrease()
     {
-        if (Selection <= Min) return;
-        Selection -= Step;
+        if (Value <= Min) return;
+        Value -= Step;
         base.Decrease();
     }
 }

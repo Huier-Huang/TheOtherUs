@@ -3,8 +3,6 @@ using System.Linq;
 using Hazel;
 using Il2CppSystem.Collections.Generic;
 using TheOtherUs.CustomGameMode;
-using TheOtherUs.Helper;
-using TheOtherUs.Utilities;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;

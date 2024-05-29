@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
-using TheOtherUs.Helper;
 using UnityEngine;
 using Object = Il2CppSystem.Object;
 

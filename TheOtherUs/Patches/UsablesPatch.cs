@@ -5,8 +5,6 @@ using AmongUs.GameOptions;
 using PowerTools;
 using Reactor.Utilities.Extensions;
 using TheOtherUs.CustomGameMode;
-using TheOtherUs.Helper;
-using TheOtherUs.Utilities;
 using TMPro;
 using UnityEngine;
 using static TheOtherUs.GameHistory;

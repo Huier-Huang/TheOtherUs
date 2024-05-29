@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using BepInEx.Unity.IL2CPP;
-using TheOtherUs.Modules;
+using Reactor.Utilities.Extensions;
 using UnityEngine;
 
 namespace TheOtherUs.Utilities;
@@ -20,7 +19,7 @@ public sealed class MonoRegisterAndDontDestroy : RegisterAttribute
         foreach (var _type in types)
         {
             RegisterInIl2cpp(_type);
-            IL2CPPChainloader.AddUnityComponent(_type);
+            (IL2CPPChainloader.AddUnityComponent(_type) as MonoBehaviour)!.DontDestroyOnLoad() ;
         }
     }
 

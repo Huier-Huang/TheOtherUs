@@ -487,6 +487,32 @@ public static class MapData
         collider.isTrigger = false;
         collider.size += new Vector2(0f, -0.3f);
     }
+    
+    public static bool zoomOutStatus;
+    public static void ToggleZoom(bool reset = false)
+    {
+        var orthographicSize = reset || zoomOutStatus ? 3f : 12f;
+
+        zoomOutStatus = !zoomOutStatus && !reset;
+        if (Camera.main == null) return;
+        Camera.main.orthographicSize = orthographicSize;
+        foreach (var cam in Camera.allCameras)
+            if (cam != null && cam.gameObject.name == "UI Camera")
+                cam.orthographicSize =
+                    orthographicSize; // The UI is scaled too, else we cant click the buttons. Downside: map is super small.
+
+        if (HudManagerStartPatch.zoomOutButton != null)
+        {
+            HudManagerStartPatch.zoomOutButton.Sprite = zoomOutStatus
+                ? UnityHelper.loadSpriteFromResources("TheOtherUs.Resources.PlusButton.png", 75f)
+                : UnityHelper.loadSpriteFromResources("TheOtherUs.Resources.MinusButton.png", 150f);
+            HudManagerStartPatch.zoomOutButton.PositionOffset =
+                zoomOutStatus ? new Vector3(0f, 3f, 0) : new Vector3(0.4f, 2.8f, 0);
+        }
+
+        ResolutionManager.ResolutionChanged.Invoke((float)Screen.width / Screen.height, Screen.width, Screen.height,
+            Screen.fullScreen); // This will move button positions to the correct position.
+    }
 
     public static void SwitchNavWifi()
     {
@@ -544,5 +570,16 @@ public static class MapData
     {
         /*if (!IsObjectsFetched || !IsAdjustmentsDone)*/ 
             ApplyChanges(__instance);
+    }
+
+    public static byte MapId => GameOptionsManager.Instance.CurrentGameOptions.MapId;
+    
+    public enum Maps : byte
+    {
+        Skeld = 0,
+        Mira = 1,
+        Polus = 2,
+        Fungle = 3,
+        Airship = 4
     }
 }

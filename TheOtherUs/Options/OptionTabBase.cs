@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Reactor.Utilities.Extensions;
-using TheOtherUs.Modules;
 using TheOtherUs.Modules.Components;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -20,6 +19,7 @@ public abstract class OptionTabMenuBase
     public bool IsDefault;
     public GameObject RoleTab;
     public List<OptionTab> OptionTabs { get; set; } = [];
+    public abstract TabTypes TabType { get; set; }
 
     public virtual void CreateTabMenu(GameOptionsMenu __instance)
     {
@@ -43,14 +43,11 @@ public abstract class OptionTabMenuBase
         UpdateOptionTab();
         SetTabPos();
     }
-
-    public virtual Transform GetTransform(CustomOption option)
-    {
-        return option.optionBehaviour?.transform;
-    }
+    
 
     public virtual void SetOptions(GameOptionsMenu __instance, OptionTab menu)
     {
+        AllOption = CustomOptionManager.Instance.options.Where(n => n.TabType == TabType).ToList();
     }
 
     public void UpdateOptionTab()
@@ -89,7 +86,7 @@ public abstract class OptionTabMenuBase
 #nullable disable
 }
 
-public sealed class OptionTab
+public class OptionTab
 {
     public string TabName { get; set; }
 
@@ -133,11 +130,33 @@ public sealed class OptionTab
         TabGameObject.AddComponent<CustomOptionUpdateComponent>();
     }
 
+    public virtual void CreateOption()
+    {
+        
+    }
+
     public void SetActive(bool active)
     {
         TabGameObject.SetActive(active);
         TabHighlightSpriteRenderer.enabled = false;
     }
+}
+
+public class PresetTab : OptionTab
+{
+    public static PresetTab Tab = new();
+    public HashSet<OptionPreset> presets => CustomOptionManager.Instance.presets;
+    public override void CreateOption()
+    {
+    }
+}
+
+public enum TabTypes
+{
+    Classic,
+    Guesser,
+    HideNSeek,
+    PropHunt
 }
 
 public class ClassicTabMenu : OptionTabMenuBase
@@ -148,21 +167,71 @@ public class ClassicTabMenu : OptionTabMenuBase
         TabSprite = new ResourceSprite("TheOtherUs.Resources.TabIcon.png"),
         TabPos = Vector3.left * 2f
     };
+    
+    public readonly OptionTab ImpostorSettings = new()
+    {
+        TabName = "TORSettings",
+        TabSprite = new ResourceSprite("TheOtherUs.Resources.TabIcon.png"),
+        TabPos = Vector3.left * 2f
+    };
+    
+    public readonly OptionTab CrewmateSettings = new()
+    {
+        TabName = "TORSettings",
+        TabSprite = new ResourceSprite("TheOtherUs.Resources.TabIcon.png"),
+        TabPos = Vector3.left * 2f
+    };
+    
+    public readonly OptionTab NeutralSettings = new()
+    {
+        TabName = "TORSettings",
+        TabSprite = new ResourceSprite("TheOtherUs.Resources.TabIcon.png"),
+        TabPos = Vector3.left * 2f
+    };
+
+    public override TabTypes TabType { get; set; } = TabTypes.Classic;
+
+    public override void SetOptions(GameOptionsMenu __instance, OptionTab menu)
+    {
+        base.SetOptions(__instance, menu);
+        if (menu == TORSettings)
+        {
+            menu.Options = AllOption.Where(n => n is CustomGeneralOption).ToList();
+        }
+
+        var roles = AllOption.OfTypeList<CustomRoleOption>();
+        if (menu == ImpostorSettings)
+        {
+            menu.Options = roles.Where(n => n.roleBase.RoleInfo.RoleTeam == RoleTeam.Impostor).CastList<CustomOption>();
+        }
+        
+        if (menu == NeutralSettings)
+        {
+            menu.Options = roles.Where(n => n.roleBase.RoleInfo.RoleTeam == RoleTeam.Neutral).CastList<CustomOption>();
+        }
+        
+    }
 
     public ClassicTabMenu()
     {
         OptionTabs.Add(TORSettings);
+        OptionTabs.Add(ImpostorSettings);
+        OptionTabs.Add(NeutralSettings);
+        OptionTabs.Add(PresetTab.Tab);
     }
 }
 
 public class GuesserTabMenu : OptionTabMenuBase
 {
+    public override TabTypes TabType { get; set; } = TabTypes.Guesser;
 }
 
 public class HideNSeekTabMenu : OptionTabMenuBase
 {
+    public override TabTypes TabType { get; set; } = TabTypes.HideNSeek;
 }
 
 public class PropHuntTabMenu : OptionTabMenuBase
 {
+    public override TabTypes TabType { get; set; } = TabTypes.PropHunt;
 }

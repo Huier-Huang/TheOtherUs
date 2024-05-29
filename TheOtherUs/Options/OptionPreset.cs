@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using TheOtherUs.Options;
 
-namespace TheOtherUs.Modules.Options;
+namespace TheOtherUs.Options;
 
 public class OptionPreset
 {

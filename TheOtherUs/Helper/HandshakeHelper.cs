@@ -5,7 +5,6 @@ using System.Reflection;
 using Hazel;
 using InnerNet;
 using TheOtherUs.Patches;
-using TheOtherUs.Utilities;
 
 namespace TheOtherUs.Helper;
 

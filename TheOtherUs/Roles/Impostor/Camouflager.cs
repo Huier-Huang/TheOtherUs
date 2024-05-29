@@ -1,12 +1,9 @@
 using System;
 using System.Linq;
 using Hazel;
-using TheOtherUs.Helper;
-using TheOtherUs.Modules;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
 using TheOtherUs.Roles.Neutral;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Impostor;

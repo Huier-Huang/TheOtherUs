@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Hazel;
-using TheOtherUs.Helper;
-using TheOtherUs.Modules;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
 using TheOtherUs.Roles.Neutral;
-using TheOtherUs.Utilities;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -32,7 +29,6 @@ public class Deputy : RoleBase
     public CustomOption deputyKnowsSheriff;
     public CustomOption deputyNumberOfHandcuffs;
 
-    public CustomOption deputySpawnRate;
     public float handcuffCooldown;
     public float handcuffDuration;
     public Dictionary<byte, float> handcuffedKnows = new();
@@ -43,8 +39,12 @@ public class Deputy : RoleBase
     public int promotesToSheriff; // No: 0, Immediately: 1, After Meeting: 2
     public float remainingHandcuffs;
 
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new ()
+    {
+        
+    }
+
+    public override CustomRoleOption roleOption { get; set; }
 
     // Can be used to enable / disable the handcuff effect on the target's buttons
     public void setHandcuffedKnows(bool active = true, byte playerId = byte.MaxValue)
@@ -67,11 +67,18 @@ public class Deputy : RoleBase
             handcuffedPlayers.RemoveAll(x => x == playerId);
         }
 
-        if (playerId == CachedPlayer.LocalPlayer.PlayerId)
-        {
-            setAllButtonsHandcuffedStatus(active);
-            SoundEffectsManager.play("deputyHandcuff");
-        }
+        if (playerId != CachedPlayer.LocalPlayer.PlayerId) return;
+        setAllButtonsHandcuffedStatus(active);
+        SoundEffectsManager.play("deputyHandcuff");
+    }
+    
+    [RPCListener(CustomRPC.DeputyPromotes)]
+    public static void deputyPromotes(MessageReader reader)
+    {
+        if (!RoleIsAlive<Deputy>()) return;
+        Sheriff.replaceCurrentSheriff(Deputy.deputy);
+        Sheriff.formerDeputy = Deputy.deputy;
+        Deputy.deputy = null;
     }
 
     public override void ClearAndReload()
@@ -81,7 +88,7 @@ public class Deputy : RoleBase
         handcuffedPlayers = [];
         handcuffedKnows = new Dictionary<byte, float>();
         setAllButtonsHandcuffedStatus(false, true);
-        promotesToSheriff = deputyGetsPromoted.getSelection();
+        promotesToSheriff = deputyGetsPromoted.Selection;
         remainingHandcuffs = deputyNumberOfHandcuffs;
         handcuffCooldown = deputyHandcuffCooldown;
         keepsHandcuffsOnPromotion = deputyKeepsHandcuffs;
@@ -91,20 +98,16 @@ public class Deputy : RoleBase
 
     public override void OptionCreate()
     {
-        deputySpawnRate = new CustomOption(103, "Sheriff Has A Deputy", CustomOptionHolder.rates,
-            Get<Sheriff>().sheriffSpawnRate);
-        deputyNumberOfHandcuffs = new CustomOption(104, "Deputy Number Of Handcuffs", 3f, 1f, 10f,
-            1f, deputySpawnRate);
+        roleOption = new CustomRoleOption(this, enableRate:false);
+        
+        deputyNumberOfHandcuffs = new CustomOption("Deputy Number Of Handcuffs", roleOption, new IntOptionSelection(3, 1,10, 1));
         deputyHandcuffCooldown =
-            new CustomOption(105, "Handcuff Cooldown", 30f, 10f, 60f, 2.5f, deputySpawnRate);
-        deputyHandcuffDuration =
-            new CustomOption(106, "Handcuff Duration", 15f, 5f, 60f, 2.5f, deputySpawnRate);
-        deputyKnowsSheriff = new CustomOption(107, "Sheriff And Deputy Know Each Other ", true,
-            deputySpawnRate);
-        deputyGetsPromoted = new CustomOption(108, "Deputy Gets Promoted To Sheriff",
-            ["Off", "On (Immediately)", "On (After Meeting)"], deputySpawnRate);
-        deputyKeepsHandcuffs = new CustomOption(109, "Deputy Keeps Handcuffs When Promoted", true,
-            deputyGetsPromoted);
+            new CustomOption("Handcuff Cooldown", roleOption, new FloatOptionSelection(30, 10, 60, 2.5f));
+        deputyHandcuffDuration = new CustomOption("Handcuff Duration", roleOption, new FloatOptionSelection(15, 5, 60, 2.5f));
+        deputyKnowsSheriff = new CustomOption("Sheriff And Deputy Know Each Other ", roleOption, new BoolOptionSelection());;
+        deputyGetsPromoted = new CustomOption( "Deputy Gets Promoted To Sheriff", roleOption, new StringOptionSelection(0, 
+            ["Off", "On (Immediately)", "On (After Meeting)"]));
+        deputyKeepsHandcuffs = new CustomOption("Deputy Keeps Handcuffs When Promoted", roleOption, new BoolOptionSelection());
     }
 
     public override void ButtonCreate(HudManager _hudManager)

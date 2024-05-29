@@ -9,10 +9,13 @@ public abstract class RoleBase : IDisposable
     public int RoleIndex => CustomRoleManager.Instance._RoleBases.IndexOf(this);
 
     public abstract RoleInfo RoleInfo { get; protected set; }
-    public abstract Type RoleType { get; protected set; }
     public abstract CustomRoleOption roleOption { get; set; }
     public List<RoleControllerBase> Controllers { get; protected set; } = [];
-    public string ClassName { get; set; }
+    public string ClassName => RoleInfo.RoleClassType.Name;
+
+    public virtual bool HasImpostorVision { get; set; } = false;
+    public virtual bool IsKiller { get; set; } = false;
+    public virtual bool IsEvil { get; set; } = false;
 
     public virtual void Dispose()
     {

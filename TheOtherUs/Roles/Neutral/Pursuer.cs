@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using TheOtherUs.Modules;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Neutral;

@@ -3,7 +3,6 @@ using AmongUs.Data;
 using AmongUs.GameOptions;
 using Hazel;
 using InnerNet;
-using TheOtherUs.Utilities;
 
 namespace TheOtherUs.Modules;
 

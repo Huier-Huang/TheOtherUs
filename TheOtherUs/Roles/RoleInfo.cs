@@ -40,7 +40,8 @@ public enum RoleTeam
 [Flags]
 public enum CustomRoleType
 {
-    Main,
-    Modifier,
-    MainAndModifier = Main | Modifier
+    Main = 1,
+    Modifier = 2,
+    ModeRole = 5,
+    MainAndModifier = Main | Modifier 
 }

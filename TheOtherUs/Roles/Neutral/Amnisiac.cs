@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Hazel;
-using TheOtherUs.Modules;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
-using TheOtherUs.Utilities;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -30,6 +28,7 @@ public class Amnisiac : RoleBase
     public bool showArrows = true;
     public override RoleInfo RoleInfo { get; protected set; }
     public override Type RoleType { get; protected set; }
+    public override CustomRoleOption roleOption { get; set; }
 
     public override void ClearAndReload()
     {

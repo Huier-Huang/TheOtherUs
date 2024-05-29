@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
-using TheOtherUs.Utilities;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;

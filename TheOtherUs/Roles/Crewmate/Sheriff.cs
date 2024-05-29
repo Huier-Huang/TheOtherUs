@@ -1,10 +1,8 @@
 using System;
-using TheOtherUs.Helper;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
 using TheOtherUs.Roles.Modifier;
 using TheOtherUs.Roles.Neutral;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Crewmate;

@@ -1,15 +1,13 @@
 using System;
 using System.Collections.Generic;
-using TheOtherUs.Helper;
 using TheOtherUs.Objects;
-using TheOtherUs.Utilities;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace TheOtherUs.CustomGameMode;
 
-public static class HideNSeek
+public class HideNSeek : CustomModeBase
 {
     // HideNSeek Gamemode
     public static bool isHideNSeekGM;

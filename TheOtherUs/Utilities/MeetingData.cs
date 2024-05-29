@@ -12,6 +12,9 @@ public static class MeetingData
 
     public static int ClearRounding { get; set; } = 0;
 
+    public static IEnumerable<MeetingVote> lastMeetingVotes =>
+        meetingVotes.Where(n => n.MeetingId == CurrentMeetingHudId);
+
     public static List<MeetingVote> PlayerVotes(this PlayerControl player, bool isSrc)
     {
         return meetingVotes.Where(n =>

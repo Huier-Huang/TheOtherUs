@@ -4,9 +4,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using InnerNet;
 using TheOtherUs.CustomGameMode;
-using TheOtherUs.Helper;
 using TheOtherUs.Objects;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.Patches;

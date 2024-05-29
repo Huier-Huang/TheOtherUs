@@ -4,9 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
 using Hazel;
-using TheOtherUs.Helper;
-using TheOtherUs.Modules;
-using TheOtherUs.Modules.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Options;

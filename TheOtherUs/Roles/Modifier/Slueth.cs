@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Modifier;

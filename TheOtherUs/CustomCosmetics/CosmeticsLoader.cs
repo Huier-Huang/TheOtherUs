@@ -5,19 +5,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.CustomCosmetics;
 
-[MonoRegisterAndDontDestroy]
 public class CosmeticsLoader : MonoBehaviour
 {
     public bool createRunning;
     private static CosmeticsLoader? instance;
     public BlockingCollection<Sprite> sprites => CosmeticsManager.Instance.Sprites;
 
-    public static CosmeticsLoader Instance => instance ??= TheOtherRolesPlugin.Instance.AddComponent<CosmeticsLoader>();
+    public static CosmeticsLoader Instance => instance ??= Main.Instance.AddComponent<CosmeticsLoader>();
 
     public CosmeticsLoader()
     {

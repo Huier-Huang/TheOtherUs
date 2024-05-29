@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Reactor.Utilities.Extensions;
-using TheOtherUs.Helper;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
-using TheOtherUs.Utilities;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

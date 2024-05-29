@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using TheOtherUs.Options;
-using TheOtherUs.Utilities;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;

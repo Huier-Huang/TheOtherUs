@@ -1,6 +1,4 @@
 ﻿using System;
-using TheOtherUs.Helper;
-using TheOtherUs.Utilities;
 
 namespace TheOtherUs.Patches;
 

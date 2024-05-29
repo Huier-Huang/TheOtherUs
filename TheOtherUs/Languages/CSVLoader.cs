@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using Csv;
 
-namespace TheOtherUs.Modules.Languages;
+namespace TheOtherUs.Languages;
 
 public class CsvLoader : LanguageLoaderBase
 {

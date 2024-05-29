@@ -86,4 +86,15 @@ public static class ListHelper
     {
         return enumerable.Cast<T>().ToArray();
     }
+
+    public static System.Collections.Generic.List<T> OfTypeList<T>(this IEnumerable enumerable)
+    {
+        return enumerable.OfType<T>().ToList();
+    }
+
+    public static System.Collections.Generic.List<T> CastList<T>(
+        this IEnumerable enumerable)
+    {
+        return enumerable.Cast<T>().ToList();
+    }
 }

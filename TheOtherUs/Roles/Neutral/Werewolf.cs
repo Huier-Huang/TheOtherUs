@@ -1,9 +1,5 @@
-using System;
-using TheOtherUs.Helper;
-using TheOtherUs.Modules;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Neutral;
@@ -47,7 +43,6 @@ public class Werewolf : RoleBase
 
     public CustomOption werewolfSpawnRate;
     public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
 
 
     public static Vector3 getRampageVector()

@@ -8,13 +8,17 @@ using Reactor.Utilities.Extensions;
 using TheOtherUs.Modules.Components;
 using TMPro;
 using UnityEngine;
-using IStream = Il2CppSystem.IO.Stream;
+using UnityEngine.Events;
 using SStream = System.IO.Stream;
 
 namespace TheOtherUs.Helper;
 
 public static class UnityHelper
 {
+    public static IRegionInfo CurrentServer => FastDestroyableSingleton<ServerManager>.Instance.CurrentRegion;
+    public static bool IsCustomServer => CurrentServer.TranslateName 
+        is StringNames.NoTranslation || (CurrentServer.TranslateName != StringNames.ServerAS && CurrentServer.TranslateName != StringNames.ServerEU && CurrentServer.TranslateName != StringNames.ServerNA);
+    
     public static readonly List<Sprite> CacheSprite = [];
 
     public static void SendSprite(this Sprite sprite, string spriteName, RPCSendMode mode = RPCSendMode.SendToAll,
@@ -193,4 +197,15 @@ public static class UnityHelper
 
         return translateText;
     }
+
+    public static void AddListener(this UnityEvent @event, Action action)
+    {
+        @event.AddListener(action);
+    }
+    
+    public static void AddListener<T>(this UnityEvent<T> @event, Action<T> action)
+    {
+        @event.AddListener(action);
+    }
+    
 }

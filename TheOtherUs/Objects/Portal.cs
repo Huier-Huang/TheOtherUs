@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using TheOtherUs.Helper;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.Objects;

@@ -1,11 +1,8 @@
 using System;
 using Hazel;
-using TheOtherUs.Helper;
-using TheOtherUs.Modules;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
 using TheOtherUs.Patches;
-using TheOtherUs.Utilities;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
-using InnerNet;
-using TheOtherUs.CustomGameMode;
-using TheOtherUs.Helper;
-using TheOtherUs.Utilities;
+﻿using InnerNet;
+using TheOtherUs.Roles.Modifier;
 using TMPro;
 using UnityEngine;
 
@@ -39,17 +33,19 @@ Design by <color=#FCCE03FF>Bavari</color>";
             __instance.text.alignment = TextAlignmentOptions.TopRight;
             if (AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Started)
             {
-                var gameModeText = "";
-                if (HideNSeek.isHideNSeekGM) gameModeText = "Hide 'N Seek";
-                else if (HandleGuesser.isGuesserGm) gameModeText = "Guesser";
-                else if (PropHunt.isPropHuntGM) gameModeText = "Prop Hunt";
-                if (gameModeText != "") gameModeText = Helpers.cs(Color.yellow, gameModeText) + "\n";
+                var gameModeText = MapOptions.gameMode switch
+                {
+                    CustomGameModes.Guesser => "Guesser",
+                    CustomGameModes.HideNSeek => "Hide 'N Seek",
+                    CustomGameModes.PropHunt => "Prop Hunt",
+                    _ => ""
+                };
+                if (gameModeText != "") 
+                    gameModeText = Helpers.cs(Color.yellow, gameModeText) + "\n";
                 __instance.text.text =
-                    $"<size=130%><color=#ff351f>TheOtherUs</color></size> v{TheOtherRolesPlugin.Version + (TheOtherRolesPlugin.betaDays > 0 ? "-BETA" : "")}\n{gameModeText}" +
+                    $"<size=130%><color=#ff351f>TheOtherUs</color></size> v{Main.Version}\n{gameModeText}" +
                     __instance.text.text;
-                if (CachedPlayer.LocalPlayer.Data.IsDead || (!(CachedPlayer.LocalPlayer.Control == null) &&
-                                                             (CachedPlayer.LocalPlayer.Control == Lovers.lover1 ||
-                                                              CachedPlayer.LocalPlayer.Control == Lovers.lover2)))
+                if (CachedPlayer.LocalPlayer.Data.IsDead || CachedPlayer.LocalPlayer.Control.Is<Lovers>())
                 {
                     var transform = __instance.transform;
                     var localPosition = transform.localPosition;
@@ -144,51 +140,9 @@ Design by <color=#FCCE03FF>Bavari</color>";
             if (banner2Sprite == null)
                 banner2Sprite = UnityHelper.loadSpriteFromResources("TheOtherUs.Resources.Banner2.png", 300f);
             if (horseBannerSprite == null)
-                horseBannerSprite =/**/
+                horseBannerSprite =
                     UnityHelper.loadSpriteFromResources("TheOtherUs.Resources.bannerTheHorseRoles.png", 300f);
         }
     }
-
-    [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.LateUpdate))]
-    public static class MOTD
-    {
-        public static List<string> motds = [];
-        private static float timer;
-        private static readonly float maxTimer = 5f;
-        private static int currentIndex;
-
-        public static void Postfix()
-        {
-            if (motds.Count == 0)
-            {
-                timer = maxTimer;
-                return;
-            }
-
-            if (motds.Count > currentIndex && LogoPatch.motdText != null)
-                LogoPatch.motdText.SetText(motds[currentIndex]);
-            else return;
-
-            // fade in and out:
-            var alpha = Mathf.Clamp01(Mathf.Min([timer, maxTimer - timer]));
-            if (motds.Count == 1) alpha = 1;
-            LogoPatch.motdText.color = LogoPatch.motdText.color.SetAlpha(alpha);
-            timer -= Time.deltaTime;
-            if (timer <= 0)
-            {
-                timer = maxTimer;
-                currentIndex = (currentIndex + 1) % motds.Count;
-            }
-        }
-
-        public static async Task loadMOTDs()
-        {
-            var client = new HttpClient();
-            var response =
-                await client.GetAsync("https://raw.githubusercontent.com/TheOtherRolesAU/MOTD/main/motd.txt");
-            response.EnsureSuccessStatusCode();
-            var motds = await response.Content.ReadAsStringAsync();
-            foreach (var line in motds.Split("\n", StringSplitOptions.RemoveEmptyEntries)) MOTD.motds.Add(line);
-        }
-    }
+    
 }

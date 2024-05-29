@@ -1,9 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 using InnerNet;
-using TheOtherUs.Helper;
 using UnityEngine;
 
 namespace TheOtherUs;
@@ -138,9 +135,7 @@ public class RoleInfo
 
     public static RoleInfo sheriff = new("Sheriff", Sheriff.color, "Shoot the <color=#FF1919FF>Impostors</color>",
         "Shoot the Impostors", RoleId.Sheriff);
-
-    public static RoleInfo bodyguard = new("Body Guard", BodyGuard.color, "Protect someone with your own life",
-        "Protect someone with your own life", RoleId.BodyGuard);
+    
 
     public static RoleInfo deputy = new("Deputy", Sheriff.color, "Handcuff the <color=#FF1919FF>Impostors</color>",
         "Handcuff the Impostors", RoleId.Deputy);
@@ -508,8 +503,7 @@ public class RoleInfo
     public static string GetRolesString(PlayerControl p, bool useColors, bool showModifier = true,
         bool suppressGhostInfo = false)
     {
-        string roleName;
-        roleName = string.Join(" ",
+        var roleName = string.Join(" ",
             getRoleInfoForPlayer(p, showModifier).Select(x => useColors ? Helpers.cs(x.color, x.name) : x.name)
                 .ToArray());
         if (Lawyer.target != null && p.PlayerId == Lawyer.target.PlayerId &&
@@ -624,25 +618,8 @@ public class RoleInfo
         return roleName;
     }
 
-    public static async Task loadReadme()
-    {
-        if (ReadmePage == "")
-        {
-            var client = new HttpClient();
-            var response =
-                await client.GetAsync("https://raw.githubusercontent.com/TheOtherRolesAU/TheOtherRoles/main/README.md");
-            response.EnsureSuccessStatusCode();
-            var httpres = await response.Content.ReadAsStringAsync();
-            ReadmePage = httpres;
-        }
-    }
-
     public static string GetRoleDescription(RoleInfo roleInfo)
     {
-        while (ReadmePage == "")
-        {
-        }
-
         var index = ReadmePage.IndexOf($"## {roleInfo.name}");
         var endindex = ReadmePage.Substring(index).IndexOf("### Game Options");
         return ReadmePage.Substring(index, endindex);

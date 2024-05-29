@@ -4,9 +4,8 @@ using System.Linq;
 using System.Reflection;
 using AmongUs.Data.Legacy;
 using BepInEx;
-using TheOtherUs.Helper;
 
-namespace TheOtherUs.Modules.Languages;
+namespace TheOtherUs.Languages;
 
 #nullable enable
 public class LanguageManager : ManagerBase<LanguageManager>
@@ -117,7 +116,7 @@ public class LanguageManager : ManagerBase<LanguageManager>
         StringMap[lang][key] = value;
     }
 
-    internal string GetString(string Key)
+    internal string GetString(string Key, bool tag = true)
     {
         if (!Loaded)
             LoadLanguage();
@@ -136,7 +135,7 @@ public class LanguageManager : ManagerBase<LanguageManager>
 
         NullString:
         Info($"获取失败 Key{Key} Language{CurrentLang}");
-        return $"'{Key}'";
+        return tag ? $"'{Key}'" : Key;
     }
 }
 

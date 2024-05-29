@@ -1,5 +1,4 @@
 using InnerNet;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.Patches;

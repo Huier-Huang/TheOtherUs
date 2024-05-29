@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Hazel;
-using TheOtherUs.Utilities;
 using TMPro;
 using UnityEngine;
 using static TheOtherUs.GameHistory;

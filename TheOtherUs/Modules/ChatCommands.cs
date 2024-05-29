@@ -1,16 +1,11 @@
-using System;
 using System.Linq;
 using InnerNet;
-using TheOtherUs.Helper;
-using TheOtherUs.Utilities;
-using UnityEngine;
 
 namespace TheOtherUs.Modules;
 
 [HarmonyPatch]
 public static class ChatCommands
 {
-
     [HarmonyPatch(typeof(ChatController), nameof(ChatController.SendChat))]
     private static class SendChatPatch
     {
@@ -22,12 +17,12 @@ public static class ChatCommands
             {
                 var strings = text.ToLower().Split(string.Empty);
                 var Command = strings[0].Replace("/", string.Empty);
-                
+
                 switch (Command)
                 {
                     case "kick":
                     case "ban":
-                        var playerName =  strings[1];
+                        var playerName = strings[1];
                         PlayerControl target =
                             CachedPlayer.AllPlayers.FirstOrDefault(x => x.Data.PlayerName.Equals(playerName));
                         if (target != null && AmongUsClient.Instance != null && AmongUsClient.Instance.CanBan())
@@ -39,8 +34,9 @@ public static class ChatCommands
                                 handled = true;
                             }
                         }
+
                         break;
-                    
+
                     case "gm":
                         var mode = strings[1];
                         CustomGameModes? gameMode = mode switch
@@ -79,7 +75,7 @@ public static class ChatCommands
         }
     }
 
-    [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
+    /*[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
     public static class EnableChat
     {
         public static void Postfix(HudManager __instance)
@@ -123,9 +119,9 @@ public static class ChatCommands
                  (Jackal.jackal != null && Jackal.wasTeamRed && sourcePlayer.PlayerId == Jackal.jackal.PlayerId)) &&
                 __instance != null) __instance.NameText.color = Palette.ImpostorRed;
         }
-    }
+    }*/
 
-    [HarmonyPatch(typeof(ChatController), nameof(ChatController.AddChat))] //test
+    /*[HarmonyPatch(typeof(ChatController), nameof(ChatController.AddChat))] //test
     public static class AddChat
     {
         public static bool Prefix(ChatController __instance, [HarmonyArgument(0)] PlayerControl sourcePlayer)
@@ -140,7 +136,7 @@ public static class ChatCommands
             {
                 return flag;
             }
-            */
+            #1#
             if (!playerControl.isTeamCultist() && !playerControl.isLover()) return flag;
             if ((playerControl.isTeamCultist() && Follower.chatTarget) ||
                 (playerControl.isLover() && Lovers.enableChat) ||
@@ -149,5 +145,5 @@ public static class ChatCommands
                        playerControl.getChatPartner() == playerControl == (bool)sourcePlayer || flag;
             return flag;
         }
-    }
+    }*/
 }

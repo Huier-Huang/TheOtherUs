@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Hazel;
-using TheOtherUs.Helper;
-using TheOtherUs.Utilities;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

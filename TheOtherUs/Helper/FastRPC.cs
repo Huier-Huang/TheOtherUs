@@ -4,14 +4,13 @@ using System.Linq;
 using System.Reflection;
 using Hazel;
 using InnerNet;
-using TheOtherUs.Modules;
-using TheOtherUs.Utilities;
+using TheOtherUs.Objects;
 using UnityEngine;
 
 namespace TheOtherUs.Helper;
 
 #nullable enable
-public class FastRpcWriter
+public class FastRpcWriter : IDisposable
 {
     private readonly RPCSendMode _rpcSendMode;
     private byte CallId;
@@ -25,6 +24,11 @@ public class FastRpcWriter
     private uint targetObjectId;
 
     private MessageWriter? writer;
+    
+    public void Dispose()
+    {
+        Clear();
+    }
 
     private FastRpcWriter(SendOption option, RPCSendMode mode = RPCSendMode.SendToAll, int TargetId = -1,
         uint ObjectId = 255)
@@ -69,6 +73,11 @@ public class FastRpcWriter
     {
         var writer = StartNewRpcWriter(rpc, option, mode, TargetId, obNetObject.NetId);
         return writer;
+    }
+
+    internal static FastRpcWriter startRPCObjectWriter(CustomRPC rpc)
+    {
+        return StartNewRpcWriter(rpc, RPCNetObject.Instance);
     }
 
     public FastRpcWriter CreateWriter()
@@ -425,7 +434,7 @@ internal class RPCListener : RegisterAttribute
     [HarmonyPatch(typeof(InnerNetClient._HandleGameDataInner_d__39),
         nameof(InnerNetClient._HandleGameDataInner_d__39.MoveNext))]
     [HarmonyPrefix]
-    private static void InnerNet_ReaderPath(InnerNetClient._HandleGameDataInner_d__39 __instance)
+    private static void InnerNet_ReaderPath(InnerNetClient._HandleGameDataInner_d__39 __instance, ref bool __result)
     {
         if (_allListeners.Count <= 0) return;
         var innerNetClient = __instance.__4__this;
@@ -445,6 +454,7 @@ internal class RPCListener : RegisterAttribute
         try
         {
             _allListeners.Where(n => n.RPCId == (CustomRPC)callId).Do(n => n.OnRPC.Invoke(HandleReader));
+            __result = false;
             Info("Listener");
         }
         catch (Exception e)
@@ -478,6 +488,7 @@ internal class RPCMethod(CustomRPC rpc) : RegisterAttribute
 
     private int count => _types.Length;
 
+    [Register]
     public static void Register(Assembly assembly)
     {
         var types = assembly.GetTypes().SelectMany(n => n.GetMethods(BindingFlags.Static))

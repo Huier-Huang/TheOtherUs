@@ -1,10 +1,6 @@
-using System;
 using Hazel;
-using TheOtherUs.Helper;
-using TheOtherUs.Modules;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Crewmate;
@@ -28,9 +24,16 @@ public class BodyGuard : RoleBase
     {
         Color = new Color32(145, 102, 64, byte.MaxValue),
         GetRole = Get<BodyGuard>,
-        CreateRoleController = n => new BodyGuardController(n)
+        CreateRoleController = n => new BodyGuardController(n),
+        Description = "Protect someone with your own life",
+        IntroInfo = "Protect someone with your own life",
+        Name = nameof(BodyGuard),
+        RoleClassType = typeof(BodyGuard),
+        RoleId = RoleId.BodyGuard,
+        RoleTeam = RoleTeam.Crewmate,
+        RoleType = CustomRoleType.Main
     };
-    public override Type RoleType { get; protected set; }
+    
     public override CustomRoleOption roleOption { get; set; }
 
     public void resetGuarded()
@@ -53,7 +56,7 @@ public class BodyGuard : RoleBase
     public CustomOption bodyGuardResetTargetAfterMeeting;
     public override void OptionCreate()
     {
-        roleOption = new CustomRoleOption(this, "Bodyguard");
+        roleOption = new CustomRoleOption(this);
         bodyGuardResetTargetAfterMeeting = new CustomOption("Reset Target After Meeting", OptionTypes.Role, new BoolOptionSelection(), roleOption);
         bodyGuardFlash = new CustomOption("Show Flash On Death", OptionTypes.Role, new BoolOptionSelection(),roleOption);
     }

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using TheOtherUs.Helper;
 using UnityEngine;
 
 namespace TheOtherUs.Objects;

@@ -1,7 +1,7 @@
 using System.IO;
 using System.Linq;
 
-namespace TheOtherUs.Modules.Languages;
+namespace TheOtherUs.Languages;
 
 public class DataLoader : LanguageLoaderBase
 {

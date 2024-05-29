@@ -183,13 +183,6 @@ public class CustomOptionHolder
     public static CustomOption sheriffCanKillPursuer;
     public static CustomOption deputySpawnRate;
 
-    public static CustomOption deputyNumberOfHandcuffs;
-    public static CustomOption deputyHandcuffCooldown;
-    public static CustomOption deputyGetsPromoted;
-    public static CustomOption deputyKeepsHandcuffs;
-    public static CustomOption deputyHandcuffDuration;
-    public static CustomOption deputyKnowsSheriff;
-
     public static CustomOption lighterSpawnRate;
     public static CustomOption lighterModeLightsOnVision;
     public static CustomOption lighterModeLightsOffVision;
@@ -922,20 +915,7 @@ public class CustomOptionHolder
             false, sheriffCanKillNeutrals);
         sheriffCanKillPursuer = new CustomOption(30051, Types.Crewmate,
             "Sheriff Can Kill " + cs(Pursuer.color, "Pursuer"), false, sheriffCanKillNeutrals);
-
-        deputySpawnRate = new CustomOption(30060, Types.Crewmate, "Sheriff Has A Deputy", rates, sheriffSpawnRate);
-        deputyNumberOfHandcuffs = new CustomOption(30061, Types.Crewmate, "Deputy Number Of Handcuffs", 3f, 1f, 10f, 1f,
-            deputySpawnRate);
-        deputyHandcuffCooldown = new CustomOption(30062, Types.Crewmate, "Handcuff Cooldown", 30f, 10f, 60f, 2.5f,
-            deputySpawnRate);
-        deputyHandcuffDuration =
-            new CustomOption(30063, Types.Crewmate, "Handcuff Duration", 15f, 5f, 60f, 2.5f, deputySpawnRate);
-        deputyKnowsSheriff = new CustomOption(30064, Types.Crewmate, "Sheriff And Deputy Know Each Other ", true,
-            deputySpawnRate);
-        deputyGetsPromoted = new CustomOption(30065, Types.Crewmate, "Deputy Gets Promoted To Sheriff",
-            new[] { "Off", "On (Immediately)", "On (After Meeting)" }, deputySpawnRate);
-        deputyKeepsHandcuffs = new CustomOption(30066, Types.Crewmate, "Deputy Keeps Handcuffs When Promoted", true,
-            deputyGetsPromoted);
+        
 
         lighterSpawnRate = new CustomOption(30070, Types.Crewmate, cs(Lighter.color, "Lighter"), rates, null, true);
         lighterModeLightsOnVision = new CustomOption(30071, Types.Crewmate, "Vision On Lights On", 1.5f, 0.25f, 5f,

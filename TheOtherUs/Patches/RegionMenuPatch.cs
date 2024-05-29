@@ -24,7 +24,6 @@ SOFTWARE.
 */
 
 using System;
-using TheOtherUs.Utilities;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;

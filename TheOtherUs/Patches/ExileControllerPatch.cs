@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Hazel;
 using PowerTools;
-using TheOtherUs.Helper;
 using TheOtherUs.Objects;
-using TheOtherUs.Utilities;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

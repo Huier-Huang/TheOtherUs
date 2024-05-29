@@ -4,8 +4,6 @@ using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
 using TheOtherUs.CustomGameMode;
-using TheOtherUs.Helper;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.Patches;

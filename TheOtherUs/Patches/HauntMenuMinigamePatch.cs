@@ -2,7 +2,6 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using TheOtherUs.CustomGameMode;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.Patches;

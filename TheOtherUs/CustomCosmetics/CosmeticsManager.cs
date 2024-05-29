@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -12,7 +11,6 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using BepInEx;
 using TheOtherUs.CustomCosmetics.Configs;
-using TheOtherUs.Modules;
 using UnityEngine;
 
 namespace TheOtherUs.CustomCosmetics;
@@ -429,11 +427,11 @@ public class CosmeticsManagerConfig
 [Flags, JsonConverter(typeof(JsonStringEnumConverter))]
 public enum CustomCosmeticsFlags
 {
-    Hat,
-    Skin,
-    Visor,
-    NamePlate,
-    Pet
+    Hat = 1,
+    Skin = 2,
+    Visor = 8,
+    NamePlate = 16,
+    Pet = 25
 }
 
 public record DownloadInfo

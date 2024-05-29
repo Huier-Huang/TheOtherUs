@@ -1,7 +1,7 @@
 using System.IO;
 using OfficeOpenXml;
 
-namespace TheOtherUs.Modules.Languages;
+namespace TheOtherUs.Languages;
 
 public class ExcelLoader : LanguageLoaderBase
 {

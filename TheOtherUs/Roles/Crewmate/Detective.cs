@@ -1,6 +1,5 @@
 using System;
 using TheOtherUs.Options;
-using TheOtherUs.Utilities;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Crewmate;
