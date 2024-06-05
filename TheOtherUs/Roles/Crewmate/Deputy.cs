@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Hazel;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
-using TheOtherUs.Roles.Neutral;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -39,10 +38,10 @@ public class Deputy : RoleBase
     public int promotesToSheriff; // No: 0, Immediately: 1, After Meeting: 2
     public float remainingHandcuffs;
 
-    public override RoleInfo RoleInfo { get; protected set; } = new ()
+    public override RoleInfo RoleInfo { get; protected set; } = new()
     {
-        
-    }
+
+    };
 
     public override CustomRoleOption roleOption { get; set; }
 

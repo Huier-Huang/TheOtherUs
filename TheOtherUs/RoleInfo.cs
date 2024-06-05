@@ -7,9 +7,6 @@ namespace TheOtherUs;
 
 public class RoleInfo
 {
-    public static RoleInfo impostor = new("Impostor", Palette.ImpostorRed,
-        Helpers.cs(Palette.ImpostorRed, "Sabotage and kill everyone"), "Sabotage and kill everyone", RoleId.Impostor);
-
     public static RoleInfo assassin = new("Assassin", Color.red, "Guess and shoot", "Guess and shoot",
         RoleId.EvilGuesser, false, true);
 

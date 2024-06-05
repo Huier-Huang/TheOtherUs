@@ -738,7 +738,6 @@ internal class PropHunt : CustomModeBase
     [HarmonyPrefix]
     public static bool DisableFunctions()
     {
-        if (!isPropHuntGM) return true;
-        return false;
+        return !isPropHuntGM;
     }
 }

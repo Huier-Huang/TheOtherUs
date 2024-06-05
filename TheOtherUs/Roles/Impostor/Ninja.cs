@@ -1,5 +1,6 @@
 using System;
 using Hazel;
+using TheOtherUs.Modules.Compatibility;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
 using TheOtherUs.Patches;

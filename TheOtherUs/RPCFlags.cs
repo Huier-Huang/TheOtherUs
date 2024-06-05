@@ -107,8 +107,10 @@ public enum CustomRPC : byte
     // Other functionality
     ShareTimer,
     ShareGhostInfo,
-
+    
     SendFile,
     RoleRPC,
-    Option
+    Option,
+    VoiceChat,
+    RPCConnectProject
 }

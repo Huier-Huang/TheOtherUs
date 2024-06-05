@@ -106,6 +106,7 @@ internal static class LogHelper
     {
         FastLog(LogLevel.Error, @object);
     }
+    
 
     public static void InitConsole()
     {

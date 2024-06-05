@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using AmongUs.Data;
-using TheOtherUs.Roles.Neutral;
 using UnityEngine;
 using Impostor_Ninja = TheOtherUs.Roles.Impostor.Ninja;
 

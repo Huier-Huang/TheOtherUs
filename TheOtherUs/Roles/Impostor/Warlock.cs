@@ -2,7 +2,6 @@ using System;
 using Hazel;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
-using TheOtherUs.Roles.Modifier;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Impostor;

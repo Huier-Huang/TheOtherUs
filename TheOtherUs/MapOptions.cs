@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using TheOtherUs.Roles.Crewmate;
 using UnityEngine;
 
 namespace TheOtherUs;
@@ -85,14 +84,14 @@ internal static class MapOptions
 
     public static void reloadPluginOptions()
     {
-        ghostsSeeRoles = Main.GhostsSeeRoles.Value;
-        ghostsSeeModifier = Main.GhostsSeeModifier.Value;
-        ghostsSeeInformation = Main.GhostsSeeInformation.Value;
-        ghostsSeeVotes = Main.GhostsSeeVotes.Value;
-        showRoleSummary = Main.ShowRoleSummary.Value;
-        showLighterDarker = Main.ShowLighterDarker.Value;
-        enableSoundEffects = Main.EnableSoundEffects.Value;
-        enableHorseMode = Main.EnableHorseMode.Value;
+        ghostsSeeRoles = TheOtherUsConfig.GhostsSeeRoles;
+        ghostsSeeModifier = TheOtherUsConfig.GhostsSeeModifier;
+        ghostsSeeInformation = TheOtherUsConfig.GhostsSeeInformation;
+        ghostsSeeVotes = TheOtherUsConfig.GhostsSeeVotes;
+        showRoleSummary = TheOtherUsConfig.ShowRoleSummary;
+        showLighterDarker = TheOtherUsConfig.ShowLighterDarker;
+        enableSoundEffects = TheOtherUsConfig.EnableSoundEffects;
+        enableHorseMode = TheOtherUsConfig.EnableHorseMode;
     }
 
     public static void resetDeviceTimes()

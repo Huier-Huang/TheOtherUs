@@ -1,4 +1,5 @@
 using System;
+using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Crewmate;
@@ -25,7 +26,7 @@ public class Jumper : RoleBase
     public bool usedPlace;
 
     public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override CustomRoleOption roleOption { get; set; }
 
     public Sprite getJumpMarkButtonSprite()
     {
@@ -55,10 +56,8 @@ public class Jumper : RoleBase
         jumper = null;
         resetPlaceAfterMeeting = true;
         jumperCharges = 1f;
-        jumperJumpTime = CustomOptionHolder.jumperJumpTime.getFloat();
-        jumperChargesOnPlace = CustomOptionHolder.jumperChargesOnPlace.getFloat();
-        //      jumperChargesGainOnMeeting = CustomOptionHolder.jumperChargesGainOnMeeting.getFloat();
-        //jumperMaxCharges = CustomOptionHolder.jumperMaxCharges.getFloat();
+        jumperJumpTime = CustomOptionHolder.jumperJumpTime;
+        jumperChargesOnPlace = CustomOptionHolder.jumperChargesOnPlace;
         usedPlace = false;
     }
 }

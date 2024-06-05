@@ -13,8 +13,8 @@ public class VoiceClient : IDisposable
 
     public void Register(VoiceComponent component, VoiceManager voiceManager)
     {
-        this._component = component;
-        this._voiceManager = voiceManager;
+        _component = component;
+        _voiceManager = voiceManager;
     }
 
     public void OnUpdate()

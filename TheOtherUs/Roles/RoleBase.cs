@@ -6,17 +6,27 @@ namespace TheOtherUs.Roles;
 
 public abstract class RoleBase : IDisposable
 {
+    
     public int RoleIndex => CustomRoleManager.Instance._RoleBases.IndexOf(this);
 
     public abstract RoleInfo RoleInfo { get; protected set; }
     public abstract CustomRoleOption roleOption { get; set; }
     public List<RoleControllerBase> Controllers { get; protected set; } = [];
     public string ClassName => RoleInfo.RoleClassType.Name;
+    public Type ClassType => RoleInfo.RoleClassType;
 
+    public RoleTeam Team => RoleInfo.RoleTeam;
+
+    public CustomRoleType CustomRoleType => RoleInfo.RoleType;
+
+    public virtual bool IsVanilla { get; set; } = false;
     public virtual bool HasImpostorVision { get; set; } = false;
     public virtual bool IsKiller { get; set; } = false;
     public virtual bool IsEvil { get; set; } = false;
-
+    public virtual bool HasTask { get; set; } = true;
+    public virtual bool CanDoTask { get; set; } = true;
+    public virtual RoleWinBase RoleWin { get; set; }
+    
     public virtual void Dispose()
     {
     }

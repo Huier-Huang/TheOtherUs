@@ -29,7 +29,8 @@ public sealed class CachedPlayer
         
         public static bool AlreadyDied = false;
 
-        /**********Check Game Status***********/ 
+        /**********Check Game Status***********/
+        public static bool HasGameStart => GameManager.Instance.GameHasStarted;
         public static bool IsHost => AmongUsClient.Instance.HostId == AmongUsClient.Instance.ClientId;
         
         public static bool IsNormalGame =>
@@ -60,6 +61,11 @@ public sealed class CachedPlayer
 
         /**********TOP ZOOM.cs***********/ 
         public static bool IsShip => ShipStatus.Instance != null; 
+    }
+
+    private string GetShowName()
+    {
+        return Data.PlayerName;
     }
 
     private bool Equals(CachedPlayer other)

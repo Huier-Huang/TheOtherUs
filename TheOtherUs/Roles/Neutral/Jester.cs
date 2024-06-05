@@ -23,33 +23,25 @@ public class Jester : RoleBase
     public bool canCallEmergency = true;
     public bool canVent;
     public Color color = new Color32(236, 98, 165, byte.MaxValue);
-    public bool hasImpostorVision;
-    public PlayerControl jester;
     public CustomOption jesterCanCallEmergency;
     public CustomOption jesterCanVent;
-    public CustomOption jesterHasImpostorVision;
-
-    public CustomOption jesterSpawnRate;
 
     public bool triggerJesterWin;
 
     public override RoleInfo RoleInfo { get; protected set; } = roleInfo;
-    public override Type RoleType { get; protected set; } = roleInfo.RoleClassType;
+    public override CustomRoleOption roleOption { get; set; }
 
     public override void ClearAndReload()
     {
-        jester = null;
         triggerJesterWin = false;
-        canCallEmergency = jesterCanCallEmergency.getBool();
-        canVent = jesterCanVent.getBool();
-        hasImpostorVision = jesterHasImpostorVision.getBool();
+        canCallEmergency = jesterCanCallEmergency;
+        canVent = jesterCanVent;
     }
 
     public override void OptionCreate()
     {
-        jesterSpawnRate = new CustomOption(60, "Jester".ColorString(color), CustomOptionHolder.rates, null, true);
-        jesterCanCallEmergency = new CustomOption(61, "Jester Can Call Emergency Meeting", true, jesterSpawnRate);
-        jesterCanVent = new CustomOption(1901, "Jester Can Hide In Vent", true, jesterSpawnRate);
-        jesterHasImpostorVision = new CustomOption(62, "Jester Has Impostor Vision", false, jesterSpawnRate);
+        roleOption = new CustomRoleOption(this, enableVision: true);
+        jesterCanCallEmergency = new CustomOption("Jester Can Call Emergency Meeting", roleOption, new BoolOptionSelection());
+        jesterCanVent = new CustomOption( "Jester Can Hide In Vent", roleOption, new BoolOptionSelection());
     }
 }

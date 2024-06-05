@@ -9,12 +9,9 @@ using Hazel;
 using InnerNet;
 using Reactor.Utilities.Extensions;
 using TheOtherUs.CustomGameMode;
+using TheOtherUs.Modules.Compatibility;
 using TheOtherUs.Objects;
 using TheOtherUs.Patches;
-using TheOtherUs.Roles.Crewmate;
-using TheOtherUs.Roles.Impostor;
-using TheOtherUs.Roles.Modifier;
-using TheOtherUs.Roles.Neutral;
 using UnityEngine;
 
 namespace TheOtherUs.Helper;
@@ -578,7 +575,7 @@ public static class Helpers
         return result;
     }
 
-    public static bool hidePlayerName(PlayerControl source, PlayerControl target)
+    /*public static bool hidePlayerName(PlayerControl source, PlayerControl target)
     {
         var localPlayer = PlayerControl.LocalPlayer;
         if (Camouflager.camouflageTimer > 0f || MushroomSabotageActive() || isCamoComms())
@@ -598,7 +595,7 @@ public static class Helpers
                 return true;
             }
         }
-        */
+        #1#
         if (!MapOptions.hidePlayerNames) return false; // All names are visible
         if (source == null || target == null) return true;
         if (source == target) return false; // Player sees his own name
@@ -617,7 +614,7 @@ public static class Helpers
             (target == Sheriff.sheriff || target == Deputy.deputy))
             return false; // Sheriff & Deputy see the names of each other
         return true;
-    }
+    }*/
 
     public static void setDefaultLook(this PlayerControl target, bool enforceNightVisionUpdate = true)
     {

@@ -1,5 +1,6 @@
 using AmongUs.GameOptions;
 using TheOtherUs.CustomGameMode;
+using TheOtherUs.Modules.Compatibility;
 using UnityEngine;
 
 namespace TheOtherUs.Patches;

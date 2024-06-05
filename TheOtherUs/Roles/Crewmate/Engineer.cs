@@ -1,4 +1,5 @@
 using System;
+using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Crewmate;
@@ -33,7 +34,7 @@ public class Engineer : RoleBase
     public bool usedFix;
 
     public override RoleInfo RoleInfo { get; protected set; } = Info;
-    public override Type RoleType { get; protected set; }
+    public override CustomRoleOption roleOption { get; set; }
 
     public Sprite getButtonSprite()
     {
@@ -52,12 +53,11 @@ public class Engineer : RoleBase
     {
         engineer = null;
         resetFixes();
-        remoteFix = CustomOptionHolder.engineerRemoteFix.getBool();
-        //expertRepairs = CustomOptionHolder.engineerExpertRepairs.getBool();
-        resetFixAfterMeeting = CustomOptionHolder.engineerResetFixAfterMeeting.getBool();
-        remainingFixes = Mathf.RoundToInt(CustomOptionHolder.engineerNumberOfFixes.getFloat());
-        highlightForImpostors = CustomOptionHolder.engineerHighlightForImpostors.getBool();
-        highlightForTeamJackal = CustomOptionHolder.engineerHighlightForTeamJackal.getBool();
+        remoteFix = CustomOptionHolder.engineerRemoteFix;
+        resetFixAfterMeeting = CustomOptionHolder.engineerResetFixAfterMeeting;
+        remainingFixes = Mathf.RoundToInt(CustomOptionHolder.engineerNumberOfFixes);
+        highlightForImpostors = CustomOptionHolder.engineerHighlightForImpostors;
+        highlightForTeamJackal = CustomOptionHolder.engineerHighlightForTeamJackal;
         usedFix = false;
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Crewmate;
@@ -32,7 +33,7 @@ public class Mayor : RoleBase
     public bool voteTwice = true;
 
     public override RoleInfo RoleInfo { get; protected set; } = roleInfo;
-    public override Type RoleType { get; protected set; }
+    public override CustomRoleOption roleOption { get; set; }
 
     public Sprite getMeetingSprite()
     {
@@ -46,11 +47,11 @@ public class Mayor : RoleBase
         mayor = null;
         emergency = null;
         emergencySprite = null;
-        remoteMeetingsLeft = Mathf.RoundToInt(CustomOptionHolder.mayorMaxRemoteMeetings.getFloat());
-        canSeeVoteColors = CustomOptionHolder.mayorCanSeeVoteColors.getBool();
-        tasksNeededToSeeVoteColors = (int)CustomOptionHolder.mayorTasksNeededToSeeVoteColors.getFloat();
-        meetingButton = CustomOptionHolder.mayorMeetingButton.getBool();
-        mayorChooseSingleVote = CustomOptionHolder.mayorChooseSingleVote.getSelection();
+        remoteMeetingsLeft = Mathf.RoundToInt(CustomOptionHolder.mayorMaxRemoteMeetings);
+        canSeeVoteColors = CustomOptionHolder.mayorCanSeeVoteColors;
+        tasksNeededToSeeVoteColors = (int)CustomOptionHolder.mayorTasksNeededToSeeVoteColors;
+        meetingButton = CustomOptionHolder.mayorMeetingButton;
+        mayorChooseSingleVote = CustomOptionHolder.mayorChooseSingleVote;
         voteTwice = true;
     }
 }

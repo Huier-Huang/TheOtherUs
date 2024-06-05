@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Hazel;
 using TheOtherUs.CustomGameMode;
+using TheOtherUs.Modules.Compatibility;
 using TheOtherUs.Objects;
 using TheOtherUs.Patches;
 using TMPro;

@@ -9,6 +9,7 @@ using TheOtherUs.Modules.Components;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using Object = UnityEngine.Object;
 using SStream = System.IO.Stream;
 
 namespace TheOtherUs.Helper;
@@ -207,5 +208,24 @@ public static class UnityHelper
     {
         @event.AddListener(action);
     }
-    
+
+    public static GameObject DestroyAllChildren<T>(this GameObject obj) where T : MonoBehaviour
+    {
+        var list = obj.GetComponentsInChildren<T>();
+        list.Do(Object.Destroy);
+        return obj;
+    }
+
+    public static IRegionInfo CreateHttpRegion(string name, string ip, ushort port)
+    {
+        return new StaticHttpRegionInfo(name,
+                StringNames.NoTranslation,
+                ip,
+                new Il2CppReferenceArray<ServerInfo>(
+                [
+                    new ServerInfo(name, ip, port, false)
+                ])
+            )
+            .CastFast<IRegionInfo>();
+    }
 }

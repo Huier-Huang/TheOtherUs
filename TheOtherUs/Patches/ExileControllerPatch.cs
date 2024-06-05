@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Hazel;
 using PowerTools;
+using TheOtherUs.Modules.Compatibility;
 using TheOtherUs.Objects;
 using UnityEngine;
 using Object = UnityEngine.Object;

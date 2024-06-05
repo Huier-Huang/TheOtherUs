@@ -13,6 +13,7 @@ jobs:
     env:
       BepInExId: 691
       BepInExName: BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.691%2B3ba398f
+      NETVersion: 6.x
 
     steps:
       - uses: actions/cache@v2
@@ -31,7 +32,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 6.x
+          dotnet-version: ${{ env.NETVersion }}
 
       - name: install wget
         run: sudo apt install wget

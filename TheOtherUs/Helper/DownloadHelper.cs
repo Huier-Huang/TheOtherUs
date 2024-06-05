@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
+using System.Net.NetworkInformation;
 using System.Text.Json;
 using AmongUs.Data.Legacy;
 using TheOtherUs.Languages;
@@ -54,9 +56,10 @@ public static class DownloadHelper
     }
 }
 
-public class CodeRepo
+public sealed class CodeRepo
 {
     public string Url { get; set; }
+    public string pingUrl { get; set; }
     public int Time { get; set; }
     public string Branch { get; set; }
     
@@ -67,13 +70,26 @@ public class CodeRepo
 
     public static readonly HashSet<CodeRepo> Repos = [];
 
-    public static CodeRepo getRepo()
+    public static CodeRepo GetFastRepo()
     {
-        return new CodeRepo();
+        var list = new List<CodeRepo>();
+        using var p = new Ping();
+        foreach (var repo in Repos)
+        { 
+            var r = p.Send(repo.pingUrl);
+            if (r is not { Status: IPStatus.Success }) continue;
+            repo.Time = r.Options!.Ttl;
+            list.Add(repo);
+        }
+        
+        list.Sort((x, y) => x.Time.CompareTo(y.Time));
+        return list.FirstOrDefault();
     }
 }
 
-public class GithubGet(string RepoOwner, string RepoName) : IDisposable
+public interface IRepoGet : IDisposable;
+
+public class GithubGet(string RepoOwner, string RepoName) : IRepoGet
 {
     public const string Api = "https://api.github.com";
     public const string Web = "https://github.com";

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
+using Reactor.Utilities.Extensions;
 using UnityEngine;
 
 namespace TheOtherUs.CustomCosmetics;

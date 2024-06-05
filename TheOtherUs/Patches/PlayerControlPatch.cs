@@ -7,6 +7,7 @@ using Assets.CoreScripts;
 using Hazel;
 using InnerNet;
 using TheOtherUs.CustomGameMode;
+using TheOtherUs.Modules.Compatibility;
 using TheOtherUs.Objects;
 using TMPro;
 using UnityEngine;

@@ -1,7 +1,6 @@
 using System;
 using Hazel;
 using TheOtherUs.Objects;
-using TheOtherUs.Roles.Modifier;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

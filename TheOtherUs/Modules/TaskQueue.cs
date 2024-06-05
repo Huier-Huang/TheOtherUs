@@ -5,20 +5,29 @@ using System.Threading.Tasks;
 
 namespace TheOtherUs.Modules;
 
-public class TaskQueue : ManagerBase<TaskQueue>
+public class TaskQueue
 {
-    public string CurrentId;
-
+    private static List<TaskQueue> queues = [];
+    public static TaskQueue GetOrCreate(int Count)
+    {
+        if (queues.Count < Count)
+        {
+            queues.Add(new TaskQueue());
+        }
+        return queues[Count - 1];
+    }
+    
+    
     public Task CurrentTask;
     public Queue<Task> Tasks = [];
 
     public bool TaskStarting;
-    
-    public TaskQueue StartTask(Action action, string Id)
+
+    private Dictionary<Task, Action> TaskOnCompleted = new();
+    public TaskQueue StartTask(Action action, string Id, Action OnCompleted = null)
     {
         var task = new Task(() =>
         {
-            CurrentId = Id;
             Info($"Start TaskQueue Id:{Id}");
             try
             {
@@ -30,13 +39,15 @@ public class TaskQueue : ManagerBase<TaskQueue>
                 Error($"加载失败 TaskQueue Id:{Id}");
             }
         });
+        if (OnCompleted != null)
+            TaskOnCompleted[task] = OnCompleted;
         Tasks.Enqueue(task);
 
         if (!TaskStarting) 
             StartNew();
         return this;
     }
-
+    
     public void StartNew()
     {
         if (!Tasks.Any() || TaskStarting) return;
@@ -54,7 +65,15 @@ public class TaskQueue : ManagerBase<TaskQueue>
             if (!Tasks.Any()) return;
             CurrentTask = Tasks.Dequeue();
             CurrentTask.Start();
-            CurrentTask.GetAwaiter().OnCompleted(Start);
+            CurrentTask.GetAwaiter().OnCompleted(() =>
+            {
+                if (TaskOnCompleted.TryGetValue(CurrentTask, out var ac))
+                {
+                    ac();
+                    TaskOnCompleted.Remove(CurrentTask);
+                }
+                Start();
+            });
         }
     }
 }

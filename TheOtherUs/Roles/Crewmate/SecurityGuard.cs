@@ -1,4 +1,5 @@
 using System;
+using TheOtherUs.Modules.Compatibility;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Crewmate;

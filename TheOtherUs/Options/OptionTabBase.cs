@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Reactor.Utilities.Extensions;
 using TheOtherUs.Modules.Components;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -25,13 +24,14 @@ public abstract class OptionTabMenuBase
     {
         IsDefault = true;
         RoleTab = GameObject.Find("RoleTab");
+        RoleTab.DestroyAllChildren<OptionBehaviour>();
         defPos = RoleTab.transform.position;
         RoleTab.SetActive(false);
         GameTab = GameObject.Find("GameTab");
         GameSettings = GameObject.Find("Game Settings");
         StringOptionTemplate ??= Object.FindObjectsOfType<StringOption>().FirstOrDefault();
         GameSettingMenu ??= Object.FindObjectsOfType<GameSettingMenu>().FirstOrDefault();
-        GameSettingMenu!.RolesSettings.gameObject.Destroy();
+        GameSettingMenu!.RolesSettings.gameObject.SetActive(false);
 
         foreach (var optionTab in OptionTabs)
         {

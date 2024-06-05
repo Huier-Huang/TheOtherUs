@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using TheOtherUs.Modules.Compatibility;
 using UnityEngine;
 using Random = UnityEngine.Random;
 

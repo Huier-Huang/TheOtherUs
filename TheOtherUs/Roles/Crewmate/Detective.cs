@@ -25,16 +25,16 @@ public class Detective : RoleBase
     public float timer = 6.2f;
 
     public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override CustomRoleOption roleOption { get; set; }
 
     public override void ClearAndReload()
     {
         detective = null;
-        anonymousFootprints = detectiveAnonymousFootprints.getBool();
-        footprintIntervall = detectiveFootprintIntervall.getFloat();
-        footprintDuration = detectiveFootprintDuration.getFloat();
-        reportNameDuration = detectiveReportNameDuration.getFloat();
-        reportColorDuration = detectiveReportColorDuration.getFloat();
+        anonymousFootprints = detectiveAnonymousFootprints;
+        footprintIntervall = detectiveFootprintIntervall;
+        footprintDuration = detectiveFootprintDuration;
+        reportNameDuration = detectiveReportNameDuration;
+        reportColorDuration = detectiveReportColorDuration;
         timer = 6.2f;
     }
 

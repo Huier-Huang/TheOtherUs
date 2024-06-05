@@ -10,7 +10,7 @@ public sealed class TranslateText : TextMeshPro
 
     public string Id { get; set; } = string.Empty;
     
-    public bool Update { get; set; } = false;
+    public bool Update { get; set; }
     
     public override void Awake()
     {

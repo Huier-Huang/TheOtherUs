@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
@@ -38,20 +37,18 @@ public class CustomButton
     public SpriteRenderer actionButtonRenderer;
     private readonly string buttonText;
     public Func<bool> CouldUse;
-    public float DeputyTimer;
     public float EffectDuration;
     public Func<bool> HasButton;
     public bool HasEffect;
     public KeyCode? hotkey;
     public HudManager hudManager;
-    private readonly Action InitialOnClick;
     public bool isEffectActive;
     public bool isHandcuffed = false;
     public float MaxTimer = float.MaxValue;
     public bool mirror;
     private Action OnClick;
-    private readonly Action OnEffectEnds;
-    private readonly Action OnMeetingEnds;
+    private Action OnEffectEnds;
+    private Action OnMeetingEnds;
     public Vector3 PositionOffset;
     public bool showButtonText;
     public Sprite Sprite;
@@ -62,20 +59,21 @@ public class CustomButton
         Action OnEffectEnds, bool mirror = false, string buttonText = "")
     {
         this.hudManager = hudManager;
-        this.OnClick = OnClick;
-        InitialOnClick = OnClick;
         this.HasButton = HasButton;
         this.CouldUse = CouldUse;
         this.PositionOffset = PositionOffset;
-        this.OnMeetingEnds = OnMeetingEnds;
         this.HasEffect = HasEffect;
         this.EffectDuration = EffectDuration;
-        this.OnEffectEnds = OnEffectEnds;
         this.Sprite = Sprite;
         this.mirror = mirror;
         this.hotkey = hotkey;
         this.buttonText = buttonText;
         buttons.Add(this);
+        
+        this.OnClick = OnClick;
+        this.OnMeetingEnds = OnMeetingEnds;
+        this.OnEffectEnds = OnEffectEnds;
+        
         actionButton = Object.Instantiate(hudManager.KillButton, hudManager.KillButton.transform.parent);
         actionButtonGameObject = actionButton.gameObject;
         actionButtonRenderer = actionButton.graphic;
@@ -84,9 +82,27 @@ public class CustomButton
         var button = actionButton.GetComponent<PassiveButton>();
         showButtonText = actionButtonRenderer.sprite == Sprite || buttonText != "";
         button.OnClick = new Button.ButtonClickedEvent();
-        button.OnClick.AddListener((UnityAction)onClickEvent);
+        button.OnClick.AddListener(OnClickMethod);
 
         setActive(false);
+    }
+
+    public CustomButton Create()
+    {
+        return this;
+    }
+
+    public Func<CustomButton, bool> CheckCanClick
+    {
+        get;
+        set;
+    } = button => true;
+
+    public void OnClickMethod()
+    {
+        if (!CheckCanClick(this)) return;
+        
+        OnClick();
     }
 
     public CustomButton(Action OnClick, Func<bool> HasButton, Func<bool> CouldUse, Action OnMeetingEnds, Sprite Sprite,
@@ -107,13 +123,11 @@ public class CustomButton
             if (Deputy.handcuffedKnows.ContainsKey(CachedPlayer.LocalPlayer.PlayerId) &&
                 Deputy.handcuffedKnows[CachedPlayer.LocalPlayer.PlayerId] > 0f) return;
 
-            if (HasEffect && !isEffectActive)
-            {
-                DeputyTimer = EffectDuration;
-                Timer = EffectDuration;
-                actionButton.cooldownTimerText.color = new Color(0F, 0.8F, 0F);
-                isEffectActive = true;
-            }
+            if (!HasEffect || isEffectActive) return;
+            DeputyTimer = EffectDuration;
+            Timer = EffectDuration;
+            actionButton.cooldownTimerText.color = new Color(0F, 0.8F, 0F);
+            isEffectActive = true;
         }
     }
 
@@ -121,42 +135,41 @@ public class CustomButton
     {
         buttons.RemoveAll(item => item.actionButton == null);
 
-        for (var i = 0; i < buttons.Count; i++)
+        foreach (var t in buttons)
             try
             {
-                buttons[i].Update();
+                t.Update();
             }
             catch (NullReferenceException)
             {
-                System.Console.WriteLine(
-                    "[WARNING] NullReferenceException from HudUpdate().HasButton(), if theres only one warning its fine");
+                Warn(
+                    "NullReferenceException from HudUpdate().HasButton(), if theres only one warning its fine");
             }
     }
 
     public static void MeetingEndedUpdate()
     {
         buttons.RemoveAll(item => item.actionButton == null);
-        for (var i = 0; i < buttons.Count; i++)
+        foreach (var t in buttons)
             try
             {
-                buttons[i].OnMeetingEnds();
-                buttons[i].Update();
+                t.OnMeetingEnds();
+                t.Update();
             }
             catch (NullReferenceException)
             {
-                System.Console.WriteLine(
-                    "[WARNING] NullReferenceException from MeetingEndedUpdate().HasButton(), if theres only one warning its fine");
+                Warn(
+                    "NullReferenceException from MeetingEndedUpdate().HasButton(), if theres only one warning its fine");
             }
     }
 
     public static void ResetAllCooldowns()
     {
-        for (var i = 0; i < buttons.Count; i++)
+        foreach (var t in buttons)
             try
             {
-                buttons[i].Timer = buttons[i].MaxTimer;
-                buttons[i].DeputyTimer = buttons[i].MaxTimer;
-                buttons[i].Update();
+                t.Timer = t.MaxTimer;
+                t.Update();
             }
             catch (NullReferenceException)
             {

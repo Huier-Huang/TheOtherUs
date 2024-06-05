@@ -3,7 +3,6 @@ using System.Linq;
 using Hazel;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
-using TheOtherUs.Roles.Neutral;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Impostor;

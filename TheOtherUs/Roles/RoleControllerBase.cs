@@ -55,7 +55,42 @@ public abstract class RoleControllerBase : IDisposable
         return false;
     }
 
+    public virtual void OnBegin()
+    {
+        
+    }
+
+    public virtual void OnExile()
+    {
+        
+    }
+
     public virtual void Update(HudManager __instance)
     {
+    }
+
+    public virtual void OnWin()
+    {
+    }
+
+    public virtual void OnStartMeeting()
+    {
+        
+    }
+
+    public virtual void OnMeetingEnd()
+    {
+        
+    }
+
+
+    public virtual void OnKill()
+    {
+        
+    }
+
+    public virtual void OnTask()
+    {
+        
     }
 }

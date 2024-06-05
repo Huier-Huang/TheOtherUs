@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Hazel;
+using TheOtherUs.Modules.Compatibility;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

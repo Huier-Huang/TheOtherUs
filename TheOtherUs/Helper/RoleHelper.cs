@@ -109,12 +109,12 @@ public static class RoleHelper
 
     public static T Get<T>(Type type) where T : RoleBase
     {
-        return _RoleManager._RoleBases.FirstOrDefault(n => n.RoleType == type) as T;
+        return _RoleManager._RoleBases.FirstOrDefault(n => n.RoleInfo.RoleClassType == type) as T;
     }
 
     public static RoleBase Get(Type type)
     {
-        return _RoleManager._RoleBases.FirstOrDefault(n => n.RoleType == type);
+        return _RoleManager._RoleBases.FirstOrDefault(n => n.RoleInfo.RoleClassType == type);
     }
 
     public static void shiftRole(this PlayerControl player1, PlayerControl player2)

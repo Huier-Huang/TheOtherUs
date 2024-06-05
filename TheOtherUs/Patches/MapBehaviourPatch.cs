@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Reactor.Utilities.Extensions;
+using TheOtherUs.Modules.Compatibility;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
 using UnityEngine;

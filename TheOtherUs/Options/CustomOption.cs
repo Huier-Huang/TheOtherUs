@@ -1,16 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AmongUs.GameOptions;
 using Hazel;
 using Reactor.Utilities.Extensions;
 using TheOtherUs.Modules.Components;
-using TheOtherUs.Roles.Crewmate;
-using TheOtherUs.Roles.Modifier;
-using TheOtherUs.Roles.Neutral;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,13 +24,17 @@ public enum OptionTypes
 
 public class CustomRoleOption : CustomParentOption
 {
-    public CustomRoleOption(RoleBase @base, bool enableNumber = true, bool enableRate = true) 
+    public CustomRoleOption(RoleBase @base, bool enableNumber = true, bool enableRate = true, bool enableVision = false) 
         : 
         base(@base.RoleInfo.Name, OptionTypes.Role, new StringOptionSelection(0, roleRateStrings),  color:@base.RoleInfo.Color)
     {
         roleBase = @base;
         EnabledTranslate = true;
         TabType = TabTypes.Classic;
+
+        if (enableVision)
+            visionOption = new CustomOption("Impostor Vision", this, new BoolOptionSelection(false));
+        
         switch (enableNumber)
         {
             case true when enableRate:
@@ -49,8 +49,9 @@ public class CustomRoleOption : CustomParentOption
     
     public static readonly string[] roleRateStrings = ["0%","10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"];
     public int Rate => 10 * OptionSelection.Selection;
-    public RoleBase roleBase;
+    public readonly RoleBase roleBase;
     public CustomOption numberOption;
+    public CustomOption visionOption;
 }
 
 public class CustomModeOption : CustomParentOption
@@ -374,14 +375,7 @@ internal static class GameOptionsMenuStartPatch
             [crewmateSettings.gameObject] = crewmateTabHighlight,
             [modifierSettings.gameObject] = modifierTabHighlight
         };
-        for (var i = 0; i < tabs.Length; i++)
-        {
-            var button = tabs[i].GetComponentInChildren<PassiveButton>();
-            if (button == null) continue;
-            var copiedIndex = i;
-            button.OnClick = new Button.ButtonClickedEvent();
-            button.OnClick.AddListener((Action)(() => { setListener(settingsHighlightMap, copiedIndex); }));
-        }
+
 
         destroyOptions([
             torMenu.GetComponentsInChildren<OptionBehaviour>().ToList(),
@@ -770,8 +764,7 @@ internal static class GameOptionsMenuStartPatch
 
     private static void destroyOptions(List<List<OptionBehaviour>> optionBehavioursList)
     {
-        foreach (var optionBehaviours in optionBehavioursList)
-        foreach (var option in optionBehaviours)
+        foreach (var option in optionBehavioursList.SelectMany(optionBehaviours => optionBehaviours))
             Object.Destroy(option.gameObject);
     }
 
@@ -916,7 +909,7 @@ public class AmongUsClientOnPlayerJoinedPatch {
     }
 }*/
 
-[HarmonyPatch(typeof(GameOptionsMenu), nameof(GameOptionsMenu.Update))]
+/*[HarmonyPatch(typeof(GameOptionsMenu), nameof(GameOptionsMenu.Update))]
 internal class GameOptionsMenuUpdatePatch
 {
     private static float timer = 1f;
@@ -971,262 +964,19 @@ internal class GameOptionsMenuUpdatePatch
             }
         }
     }
-}
+}*/
 
 [HarmonyPatch]
 internal class GameOptionsDataPatch
 {
     public static int maxPage = 7;
 
-    private static string buildRoleOptions()
-    {
-        var impRoles = "<size=150%><color=#ff1c1c>Impostors</color></size>" +
-                       buildOptionsOfType(CustomOption.CustomOptionType.Impostor, true) + "\n";
-        var neutralRoles = "<size=150%><color=#50544c>Neutrals</color></size>" +
-                           buildOptionsOfType(CustomOption.CustomOptionType.Neutral, true) + "\n";
-        var crewRoles = "<size=150%><color=#08fcfc>Crewmates</color></size>" +
-                        buildOptionsOfType(CustomOption.CustomOptionType.Crewmate, true) + "\n";
-        var modifiers = "<size=150%><color=#ffec04>Modifiers</color></size>" +
-                        buildOptionsOfType(CustomOption.CustomOptionType.Modifier, true);
-        return impRoles + neutralRoles + crewRoles + modifiers;
-    }
-
-    private static string buildModifierExtras(CustomOption customOption)
-    {
-        // find options children with quantity
-        var children = CustomOption.options.Where(o => o.parent == customOption);
-        var quantity = children.Where(o => o.name.Contains("Quantity")).ToList();
-        if (customOption.getSelection() == 0) return "";
-        if (quantity.Count == 1) return $" ({quantity[0].getQuantity()})";
-        if (customOption == CustomOptionHolder.modifierLover)
-            return $" (1 Evil: {CustomOptionHolder.modifierLoverImpLoverRate.getSelection() * 10}%)";
-        return "";
-    }
-
-    private static string buildOptionsOfType(CustomOption.CustomOptionType type, bool headerOnly)
-    {
-        var sb = new StringBuilder("\n");
-        var options = CustomOption.options.Where(o => o.type == type);
-        if (MapOptions.gameMode == CustomGameModes.Guesser)
-        {
-            if (type == CustomOption.CustomOptionType.General)
-                options = CustomOption.options.Where(o =>
-                    o.type == type || o.type == CustomOption.CustomOptionType.Guesser);
-            List<int> remove = [308, 310, 311, 312, 313, 314, 315, 316, 317, 318];
-            options = options.Where(x => !remove.Contains(x.id));
-        }
-        else if (MapOptions.gameMode == CustomGameModes.Classic)
-        {
-            options = options.Where(x =>
-                !(x.type == CustomOption.CustomOptionType.Guesser || x == CustomOptionHolder.crewmateRolesFill));
-        }
-        else if (MapOptions.gameMode == CustomGameModes.HideNSeek)
-        {
-            options = options.Where(x =>
-                x.type == CustomOption.CustomOptionType.HideNSeekMain ||
-                x.type == CustomOption.CustomOptionType.HideNSeekRoles);
-        }
-        else if (MapOptions.gameMode == CustomGameModes.PropHunt)
-        {
-            options = options.Where(x => x.type == CustomOption.CustomOptionType.PropHunt);
-        }
-
-        foreach (var option in options)
-            if (option.parent == null)
-            {
-                var line = $"{option.name}: {option.selections[option.selection].ToString()}";
-                if (type == CustomOption.CustomOptionType.Modifier) line += buildModifierExtras(option);
-                sb.AppendLine(line);
-            }
-            else if (option.parent.getSelection() > 0)
-            {
-                if (option.id == 103) //Deputy
-                    sb.AppendLine(
-                        $"- {Helpers.cs(Deputy.color, "Deputy")}: {option.selections[option.selection].ToString()}");
-                else if (option.id == 224) //Sidekick
-                    sb.AppendLine(
-                        $"- {Helpers.cs(Sidekick.color, "Sidekick")}: {option.selections[option.selection].ToString()}");
-                else if (option.id == 358) //Prosecutor
-                    sb.AppendLine(
-                        $"- {Helpers.cs(Lawyer.color, "Prosecutor")}: {option.selections[option.selection].ToString()}");
-
-                else if (option.id == 3642134) //Can Swoop
-                    sb.AppendLine(
-                        $"- {Helpers.cs(Swooper.color, "Swooper")}: {option.selections[option.selection].ToString()}");
-            }
-
-        if (headerOnly) return sb.ToString();
-        sb = new StringBuilder();
-
-        foreach (CustomOption option in options)
-        {
-            if (MapOptions.gameMode == CustomGameModes.HideNSeek && option.type != CustomOptionType.HideNSeekMain &&
-                option.type != CustomOptionType.HideNSeekRoles) continue;
-            if (MapOptions.gameMode == CustomGameModes.PropHunt &&
-                option.type != CustomOptionType.PropHunt) continue;
-            if (option.parent != null)
-            {
-                var isIrrelevant = option.parent.getSelection() == 0 ||
-                                   (option.parent.parent != null && option.parent.parent.getSelection() == 0);
-
-                var c = isIrrelevant ? Color.grey : Color.white; // No use for now
-                if (isIrrelevant) continue;
-                sb.AppendLine(Helpers.cs(c, $"{option.name}: {option.selections[option.OptionSelection].ToString()}"));
-            }
-            else
-            {
-                if (option == CustomOptionHolder.crewmateRolesCountMin)
-                {
-                    var optionName =
-                        CustomOptionHolder.cs(new Color(204f / 255f, 204f / 255f, 0, 1f), "Crewmate Roles");
-                    var min = CustomOptionHolder.crewmateRolesCountMin.getSelection();
-                    var max = CustomOptionHolder.crewmateRolesCountMax.getSelection();
-                    var optionValue = "";
-                    if (CustomOptionHolder.crewmateRolesFill.getBool())
-                    {
-                        var crewCount = PlayerControl.AllPlayerControls.Count -
-                                        GameOptionsManager.Instance.currentGameOptions.NumImpostors;
-                        int minNeutral = CustomOptionHolder.neutralRolesCountMin.getSelection();
-                        int maxNeutral = CustomOptionHolder.neutralRolesCountMax.getSelection();
-                        if (minNeutral > maxNeutral) minNeutral = maxNeutral;
-                        min = crewCount - maxNeutral;
-                        max = crewCount - minNeutral;
-                        if (min < 0) min = 0;
-                        if (max < 0) max = 0;
-                        optionValue = "Fill: ";
-                    }
-
-                    if (min > max) min = max;
-                    optionValue += min == max ? $"{max}" : $"{min} - {max}";
-                    sb.AppendLine($"{optionName}: {optionValue}");
-                }
-                else if (option == CustomOptionHolder.neutralRolesCountMin)
-                {
-                    var optionName = CustomOptionHolder.cs(new Color(204f / 255f, 204f / 255f, 0, 1f), "Neutral Roles");
-                    var min = CustomOptionHolder.neutralRolesCountMin.getSelection();
-                    var max = CustomOptionHolder.neutralRolesCountMax.getSelection();
-                    if (min > max) min = max;
-                    var optionValue = min == max ? $"{max}" : $"{min} - {max}";
-                    sb.AppendLine($"{optionName}: {optionValue}");
-                }
-                else if (option == CustomOptionHolder.impostorRolesCountMin)
-                {
-                    var optionName =
-                        CustomOptionHolder.cs(new Color(204f / 255f, 204f / 255f, 0, 1f), "Impostor Roles");
-                    var min = CustomOptionHolder.impostorRolesCountMin.getSelection();
-                    var max = CustomOptionHolder.impostorRolesCountMax.getSelection();
-                    if (max > GameOptionsManager.Instance.currentGameOptions.NumImpostors)
-                        max = GameOptionsManager.Instance.currentGameOptions.NumImpostors;
-                    if (min > max) min = max;
-                    var optionValue = min == max ? $"{max}" : $"{min} - {max}";
-                    sb.AppendLine($"{optionName}: {optionValue}");
-                }
-                else if (option == CustomOptionHolder.modifiersCountMin)
-                {
-                    var optionName = CustomOptionHolder.cs(new Color(204f / 255f, 204f / 255f, 0, 1f), "Modifiers");
-                    var min = CustomOptionHolder.modifiersCountMin.getSelection();
-                    var max = CustomOptionHolder.modifiersCountMax.getSelection();
-                    if (min > max) min = max;
-                    var optionValue = min == max ? $"{max}" : $"{min} - {max}";
-                    sb.AppendLine($"{optionName}: {optionValue}");
-                }
-                else if (option == CustomOptionHolder.crewmateRolesCountMax ||
-                         option == CustomOptionHolder.neutralRolesCountMax ||
-                         option == CustomOptionHolder.impostorRolesCountMax ||
-                         option == CustomOptionHolder.modifiersCountMax)
-                {
-                }
-                else
-                {
-                    sb.AppendLine($"\n{option.name}: {option.selections[option.OptionSelection].ToString()}");
-                }
-            }
-        }
-
-        return sb.ToString();
-    }
-
-    public static string buildAllOptions(string vanillaSettings = "", bool hideExtras = false)
-    {
-        if (vanillaSettings == "")
-            vanillaSettings =
-                GameOptionsManager.Instance.CurrentGameOptions.ToHudString(PlayerControl.AllPlayerControls.Count);
-        var counter = TheOtherRolesPlugin.optionsPage;
-        var hudString = counter != 0 && !hideExtras
-            ? Helpers.cs(DateTime.Now.Second % 2 == 0 ? Color.white : Color.red, "(Use scroll wheel if necessary)\n\n")
-            : "";
-
-        if (MapOptions.gameMode == CustomGameModes.HideNSeek)
-        {
-            if (TheOtherRolesPlugin.optionsPage > 1) TheOtherRolesPlugin.optionsPage = 0;
-            maxPage = 2;
-            switch (counter)
-            {
-                case 0:
-                    hudString += "Page 1: Hide N Seek Settings \n\n" +
-                                 buildOptionsOfType(CustomOption.CustomOptionType.HideNSeekMain, false);
-                    break;
-                case 1:
-                    hudString += "Page 2: Hide N Seek Role Settings \n\n" +
-                                 buildOptionsOfType(CustomOption.CustomOptionType.HideNSeekRoles, false);
-                    break;
-            }
-        }
-        else if (MapOptions.gameMode == CustomGameModes.PropHunt)
-        {
-            maxPage = 1;
-            switch (counter)
-            {
-                case 0:
-                    hudString += "Page 1: Prop Hunt Settings \n\n" +
-                                 buildOptionsOfType(CustomOption.CustomOptionType.PropHunt, false);
-                    break;
-            }
-        }
-        else
-        {
-            maxPage = 7;
-            switch (counter)
-            {
-                case 0:
-                    hudString += (!hideExtras ? "" : "Page 1: Vanilla Settings \n\n") + vanillaSettings;
-                    break;
-                case 1:
-                    hudString += "Page 2: The Other Us Settings \n" +
-                                 buildOptionsOfType(CustomOption.CustomOptionType.General, false);
-                    break;
-                case 2:
-                    hudString += "Page 3: Role and Modifier Rates \n" + buildRoleOptions();
-                    break;
-                case 3:
-                    hudString += "Page 4: Impostor Role Settings \n" +
-                                 buildOptionsOfType(CustomOption.CustomOptionType.Impostor, false);
-                    break;
-                case 4:
-                    hudString += "Page 5: Neutral Role Settings \n" +
-                                 buildOptionsOfType(CustomOption.CustomOptionType.Neutral, false);
-                    break;
-                case 5:
-                    hudString += "Page 6: Crewmate Role Settings \n" +
-                                 buildOptionsOfType(CustomOption.CustomOptionType.Crewmate, false);
-                    break;
-                case 6:
-                    hudString += "Page 7: Modifier Settings \n" +
-                                 buildOptionsOfType(CustomOption.CustomOptionType.Modifier, false);
-                    break;
-            }
-        }
-
-        if (!hideExtras || counter != 0)
-            hudString += $"\n Press TAB or Page Number for more... ({counter + 1}/{maxPage})";
-        return hudString;
-    }
-
     public static readonly OptionTextBuilder builder = new(CustomOptionManager.Instance.options);
-    public static int CurrentPage = 0;
+    public static int CurrentPage = 1;
+    public static float FontSize = 1.2f;
     
-    [HarmonyPatch(typeof(IGameOptionsExtensions), nameof(IGameOptionsExtensions.ToHudString))]
-    private static void Postfix(ref string __result)
+    [HarmonyPatch(typeof(IGameOptionsExtensions), nameof(IGameOptionsExtensions.ToHudString)), HarmonyPostfix]
+    private static void ToHudString_Postfix(ref string __result)
     {
         if (GameOptionsManager.Instance.currentGameOptions.GameMode == GameModes.HideNSeek)
             return; // Allow Vanilla Hide N Seek
@@ -1236,9 +986,31 @@ internal class GameOptionsDataPatch
             .BuildAll()
             .GetPageText(CurrentPage);
     }
+    
+    [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update)), HarmonyPostfix] 
+    private static void KeyDownUpdatePostfix(HudManager __instance)
+    {
+        if (!CachedPlayer.GameStates.IsLobby) return;
+        
+        if (__instance.GameSettings != null)
+            __instance.GameSettings.fontSize = FontSize;
+        
+        if (Input.GetKeyDown(KeyCode.Tab)) CurrentPage = CurrentPage + 1 > maxPage ? 1 : CurrentPage + 1;
+        
+        if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)) CurrentPage = 1;
+        if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2)) CurrentPage = 2;
+        if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3)) CurrentPage = 3;
+        if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4)) CurrentPage = 4;
+        if (Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5)) CurrentPage = 5;
+        if (Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Keypad6)) CurrentPage = 6;
+        if (Input.GetKeyDown(KeyCode.Alpha7) || Input.GetKeyDown(KeyCode.Keypad7)) CurrentPage = 7;
+        
+        if (Input.GetKeyDown(KeyCode.F1))
+            HudManagerUpdate.ToggleSettings(HudManager.Instance);
+    }
 }
 
-[HarmonyPatch]
+/*[HarmonyPatch]
 public class AddToKillDistanceSetting
 {
     [HarmonyPatch(typeof(GameOptionsData), nameof(GameOptionsData.AreInvalid))]
@@ -1313,44 +1085,7 @@ public class AddToKillDistanceSetting
         GameOptionsData.KillDistances = new Il2CppStructArray<float>([0.5f, 1f, 1.8f, 2.5f]);
         GameOptionsData.KillDistanceStrings = new Il2CppStringArray(["Very Short", "Short", "Medium", "Long"]);
     }
-}
-
-[HarmonyPatch(typeof(KeyboardJoystick), nameof(KeyboardJoystick.Update))]
-public static class GameOptionsNextPagePatch
-{
-    public static void Postfix(KeyboardJoystick __instance)
-    {
-        var page = TheOtherRolesPlugin.optionsPage;
-        if (Input.GetKeyDown(KeyCode.Tab)) TheOtherRolesPlugin.optionsPage = (TheOtherRolesPlugin.optionsPage + 1) % 7;
-        if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)) TheOtherRolesPlugin.optionsPage = 0;
-        if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2)) TheOtherRolesPlugin.optionsPage = 1;
-        if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3)) TheOtherRolesPlugin.optionsPage = 2;
-        if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4)) TheOtherRolesPlugin.optionsPage = 3;
-        if (Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5)) TheOtherRolesPlugin.optionsPage = 4;
-        if (Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Keypad6)) TheOtherRolesPlugin.optionsPage = 5;
-        if (Input.GetKeyDown(KeyCode.Alpha7) || Input.GetKeyDown(KeyCode.Keypad7)) TheOtherRolesPlugin.optionsPage = 6;
-        if (Input.GetKeyDown(KeyCode.F1))
-            HudManagerUpdate.ToggleSettings(HudManager.Instance);
-        if (TheOtherRolesPlugin.optionsPage >= GameOptionsDataPatch.maxPage) TheOtherRolesPlugin.optionsPage = 0;
-
-        if (page != TheOtherRolesPlugin.optionsPage)
-        {
-            var position =
-                (Vector3)FastDestroyableSingleton<HudManager>.Instance?.GameSettings?.transform.localPosition;
-            FastDestroyableSingleton<HudManager>.Instance.GameSettings.transform.localPosition =
-                new Vector3(position.x, 2.9f, position.z);
-        }
-    }
-}
-
-[HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
-public class GameSettingsScalePatch
-{
-    public static void Prefix(HudManager __instance)
-    {
-        if (__instance.GameSettings != null) __instance.GameSettings.fontSize = 1.2f;
-    }
-}
+}*/
 
 // This class is taken and adapted from Town of Us Reactivated, https://github.com/eDonnes124/Town-Of-Us-R/blob/master/source/Patches/CustomOption/Patches.cs, Licensed under GPLv3
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]

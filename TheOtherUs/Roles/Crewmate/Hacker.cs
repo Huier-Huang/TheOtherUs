@@ -1,4 +1,5 @@
 using System;
+using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Crewmate;
@@ -28,7 +29,7 @@ public class Hacker : RoleBase
     private Sprite vitalsSprite;
 
     public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override CustomRoleOption roleOption { get; set; }
 
     public Sprite getButtonSprite()
     {

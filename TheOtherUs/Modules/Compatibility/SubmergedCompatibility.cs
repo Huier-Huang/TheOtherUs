@@ -4,16 +4,16 @@ using System.Linq;
 using System.Reflection;
 using BepInEx;
 using BepInEx.Unity.IL2CPP;
+using Reactor.Utilities.Attributes;
 using TheOtherUs.Patches;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Version = SemanticVersioning.Version;
 
-namespace TheOtherUs;
+namespace TheOtherUs.Modules.Compatibility;
 
-public static class SubmergedCompatibility
+public sealed class SubmergedCompatibility : ICompatibility
 {
-    public const string SUBMERGED_GUID = "Submerged";
     public const ShipStatus.MapType SUBMERGED_MAP_TYPE = (ShipStatus.MapType)6;
 
     private static Type SubmarineStatusType;
@@ -192,16 +192,9 @@ public static class SubmergedCompatibility
     {
         public const string ElevatorMover = "ElevatorMover";
     }
+
+    public string GUID { get; set; } = "Submerged";
 }
 
-public class MissingSubmergedBehaviour : MonoBehaviour
-{
-    static MissingSubmergedBehaviour()
-    {
-        ClassInjector.RegisterTypeInIl2Cpp<MissingSubmergedBehaviour>();
-    }
-
-    public MissingSubmergedBehaviour(IntPtr ptr) : base(ptr)
-    {
-    }
-}
+[RegisterInIl2Cpp]
+public class MissingSubmergedBehaviour(IntPtr ptr) : MonoBehaviour(ptr);

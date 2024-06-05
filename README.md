@@ -2,6 +2,10 @@
 Among Us Mod  
 一个Among Us的模组  
 基于TheOtherUs的重构  
+将于暑假开发  
+
+征集角色想法,和颜色投稿欢迎投稿  
+欢迎提供装扮,角色技能,音效,故事,贴图,美化资源
 
 # 联系我们
 ## 相关社区
@@ -24,3 +28,5 @@ Among Us Mod
 ## 中国  
 * Gitee:https://gitee.com/bilibili_MC/TheOtherUs
 * GitCode:https://gitcode.com/Huier-Huang/TheOtherUs
+
+代码仓库将自动同步

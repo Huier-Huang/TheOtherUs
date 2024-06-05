@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Text;
+
 
 namespace TheOtherUs.Chat;
 
@@ -7,8 +9,8 @@ public class EnvironmentTextManager : ManagerBase<EnvironmentTextManager>
     private readonly EnvironmentTextList textList = [];
     public IReadOnlyList<EnvironmentText> List => textList;
     public string CurrentEnvironment { get; set; } = string.Empty;
+    public char CurrentRegexChar { get; set; }
     
-
     public EnvironmentTextManager Add(EnvironmentText environmentText)
     {
         textList.Add(environmentText);
@@ -26,6 +28,31 @@ public class EnvironmentTextManager : ManagerBase<EnvironmentTextManager>
         return text;
     }
     
+    public string StartReplaceRegex(string text, bool isEnvironment = false)
+    {
+        var builder = new StringBuilder();
+        var state = false;
+        var regexText = string.Empty;
+        foreach (var c in text)
+        {
+            if (c == CurrentRegexChar)
+            {
+                if (!state)
+                {
+                    builder.Append(textList[regexText].Target);
+                    regexText = string.Empty;
+                }
+                state = !state;
+                continue;
+            }
+
+            if (!state)
+                builder.Append(c);
+            else
+                regexText += c;
+        }
+        return builder.ToString();
+    }
 }
 
 public sealed class EnvironmentTextList : List<EnvironmentText>

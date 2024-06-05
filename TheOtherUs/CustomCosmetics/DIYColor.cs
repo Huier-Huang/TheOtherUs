@@ -1,14 +1,18 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using AmongUs.Data;
 using AmongUs.Data.Legacy;
+using Csv;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace TheOtherUs.CustomCosmetics;
 
 public class DIYColor
 {
-    public const int StartIndex = 18;
+    public static int StartIndex { get; private set; } = 18;
 
     public static readonly List<DIYColor> DIYColors =
     [
@@ -177,8 +181,16 @@ public class DIYColor
 
     public static List<Color32> sortAllColor = [];
     public static List<VanillaColor> vanillaColors;
-
+    
     public DIYColor(string text, Color32 color, Color32 shadow) : this(text, (Color)color, (Color)shadow)
+    {
+    }
+
+    public DIYColor(string text, byte[] colorBytes, byte[] shadowBytes) : this(
+        text,
+        new Color32(colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]),
+        new Color32(shadowBytes[0], shadowBytes[1], shadowBytes[2], shadowBytes[3])
+        )
     {
     }
 
@@ -189,7 +201,7 @@ public class DIYColor
         Shadow = shadow;
         var gValue = (color.r * 0.299) + (color.g * 0.587) + (color.b * 0.114);
         Lighter = gValue < 125;
-        DIYColors.Add(this);
+        Info($"DIYColor Text:{text} Color:{color} Shadow:{shadow} gValue:{gValue} Lighter:{Lighter}");
     }
 
     public Color Color { get; set; }
@@ -203,16 +215,25 @@ public class DIYColor
 
     public static void SetColors()
     {
-        if (!vanillaColors.Any())
-            for (var i = 0; i < StartIndex - 1; i++)
-            {
-                var color = Palette.PlayerColors[i];
-                var shadow = Palette.ShadowColors[i];
-                var name = Palette.ColorNames[i];
-                vanillaColors.Add(new VanillaColor(color, shadow, i, name));
-            }
+        SetVanillaColors();
+        SetDIYColors();
+    }
 
+    public static void SetVanillaColors()
+    {
+        for (var i = 0; i < Palette.PlayerColors.Length - 1; i++)
+        {
+            var color = Palette.PlayerColors[i];
+            var shadow = Palette.ShadowColors[i];
+            var name = Palette.ColorNames[i];
+            vanillaColors.Add(new VanillaColor(color, shadow, i, name));
+        }
 
+        StartIndex = vanillaColors.Count;
+    }
+
+    public static void SetDIYColors()
+    {
         var current = 0;
         foreach (var color in DIYColors)
         {
@@ -267,6 +288,36 @@ public class DIYColor
         return color1.r == color2.r && color1.g == color2.g && color1.b == color2.g && color1.a == color2.a;
     }
 
+    public static string DIYColorPath => Path.Combine(CosmeticsManager.CosmeticDir, "DIYColors.cs");
+    public static void LoadDIYColor()
+    {
+        if (!File.Exists(DIYColorPath))
+        {
+            using var _ = File.Create(DIYColorPath);
+            return;
+        }
+
+        using var stream = File.OpenRead(DIYColorPath);
+        var options = new CsvOptions
+        {
+            HeaderMode = HeaderMode.HeaderPresent,
+            AllowNewLineInEnclosedFieldValues = false
+        };
+        foreach (var line in CsvReader.ReadFromStream(stream, options))
+        {
+            try
+            {
+                var color1 = line.Values[1].Split(".").Select(byte.Parse).ToArray();
+                var color2 = line.Values[2].Split(".").Select(byte.Parse).ToArray();
+                DIYColors.Add(new DIYColor(line.Values[0], color1, color2));
+            }
+            catch (Exception ex)
+            {
+                Exception(ex);
+            }
+        }
+    }
+
     public record VanillaColor(Color32 Color, Color32 Shadow, int Index, StringNames StringNames);
 }
 
@@ -314,7 +365,7 @@ public static class DIYColorPatch
             !p.Disconnected && p.PlayerId != player.PlayerId && p.DefaultOutfit.ColorId == color);
     }
 
-    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckColor))]
+    /*[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckColor))]
     [HarmonyPrefix]
     private static bool CheckColorPrefix(PlayerControl __instance, [HarmonyArgument(0)] byte bodyColor)
     {
@@ -329,12 +380,16 @@ public static class DIYColorPatch
 
         __instance.RpcSetColor((byte)color);
         return false;
-    }
+    }*/
+    
 
     [HarmonyPatch(typeof(PlayerTab), nameof(PlayerTab.OnEnable))]
     [HarmonyPrefix]
     private static bool PlayerTabOnEnable(PlayerTab __instance)
     {
+        if (Palette.PlayerColors.Length < DIYColor.vanillaColors.Count + DIYColor.DIYColors.Count)
+            DIYColor.SetColors();
+        
         __instance.PlayerPreview.gameObject.SetActive(true);
         if (__instance.HasLocalPlayer())
             __instance.PlayerPreview.UpdateFromLocalPlayer(PlayerMaterial.MaskType.None);
