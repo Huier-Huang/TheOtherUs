@@ -1,16 +1,24 @@
 using System.Collections;
+using System.Collections.Generic;
+using System.Text;
 
 namespace TheOtherUs.Options;
 
 public class OptionTextBuilder(ICollection options, BuildRule rule)
 {
     public OptionTextBuilder(ICollection options) : this(options, BuildRule.DefRule) { }
-    
+
+    private int StartPage = -1;
+    private int EndPage = -1;
+    private readonly List<string> PageTexts = [];
+    private int PageCount = 0;
     private int page = options.Count / 50;
 
     private BuildRule Rule = rule;
 
     private string ParentText = string.Empty;
+
+    private StringBuilder _stringBuilder = new();
 
     public OptionTextBuilder SetParentText(string text)
     {
@@ -18,9 +26,11 @@ public class OptionTextBuilder(ICollection options, BuildRule rule)
         return this;
     }
     
-    public OptionTextBuilder SetBuildPage(int index)
+    public OptionTextBuilder SetBuildPage(int pageCount, int start, int end)
     {
-        page = index;
+        PageCount = pageCount;
+        StartPage = start;
+        EndPage = end;
         return this;
     }
 
@@ -32,23 +42,29 @@ public class OptionTextBuilder(ICollection options, BuildRule rule)
     
     public OptionTextBuilder BuildAll()
     {
+        PageTexts.Clear();
         return this;
     }
 
     public OptionTextBuilder Build(OptionTypes type)
     {
+        PageTexts.Clear();
         return this;
     }
 
-    public string GetPageText(int page)
+    public string GetPageText(int pageIndex)
     {
-        return string.Empty;
+        return PageTexts[pageIndex] ?? string.Empty;
     }
     
     public string GetAllText()
     {
         return string.Empty;
     }
+
+    public static implicit operator string(OptionTextBuilder builder) => builder.GetAllText();
+
+    public string this[int index] => GetPageText(index);
 }
 
 public class BuildRule

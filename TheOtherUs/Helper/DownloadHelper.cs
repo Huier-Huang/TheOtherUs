@@ -87,9 +87,52 @@ public sealed class CodeRepo
     }
 }
 
-public interface IRepoGet : IDisposable;
+public interface IGet : IDisposable;
 
-public class GithubGet(string RepoOwner, string RepoName) : IRepoGet
+public class NugetGet : IGet
+{
+    public string NugetURL { get; set; }
+
+    public List<IGet> Packages { get; set; } = [];
+    
+    public static NugetGet CreateNewGet(string url)
+    {
+        return new NugetGet
+        {
+            NugetURL = url
+        };
+    }
+
+    public NugetGet AddPackage()
+    {
+        Packages.Add(new PackageGet()
+        {
+            
+        });
+        return this;
+    }
+    
+    public class PackageGet : IGet
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Framework { get; set; }
+        public string Author { get; set; }
+        public Version Version { get; set; }
+        
+        public void Dispose()
+        {
+            
+        }
+        
+    }
+    
+    public void Dispose()
+    {
+    }
+}
+
+public class GithubGet(string RepoOwner, string RepoName) : IGet
 {
     public const string Api = "https://api.github.com";
     public const string Web = "https://github.com";
@@ -249,7 +292,7 @@ public class GithubGet(string RepoOwner, string RepoName) : IRepoGet
         }
     }
     
-    public interface IGithubGet : IDisposable
+    public interface IGithubGet : IGet
     {
         public GithubGet Github { get; }
     }

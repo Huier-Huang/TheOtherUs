@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using AmongUs.Data;
 using UnityEngine;
-using Impostor_Ninja = TheOtherUs.Roles.Impostor.Ninja;
+using Impostor_Ninja = TheOtherUs.Roles.Impostors.Ninja;
 
 namespace TheOtherUs.Roles.Modifier;
 

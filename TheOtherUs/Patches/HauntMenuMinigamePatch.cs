@@ -2,6 +2,7 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using TheOtherUs.CustomGameMode;
+using TheOtherUs.Roles.Impostors;
 using UnityEngine;
 
 namespace TheOtherUs.Patches;

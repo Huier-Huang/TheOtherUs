@@ -144,7 +144,7 @@ public class OptionTab
 
 public class PresetTab : OptionTab
 {
-    public static PresetTab Tab = new();
+    public static readonly PresetTab Tab = new();
     public HashSet<OptionPreset> presets => CustomOptionManager.Instance.presets;
     public override void CreateOption()
     {

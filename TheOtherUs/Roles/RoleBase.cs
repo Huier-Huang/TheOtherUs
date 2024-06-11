@@ -56,6 +56,11 @@ public abstract class RoleBase : IDisposable
     public Type? PathType { get; protected set; } = null;
 }
 
+public abstract class VanillaRole : RoleBase
+{
+    public override bool IsVanilla { get; set; } = true;
+}
+
 public interface Invisable
 {
     public bool isInvisable { get; set; }

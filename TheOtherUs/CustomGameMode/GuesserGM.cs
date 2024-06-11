@@ -5,7 +5,7 @@ namespace TheOtherUs.CustomGameMode;
 
 internal class GuesserGM : CustomModeBase
 {
-    // Guesser Gamemode
+    /*// Guesser Gamemode
     public static List<GuesserGM> guessers = [];
     public static Color color = new Color32(255, 255, 0, byte.MaxValue);
 
@@ -44,5 +44,5 @@ internal class GuesserGM : CustomModeBase
     public static bool isGuesser(byte playerId)
     {
         return guessers.FindAll(x => x.guesser.PlayerId == playerId).Count > 0;
-    }
+    }*/
 }

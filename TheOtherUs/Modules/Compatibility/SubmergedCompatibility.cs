@@ -5,9 +5,7 @@ using System.Reflection;
 using BepInEx;
 using BepInEx.Unity.IL2CPP;
 using Reactor.Utilities.Attributes;
-using TheOtherUs.Patches;
 using UnityEngine;
-using Object = UnityEngine.Object;
 using Version = SemanticVersioning.Version;
 
 namespace TheOtherUs.Modules.Compatibility;
@@ -16,37 +14,35 @@ public sealed class SubmergedCompatibility : ICompatibility
 {
     public const ShipStatus.MapType SUBMERGED_MAP_TYPE = (ShipStatus.MapType)6;
 
-    private static Type SubmarineStatusType;
-    private static MethodInfo CalculateLightRadiusMethod;
+    private Type SubmarineStatusType;
+    private MethodInfo CalculateLightRadiusMethod;
 
-    private static MethodInfo RpcRequestChangeFloorMethod;
-    private static Type FloorHandlerType;
-    private static MethodInfo GetFloorHandlerMethod;
+    private MethodInfo RpcRequestChangeFloorMethod;
+    private Type FloorHandlerType;
+    private MethodInfo GetFloorHandlerMethod;
 
-    private static Type VentPatchDataType;
-    private static PropertyInfo InTransitionField;
+    private Type VentPatchDataType;
+    private PropertyInfo InTransitionField;
 
-    private static Type CustomTaskTypesType;
-    private static FieldInfo RetrieveOxigenMaskField;
-    public static TaskTypes RetrieveOxygenMask;
-    private static Type SubmarineOxygenSystemType;
-    private static MethodInfo SubmarineOxygenSystemInstanceField;
-    private static MethodInfo RepairDamageMethod;
+    private Type CustomTaskTypesType;
+    private FieldInfo RetrieveOxigenMaskField;
+    public TaskTypes RetrieveOxygenMask;
+    private Type SubmarineOxygenSystemType;
+    private MethodInfo SubmarineOxygenSystemInstanceField;
+    private MethodInfo RepairDamageMethod;
 
-    public static Version Version { get; private set; }
-    public static bool Loaded { get; private set; }
-    public static bool LoadedExternally { get; private set; }
-    public static BasePlugin Plugin { get; private set; }
-    public static Assembly Assembly { get; private set; }
-    public static Type[] Types { get; private set; }
-    public static Dictionary<string, Type> InjectedTypes { get; private set; }
+    public Version Version { get; private set; }
+    public BasePlugin Plugin { get; private set; }
+    public Assembly Assembly { get; private set; }
+    public Type[] Types { get; private set; }
+    public Dictionary<string, Type> InjectedTypes { get; private set; }
 
-    public static MonoBehaviour SubmarineStatus { get; private set; }
+    public MonoBehaviour SubmarineStatus { get; private set; }
 
-    public static bool IsSubmerged { get; private set; }
+    public bool IsSubmerged { get; private set; }
 
 
-    public static void SetupMap(ShipStatus map)
+    public void SetupMap(ShipStatus map)
     {
         if (map == null)
         {
@@ -62,60 +58,19 @@ public sealed class SubmergedCompatibility : ICompatibility
             map.GetComponent(Il2CppType.From(SubmarineStatusType))?.TryCast(SubmarineStatusType) as MonoBehaviour;
     }
 
-    public static bool TryLoadSubmerged()
+
+    public void OnLoad(PluginInfo pluginInfo, Assembly assembly, BasePlugin plugin)
     {
-        try
-        {
-            Message("Trying to load Submerged...");
-            var thisAsm = Assembly.GetCallingAssembly();
-            var resourceName = thisAsm.GetManifestResourceNames().FirstOrDefault(s => s.EndsWith("Submerged.dll"));
-            if (resourceName == default) return false;
-
-            using var submergedStream = thisAsm.GetManifestResourceStream(resourceName)!;
-            var assemblyBuffer = new byte[submergedStream.Length];
-            submergedStream.Read(assemblyBuffer, 0, assemblyBuffer.Length);
-            Assembly = Assembly.Load(assemblyBuffer);
-
-            var pluginType = Assembly.GetTypes().FirstOrDefault(t => t.IsSubclassOf(typeof(BasePlugin)));
-            Plugin = (BasePlugin)Activator.CreateInstance(pluginType!);
-            Plugin.Load();
-
-            Version = pluginType.GetCustomAttribute<BepInPlugin>().Version.BaseVersion();
-            ;
-
-            IL2CPPChainloader.Instance.Plugins[SUBMERGED_GUID] = new PluginInfo();
-            return true;
-        }
-        catch (Exception e)
-        {
-            Exception(e);
-        }
-
-        return false;
+        Plugin = plugin;
+        Version = pluginInfo.Metadata.Version.BaseVersion();
+        Assembly = assembly;
+        Initialize();
     }
 
 
-    public static void Initialize()
+    public void Initialize()
     {
-        Loaded = IL2CPPChainloader.Instance.Plugins.TryGetValue(SUBMERGED_GUID, out var plugin);
-        if (!Loaded)
-        {
-            if (TryLoadSubmerged()) Loaded = true;
-            else return;
-        }
-        else
-        {
-            LoadedExternally = true;
-            Plugin = plugin!.Instance as BasePlugin;
-            Version = plugin.Metadata.Version.BaseVersion();
-            Assembly = Plugin!.GetType().Assembly;
-        }
-
-        CredentialsPatch.PingTrackerPatch.modStamp = new GameObject();
-        Object.DontDestroyOnLoad(CredentialsPatch.PingTrackerPatch.modStamp);
-
         Types = AccessTools.GetTypesFromAssembly(Assembly);
-
         InjectedTypes = (Dictionary<string, Type>)AccessTools
             .PropertyGetter(Types.FirstOrDefault(t => t.Name == "ComponentExtensions"), "RegisteredTypes")
             .Invoke(null, Array.Empty<object>());
@@ -135,7 +90,7 @@ public sealed class SubmergedCompatibility : ICompatibility
         RetrieveOxigenMaskField = AccessTools.Field(CustomTaskTypesType, "RetrieveOxygenMask");
         var RetrieveOxigenMaskTaskTypeField = AccessTools.Field(CustomTaskTypesType, "taskType");
         var OxygenMaskCustomTaskType = RetrieveOxigenMaskField.GetValue(null);
-        RetrieveOxygenMask = (TaskTypes)RetrieveOxigenMaskTaskTypeField.GetValue(OxygenMaskCustomTaskType);
+        RetrieveOxygenMask = (TaskTypes)RetrieveOxigenMaskTaskTypeField.GetValue(OxygenMaskCustomTaskType)!;
 
         SubmarineOxygenSystemType =
             Types.First(t => t.Name == "SubmarineOxygenSystem" && t.Namespace == "Submerged.Systems.Oxygen");
@@ -143,39 +98,35 @@ public sealed class SubmergedCompatibility : ICompatibility
         RepairDamageMethod = AccessTools.Method(SubmarineOxygenSystemType, "RepairDamage");
     }
 
-    public static MonoBehaviour AddSubmergedComponent(this GameObject obj, string typeName)
+    public MonoBehaviour AddSubmergedComponent(GameObject obj, string typeName)
     {
-        if (!Loaded) return obj.AddComponent<MissingSubmergedBehaviour>();
         var validType = InjectedTypes.TryGetValue(typeName, out var type);
         return validType
             ? obj.AddComponent(Il2CppType.From(type)).TryCast<MonoBehaviour>()
             : obj.AddComponent<MissingSubmergedBehaviour>();
     }
 
-    public static float GetSubmergedNeutralLightRadius(bool isImpostor)
+    public float GetSubmergedNeutralLightRadius(bool isImpostor)
     {
-        if (!Loaded) return 0;
-        return (float)CalculateLightRadiusMethod.Invoke(SubmarineStatus, [null, true, isImpostor]);
+ 
+        return (float)CalculateLightRadiusMethod.Invoke(SubmarineStatus, [null, true, isImpostor])!;
     }
 
-    public static void ChangeFloor(bool toUpper)
+    public void ChangeFloor(bool toUpper)
     {
-        if (!Loaded) return;
         var _floorHandler = ((Component)GetFloorHandlerMethod.Invoke(null, [
             CachedPlayer.LocalPlayer.Control
         ])).TryCast(FloorHandlerType) as MonoBehaviour;
         RpcRequestChangeFloorMethod.Invoke(_floorHandler, [toUpper]);
     }
 
-    public static bool getInTransition()
+    public bool getInTransition()
     {
-        if (!Loaded) return false;
-        return (bool)InTransitionField.GetValue(null);
+        return (bool)InTransitionField.GetValue(null)!;
     }
 
-    public static void RepairOxygen()
+    public void RepairOxygen()
     {
-        if (!Loaded) return;
         try
         {
             ShipStatus.Instance.RpcRepairSystem((SystemTypes)130, 64);

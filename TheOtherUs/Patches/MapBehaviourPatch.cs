@@ -5,6 +5,8 @@ using Reactor.Utilities.Extensions;
 using TheOtherUs.Modules.Compatibility;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
+using TheOtherUs.Roles.Crewmates;
+using TheOtherUs.Roles.Impostors;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

@@ -1,6 +1,8 @@
 using AmongUs.GameOptions;
 using TheOtherUs.CustomGameMode;
 using TheOtherUs.Modules.Compatibility;
+using TheOtherUs.Roles.Crewmates;
+using TheOtherUs.Roles.Impostors;
 using UnityEngine;
 
 namespace TheOtherUs.Patches;

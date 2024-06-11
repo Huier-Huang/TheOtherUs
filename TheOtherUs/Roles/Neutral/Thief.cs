@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Hazel;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
+using TheOtherUs.Roles.Crewmates;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Neutral;

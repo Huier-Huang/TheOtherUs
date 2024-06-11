@@ -5,6 +5,8 @@ using Hazel;
 using PowerTools;
 using TheOtherUs.Modules.Compatibility;
 using TheOtherUs.Objects;
+using TheOtherUs.Roles.Crewmates;
+using TheOtherUs.Roles.Impostors;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

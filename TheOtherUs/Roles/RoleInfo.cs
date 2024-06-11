@@ -18,9 +18,11 @@ public class RoleInfo
     public Color Color { get; set; }
     public string Name { get; set; }
     public RoleId RoleId { get; set; }
-    public string Description { get; set; }
-    public string IntroInfo { get; set; }
+    public string DescriptionText { get; set; } = string.Empty;
+    public string IntroInfo { get; set; } = string.Empty;
     public RoleTeam RoleTeam { get; set; }
+    public string Intro => Intro == string.Empty ? Get(Enum.GetName(RoleId) ?? string.Empty, "Intro") : Intro;
+    public string Description => DescriptionText == string.Empty ? Get(Enum.GetName(RoleId) ?? string.Empty, "Description") : DescriptionText;
     public CustomRoleType RoleType { get; set; } = CustomRoleType.Main;
     public Func<RoleBase> GetRole { get; set; }
 

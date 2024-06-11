@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using InnerNet;
+using TheOtherUs.Roles.Crewmates;
+using TheOtherUs.Roles.Impostors;
 using UnityEngine;
 
 namespace TheOtherUs;

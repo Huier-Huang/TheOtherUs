@@ -5,6 +5,8 @@ using Hazel;
 using Reactor.Utilities;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
+using TheOtherUs.Roles.Crewmates;
+using TheOtherUs.Roles.Impostors;
 using TMPro;
 using UnityEngine;
 using static TheOtherUs.MapOptions;

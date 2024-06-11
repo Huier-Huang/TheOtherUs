@@ -216,17 +216,10 @@ public static class ClientOptionsPatch
         for (var i = 0; i < Go.transform.childCount; i++) yield return Go.transform.GetChild(i).gameObject;
     }
 
-    public class SelectionBehaviour
+    public class SelectionBehaviour(string title, Func<bool> onClick, bool defaultValue)
     {
-        public bool DefaultValue;
-        public Func<bool> OnClick;
-        public string Title;
-
-        public SelectionBehaviour(string title, Func<bool> onClick, bool defaultValue)
-        {
-            Title = title;
-            OnClick = onClick;
-            DefaultValue = defaultValue;
-        }
+        public bool DefaultValue = defaultValue;
+        public Func<bool> OnClick = onClick;
+        public string Title = title;
     }
 }

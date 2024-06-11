@@ -5,6 +5,8 @@ using AmongUs.GameOptions;
 using InnerNet;
 using TheOtherUs.CustomGameMode;
 using TheOtherUs.Objects;
+using TheOtherUs.Roles.Crewmates;
+using TheOtherUs.Roles.Impostors;
 using UnityEngine;
 
 namespace TheOtherUs.Patches;

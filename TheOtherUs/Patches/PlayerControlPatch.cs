@@ -9,6 +9,8 @@ using InnerNet;
 using TheOtherUs.CustomGameMode;
 using TheOtherUs.Modules.Compatibility;
 using TheOtherUs.Objects;
+using TheOtherUs.Roles.Crewmates;
+using TheOtherUs.Roles.Impostors;
 using TMPro;
 using UnityEngine;
 using static TheOtherUs.GameHistory;

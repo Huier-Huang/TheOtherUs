@@ -4,6 +4,8 @@ using System.Linq;
 using AmongUs.GameOptions;
 using Hazel;
 using TheOtherUs.CustomGameMode;
+using TheOtherUs.Roles.Crewmates;
+using TheOtherUs.Roles.Impostors;
 using UnityEngine;
 
 namespace TheOtherUs.Patches;

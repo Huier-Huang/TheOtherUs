@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using PowerTools;
 using TheOtherUs.Modules.Compatibility;
+using TheOtherUs.Roles.Impostors;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

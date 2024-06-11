@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using TheOtherUs.Options;
+using TheOtherUs.Roles.Crewmates;
+using TheOtherUs.Roles.Impostors;
 using UnityEngine;
 
 namespace TheOtherUs;

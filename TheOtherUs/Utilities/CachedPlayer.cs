@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using TheOtherUs.CustomCosmetics;
 using UnityEngine;
 
 namespace TheOtherUs.Utilities;
@@ -21,6 +22,12 @@ public sealed class CachedPlayer
     
     public bool CanMove => Control.CanMove; 
     public bool IsDead => Control.Data.IsDead;
+    
+    #nullable enable
+    public CustomHat? _customHat { get; set; }
+    public CustomVisor? _CustomVisor { get; set; }
+    public CustomNamePlate? _customNamePlate { get; set; }
+    #nullable disable
 
     // GameStates Form TOH
     public static class GameStates

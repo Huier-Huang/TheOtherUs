@@ -137,6 +137,17 @@ public class LanguageManager : ManagerBase<LanguageManager>
         Info($"获取失败 Key{Key} Language{CurrentLang}");
         return tag ? $"'{Key}'" : Key;
     }
+
+    internal readonly List<TranslateNode> _translateNodes = [];
+}
+
+public class TranslateNode(string id, string[]? values = null, TranslateNode[]? nodes = null)
+{
+    public string Id { get; set; } = id;
+    public string[]? Values { get; set; } = values;
+    public TranslateNode[]? _nodes { get; set; } = nodes;
+
+    public string Def => Values?[0] ?? string.Empty;
 }
 
 [Harmony]
@@ -147,7 +158,7 @@ internal static class LanguageExtension
     private static void OnTranslationController_Initialized_Load(TranslationController __instance)
     {
         LanguageManager.Instance.CurrentLang = __instance.currentLanguage.languageID;
-        TheOtherRolesPlugin.OnTranslationController_Initialized_Load();
+        Main.OnTranslationController_Initialized_Load();
     }
 
     [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.SetLanguage))]
@@ -160,5 +171,21 @@ internal static class LanguageExtension
     internal static string Translate(this string key)
     {
         return LanguageManager.Instance.GetString(key);
+    }
+    internal static string Get(params string[] strings)
+    {
+        TranslateNode? node = null;
+        var count = 1;
+        foreach (var str in strings)
+        {
+            node = count == 1 ? LanguageManager.Instance._translateNodes.FirstOrDefault(n => n.Id == str) : node?._nodes.FirstOrDefault(n => n.Id == str);
+            
+            if (node == null)
+                return string.Empty;
+
+            count++;
+        }
+
+        return node?.Def ?? string.Empty;
     }
 }

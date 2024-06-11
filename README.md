@@ -24,7 +24,8 @@ Among Us Mod
 
 # 代码仓库
 ## 全球
-* GitHub:https://github.com/Huier-Huang/TheOtherUs
+* GitHub:https://github.com/TianMengLucky/TheOtherUs
+* GitLab:https://gitlab.com/Huier-Huang/TheOtherUs
 ## 中国  
 * Gitee:https://gitee.com/bilibili_MC/TheOtherUs
 * GitCode:https://gitcode.com/Huier-Huang/TheOtherUs

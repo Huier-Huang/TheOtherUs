@@ -7,7 +7,7 @@ using Object = UnityEngine.Object;
 
 namespace TheOtherUs.CustomGameMode;
 
-public class HideNSeek : CustomModeBase
+/*public class HideNSeek : CustomModeBase
 {
     // HideNSeek Gamemode
     public static bool isHideNSeekGM;
@@ -150,4 +150,4 @@ public static class Hunted
         shieldDuration = CustomOptionHolder.huntedShieldDuration.getFloat();
         shieldRewindTime = CustomOptionHolder.huntedShieldRewindTime.getFloat();
     }
-}
+}*/

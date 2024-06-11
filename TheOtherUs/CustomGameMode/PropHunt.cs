@@ -13,7 +13,7 @@ using Object = UnityEngine.Object;
 
 namespace TheOtherUs.CustomGameMode;
 
-[HarmonyPatch]
+/*[HarmonyPatch]
 internal class PropHunt : CustomModeBase
 {
     public static bool isPropHuntGM;
@@ -740,4 +740,4 @@ internal class PropHunt : CustomModeBase
     {
         return !isPropHuntGM;
     }
-}
+}*/

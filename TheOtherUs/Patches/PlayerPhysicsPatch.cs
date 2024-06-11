@@ -1,4 +1,5 @@
 using InnerNet;
+using TheOtherUs.Roles.Impostors;
 using UnityEngine;
 
 namespace TheOtherUs.Patches;

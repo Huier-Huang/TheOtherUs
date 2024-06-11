@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TheOtherUs.Roles.Crewmates;
 using UnityEngine;
 
 namespace TheOtherUs;
