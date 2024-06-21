@@ -95,6 +95,7 @@ public static class Helpers
 
     public static void enableCursor(bool initalSetCursor)
     {
+        
         if (initalSetCursor)
         {
             var sprite = loadSpriteFromResources("TheOtherUs.Resources.Cursor.png", 115f);

@@ -9,6 +9,6 @@
 
     <ItemGroup>
         <PackageReference Include="CSharpPoet" Version="0.3.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0-3.final" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0-2.final" />
     </ItemGroup>
 </Project>

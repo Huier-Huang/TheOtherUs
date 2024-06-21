@@ -431,10 +431,10 @@ internal class RPCListener : RegisterAttribute
         });
     }
 
-    [HarmonyPatch(typeof(InnerNetClient._HandleGameDataInner_d__39),
-        nameof(InnerNetClient._HandleGameDataInner_d__39.MoveNext))]
+    [HarmonyPatch(typeof(InnerNetClient._HandleGameDataInner_d__41),
+        nameof(InnerNetClient._HandleGameDataInner_d__41.MoveNext))]
     [HarmonyPrefix]
-    private static void InnerNet_ReaderPath(InnerNetClient._HandleGameDataInner_d__39 __instance, ref bool __result)
+    private static void InnerNet_ReaderPath(InnerNetClient._HandleGameDataInner_d__41 __instance, ref bool __result)
     {
         if (_allListeners.Count <= 0) return;
         var innerNetClient = __instance.__4__this;

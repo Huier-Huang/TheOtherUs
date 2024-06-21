@@ -101,7 +101,7 @@ public static class HandshakeHelper
 
     public static void shareGameVersion()
     {
-        var writer = FastRpcWriter.StartNewRpcWriter(CustomRPC.VersionHandshake, GameData.Instance)
+        var writer = FastRpcWriter.StartNewRpcWriter(CustomRPC.VersionHandshake, LobbyBehaviour.Instance)
             .WritePacked(AmongUsClient.Instance.ClientId)
             .Write(TheOtherRolesPlugin.version.Major)
             .Write(TheOtherRolesPlugin.version.Minor)
@@ -179,8 +179,8 @@ public static class HandshakeHelper
     {
         var clientId = AmongUsClient.Instance.ClientId;
         var bytes = Assembly.GetExecutingAssembly().ManifestModule.ModuleVersionId.ToByteArray();
-
-        var writer = FastRpcWriter.StartNewRpcWriter(CustomRPC.VersionHandshakeEx, GameData.Instance)
+        
+        var writer = FastRpcWriter.StartNewRpcWriter(CustomRPC.VersionHandshakeEx, LobbyBehaviour.Instance)
             .WritePacked(AmongUsClient.Instance.ClientId)
             .Write((byte)ShareMode.Guid)
             .Write(bytes.Length)

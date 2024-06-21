@@ -56,12 +56,68 @@ public static class DownloadHelper
     }
 }
 
+public interface IFastDownloader : IDisposable
+{
+    public void Download(string downloadPath, string file, string LocalPath = "");
+}
+
+public class RepoDownloader(CodeRepo repo) : IFastDownloader
+{
+    public DirectoryInfo directory;
+    public Repos repoType = repo.repoType;
+    public List<IGet> Gets = [];
+
+
+    #nullable enable
+    private T? Get<T>() where T : class, IGet, new()
+    {
+        return Gets.FirstOrDefault(n => n is T) as T;
+    }
+    #nullable disable
+
+    public RepoDownloader BuildGet()
+    {
+        if (repoType is Repos.Github)
+        {
+            Gets.Add(GithubGet.Get(repo));
+        }
+        
+        return this;
+    }
+
+    public RepoDownloader SetBaseDirectory(string path)
+    {
+        directory = new DirectoryInfo(path);
+        return this;
+    }
+    public void Download(string downloadPath, string file, string LocalPath = "")
+    {
+        
+    }
+    
+    public void Dispose()
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public enum Repos
+{
+    Github,
+    GitLab,
+    GitCode,
+    Gitee,
+    Gitea,
+    Nuget
+}
+
 public sealed class CodeRepo
 {
     public string Url { get; set; }
     public string pingUrl { get; set; }
     public int Time { get; set; }
     public string Branch { get; set; }
+    public Repos repoType { get; set; }
     
     public void Download()
     {
@@ -88,6 +144,15 @@ public sealed class CodeRepo
 }
 
 public interface IGet : IDisposable;
+
+public interface IRepoGet : IGet;
+
+public class ThunderStoreGet : IGet
+{
+    public void Dispose()
+    {
+    }
+}
 
 public class NugetGet : IGet
 {
@@ -132,7 +197,7 @@ public class NugetGet : IGet
     }
 }
 
-public class GithubGet(string RepoOwner, string RepoName) : IGet
+public class GithubGet(string RepoOwner, string RepoName) : IRepoGet
 {
     public const string Api = "https://api.github.com";
     public const string Web = "https://github.com";

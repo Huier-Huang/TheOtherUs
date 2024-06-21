@@ -1,24 +1,14 @@
 using System;
-using System.Net;
+using System.Collections.Generic;
 
 namespace TheOtherUs.Chat;
 
-public class CommandEvent
+public class CommandEvent(string command, Action<CommandEvent> onEvent, CommandPermissions permissions = CommandPermissions.All)
 {
-    public string[] Command { get; init; }
-    public Action<CommandInfo> Event { get; set; }
-    public CommandPermissions permission { get; set; }
-
-    public CommandEvent RegisterEvent(Action<CommandInfo> e)
-    {
-        Event += e;
-        return this;
-    }
-
-    public void Start(string text)
-    {
-        
-    }
+    public string Command { get; init; } = command;
+    public CommandPermissions permission { get; set; } = permissions;
+    public Action<CommandEvent> OnEvent = onEvent;
+    public List<string> Context { get; set; }
 }
 
 [Flags]
@@ -31,5 +21,3 @@ public enum CommandPermissions
     OnGame,
     Debug
 }
-
-public record CommandInfo();

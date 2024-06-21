@@ -20,6 +20,11 @@ public abstract class OptionTabMenuBase
     public List<OptionTab> OptionTabs { get; set; } = [];
     public abstract TabTypes TabType { get; set; }
 
+    public static void CreateTabMenus(IEnumerable<OptionTabMenuBase> tabMenu, GameSettingMenu settingMenu)
+    {
+        
+    }
+
     public virtual void CreateTabMenu(GameOptionsMenu __instance)
     {
         IsDefault = true;
@@ -31,7 +36,6 @@ public abstract class OptionTabMenuBase
         GameSettings = GameObject.Find("Game Settings");
         StringOptionTemplate ??= Object.FindObjectsOfType<StringOption>().FirstOrDefault();
         GameSettingMenu ??= Object.FindObjectsOfType<GameSettingMenu>().FirstOrDefault();
-        GameSettingMenu!.RolesSettings.gameObject.SetActive(false);
 
         foreach (var optionTab in OptionTabs)
         {

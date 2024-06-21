@@ -11,6 +11,27 @@ namespace TheOtherUs.Utilities;
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class MonoRegisterAndDontDestroy : RegisterAttribute
 {
+    public static Dictionary<Type, MonoBehaviour> RegisterObjects = [];
+
+    public static T GetRegister<T>() where T : MonoBehaviour
+    {
+        var type = typeof(T);
+        if (RegisterObjects.TryGetValue(type, out var mono))
+        {
+            return mono as T;
+        }
+
+        return Register(type) as T;
+    }
+
+    public static MonoBehaviour Register(Type _type)
+    {
+        RegisterInIl2cpp(_type);
+        var obj = (IL2CPPChainloader.AddUnityComponent(_type) as MonoBehaviour)!.DontDestroyOnLoad();
+        RegisterObjects.Add(_type, obj);
+        return obj;
+    }
+    
     [Register]
     public static void Register(List<Type> findTypes)
     {
@@ -18,8 +39,7 @@ public sealed class MonoRegisterAndDontDestroy : RegisterAttribute
 
         foreach (var _type in types)
         {
-            RegisterInIl2cpp(_type);
-            (IL2CPPChainloader.AddUnityComponent(_type) as MonoBehaviour)!.DontDestroyOnLoad() ;
+            Register(_type);
         }
     }
 

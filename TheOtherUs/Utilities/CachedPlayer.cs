@@ -17,11 +17,36 @@ public sealed class CachedPlayer
     public PlayerControl Control { get; init; }
     public PlayerPhysics Physics { get; init; }
     public CustomNetworkTransform NetTransform { get; init; }
-    public GameData.PlayerInfo Data { get; set; }
+    
+    public NetworkedPlayerInfo NetPlayerInfo { get; set; }
+    
+    public CosmeticsLayer cosmeticsLayer { get; set; }
+    
     public byte PlayerId { get; set; }
+    
+
+    public string PlayerName => NetPlayerInfo.PlayerName;
+
+    public float PlayerSpeed => Physics.Speed;
+
+    public float TrueSpeed => Physics.TrueSpeed;
+
+    public float SpeedMod => Physics.SpeedMod;
+
+    public float GhostSpeed => Physics.GhostSpeed;
+
+    public Vector2 LastPosition => NetTransform.lastPosition;
+
+    public Vector2 TruePosition => Control.GetTruePosition();
+
+    public Vector2 ControlOffset => Control.Collider.offset;
     
     public bool CanMove => Control.CanMove; 
     public bool IsDead => Control.Data.IsDead;
+
+    public bool IsDummy => Control.isDummy;
+
+    public bool InVent => Control.inVent;
     
     #nullable enable
     public CustomHat? _customHat { get; set; }
@@ -69,16 +94,16 @@ public sealed class CachedPlayer
         /**********TOP ZOOM.cs***********/ 
         public static bool IsShip => ShipStatus.Instance != null; 
     }
+    
 
-    private string GetShowName()
+    public CachedPlayer SetName(string name, Color color = default, float size = -1)
     {
-        return Data.PlayerName;
+        return this;
     }
 
     private bool Equals(CachedPlayer other)
     {
-        return Equals(transform, other.transform) && Equals(Control, other.Control) && Equals(Physics, other.Physics) &&
-               Equals(NetTransform, other.NetTransform) && Equals(Data, other.Data) && PlayerId == other.PlayerId;
+        return Equals(Control, other.Control) && PlayerId == other.PlayerId;
     }
 
     public override bool Equals(object obj)
@@ -88,12 +113,17 @@ public sealed class CachedPlayer
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(transform, Control, Physics, NetTransform);
+        return HashCode.Combine(Control);
     }
 
     public static implicit operator bool(CachedPlayer player)
     {
         return player != null && player.Control;
+    }
+    
+    public static implicit operator byte(CachedPlayer player)
+    {
+        return player.PlayerId;
     }
 
     public static implicit operator PlayerControl(CachedPlayer player)
@@ -114,6 +144,11 @@ public sealed class CachedPlayer
     public static implicit operator CachedPlayer(PlayerPhysics player)
     {
         return AllPlayers.FirstOrDefault(n => n.Physics == player);
+    }
+
+    public static implicit operator CosmeticsLayer(CachedPlayer player)
+    {
+        return player.cosmeticsLayer;
     }
 
     public static bool operator ==(CachedPlayer cache, PlayerControl player)
@@ -141,7 +176,9 @@ public static class CachedPlayerPatches
             transform = __instance.transform,
             Control = __instance,
             Physics = __instance.MyPhysics,
-            NetTransform = __instance.NetTransform
+            NetTransform = __instance.NetTransform,
+            cosmeticsLayer = __instance.cosmetics,
+            NetPlayerInfo = __instance.Data
         };
         CachedPlayer.AllPlayers.Add(player);
         CachedPlayer.PlayerPtrs[__instance.Pointer] = player;
@@ -156,27 +193,7 @@ public static class CachedPlayerPatches
         CachedPlayer.PlayerPtrs.Remove(__instance.Pointer);
     }
 
-    [HarmonyPatch(typeof(GameData), nameof(GameData.Deserialize))]
-    [HarmonyPostfix]
-    public static void AddCachedDataOnDeserialize()
-    {
-        foreach (var cachedPlayer in CachedPlayer.AllPlayers)
-        {
-            cachedPlayer.Data = cachedPlayer.Control.Data;
-            cachedPlayer.PlayerId = cachedPlayer.Control.PlayerId;
-        }
-    }
-
-    [HarmonyPatch(typeof(GameData), nameof(GameData.AddPlayer))]
-    [HarmonyPostfix]
-    public static void AddCachedDataOnAddPlayer()
-    {
-        foreach (var cachedPlayer in CachedPlayer.AllPlayers)
-        {
-            cachedPlayer.Data = cachedPlayer.Control.Data;
-            cachedPlayer.PlayerId = cachedPlayer.Control.PlayerId;
-        }
-    }
+    
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Deserialize))]
     [HarmonyPostfix]

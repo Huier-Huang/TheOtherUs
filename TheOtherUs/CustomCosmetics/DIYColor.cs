@@ -6,13 +6,29 @@ using AmongUs.Data;
 using AmongUs.Data.Legacy;
 using Csv;
 using UnityEngine;
+using UnityEngine.Video;
 using Object = UnityEngine.Object;
 
 namespace TheOtherUs.CustomCosmetics;
 
-public class DIYColor
+internal interface IColorData
+{
+    public int Index { get; set; }
+    public string Text { get; set; }
+    public Color Color { get; set; }
+    public Color Shadow { get; set; }
+}
+
+public class DIYColor : IColorData
 {
     public static int StartIndex { get; private set; } = 18;
+
+    public static Color Impostor = Palette.ImpostorRed;
+    public static Color Crewmate = Palette.CrewmateBlue;
+    public static Color Light = Palette.LightBlue;
+    public static Color Enabled = Palette.EnabledColor;
+    public static Color Disabled = Palette.DisabledClear;
+    public static Color Visor = Palette.VisorColor;
 
     public static readonly List<DIYColor> DIYColors =
     [
@@ -288,6 +304,18 @@ public class DIYColor
         return color1.r == color2.r && color1.g == color2.g && color1.b == color2.g && color1.a == color2.a;
     }
 
+    #nullable enable
+    internal static IColorData? GetColor(string name)
+    {
+        var vanilla = vanillaColors.FirstOrDefault(n => n.Text == name);
+        if (vanilla != null)
+            return vanilla;
+        
+        return DIYColors.FirstOrDefault(n => n.Text == name || n.TranslateId == name);
+    }
+    #nullable disable
+    
+    
     public static string DIYColorPath => Path.Combine(CosmeticsManager.CosmeticDir, "DIYColors.cs");
     public static void LoadDIYColor()
     {
@@ -318,7 +346,13 @@ public class DIYColor
         }
     }
 
-    public record VanillaColor(Color32 Color, Color32 Shadow, int Index, StringNames StringNames);
+    public class VanillaColor(Color32 Color, Color32 Shadow, int Index, StringNames StringName) : IColorData
+    {
+        public string Text { get; set; } = StringName.GetString();
+        public Color Color { get; set; } = Color;
+        public Color Shadow { get; set; } = Shadow;
+        public int Index { get; set; } = Index;
+    }
 }
 
 [Harmony]

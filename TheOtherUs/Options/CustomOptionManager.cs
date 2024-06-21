@@ -163,7 +163,7 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
 
     public void ShareAllOptionSelection()
     {
-        var writer = FastRpcWriter.StartNewRpcWriter(CustomRPC.Option, GameData.Instance);
+        var writer = FastRpcWriter.StartNewRpcWriter(CustomRPC.Option, LobbyBehaviour.Instance);
         writer
             .WritePacked((int)CustomOption.Option_Flag.ShareAll)
             .WritePacked(options.Count);
@@ -176,7 +176,7 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
 
     public void SendSerializeOption(int Start, int End, int Count)
     {
-        var writer = FastRpcWriter.StartNewRpcWriter(CustomRPC.Option, GameData.Instance);
+        var writer = FastRpcWriter.StartNewRpcWriter(CustomRPC.Option, LobbyBehaviour.Instance);
         writer
             .WritePacked((int)CustomOption.Option_Flag.ShareAll)
             .WritePacked(Count);

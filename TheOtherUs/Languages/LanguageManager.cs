@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using AmongUs.Data.Legacy;
 using BepInEx;
+using Il2CppSystem;
 
 namespace TheOtherUs.Languages;
 
@@ -172,6 +173,12 @@ internal static class LanguageExtension
     {
         return LanguageManager.Instance.GetString(key);
     }
+
+    internal static string GetString(this StringNames name, Object[]? objects = null)
+    {
+        return TranslationController.Instance.GetString(name, objects);
+    }
+    
     internal static string Get(params string[] strings)
     {
         TranslateNode? node = null;

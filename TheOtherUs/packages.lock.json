@@ -4,9 +4,9 @@
     "net6.0": {
       "AmongUs.GameLibs.Steam": {
         "type": "Direct",
-        "requested": "[2024.6.4, )",
-        "resolved": "2024.6.4",
-        "contentHash": "WTu/h9xYZ3r4RZP4yJQq3YPF31HV6cg7NN9Cd2DbZHloYUhMsD//xdE0x3k6YDRy9zbfhlJoUFTFDRcLipZEDQ=="
+        "requested": "[2024.6.18, )",
+        "resolved": "2024.6.18",
+        "contentHash": "xb+HP1xXn4/ES8AgXpk9xeoW568LFYw5NTjY6bHwd6vQjHDf2kT1xHMmQ1me5Vfee/Gp69YIMZDXUAUToG7Elg=="
       },
       "BepInEx.AutoPlugin": {
         "type": "Direct",
@@ -22,12 +22,12 @@
       },
       "BepInEx.Unity.IL2CPP": {
         "type": "Direct",
-        "requested": "[6.0.0-be.691, )",
-        "resolved": "6.0.0-be.691",
-        "contentHash": "kWI1vb7vyfpvTwerVJZ8U25sPPQnI0PzFVfL4pOfWQZ9A4yRQTwKaWV2vGr5I5o84dI4w9yHptyYHT2fDPInVA==",
+        "requested": "[6.0.0-be.692, )",
+        "resolved": "6.0.0-be.692",
+        "contentHash": "rYjnJCN2APD/04dZUKhRCbu30jhzseIKd0+pfaWWgfDJNggd8rq+whEzM/ZC0fEkkLgcIkEgbtX2LuSqsCrIgg==",
         "dependencies": {
-          "BepInEx.Core": "6.0.0-be.691",
-          "BepInEx.Unity.Common": "6.0.0-be.691",
+          "BepInEx.Core": "6.0.0-be.692",
+          "BepInEx.Unity.Common": "6.0.0-be.692",
           "HarmonyX": "2.10.1",
           "Iced": "1.20.0",
           "Il2CppInterop.Generator": "1.4.6-ci.426",
@@ -45,9 +45,9 @@
       },
       "EPPlus": {
         "type": "Direct",
-        "requested": "[7.1.3, )",
-        "resolved": "7.1.3",
-        "contentHash": "pZlaxVaiDYgHElONXnB4siqsikI9B/VvAHv4mMuROff2Htl/upvKs0eMSXFdSurcTiMjMMt9istJNNSzJ/QPlg==",
+        "requested": "[7.2.0, )",
+        "resolved": "7.2.0",
+        "contentHash": "6dLBqhz8tOYyAO6PKHc/FNFn7rF1HcGNP1xsfdyR45Rrn12Wj7PR55YBqXY1YoWYZJU4Maph+pcoFqqJU/a/8g==",
         "dependencies": {
           "EPPlus.System.Drawing": "6.1.1",
           "Microsoft.Extensions.Configuration.Json": "8.0.0",
@@ -80,9 +80,9 @@
       },
       "YamlDotNet": {
         "type": "Direct",
-        "requested": "[15.1.6, )",
-        "resolved": "15.1.6",
-        "contentHash": "T/cQEK/KHK96Q8kytJ4iUGDXg1/fj2Qtk6rCQeIlHYU1zTeyGVHW0QNZgREQyxZpygGMDMmrXNWt0sj5TsQnjA=="
+        "requested": "[15.3.0, )",
+        "resolved": "15.3.0",
+        "contentHash": "F93japYa9YrJ59AZGhgdaUGHN7ITJ55FBBg/D/8C0BDgahv/rQD6MOSwHxOJJpon1kYyslVbeBrQ2wcJhox01w=="
       },
       "AsmResolver": {
         "type": "Transitive",
@@ -134,8 +134,8 @@
       },
       "BepInEx.Core": {
         "type": "Transitive",
-        "resolved": "6.0.0-be.691",
-        "contentHash": "kM0vDdOpVwuJoqkE6igA1/h3tz+TwmE1TFRs+JM6jZEYejAWWRUY92jIjg11JfMi6McbjMCofTMTR/pcT39jdg==",
+        "resolved": "6.0.0-be.692",
+        "contentHash": "I/JuhVhOXUFRrSxy7MqMHpygKoYNt39XY5V8e7PTLbq+nfCBGYzOhszcPx90Wj5xGPx6IFuABJocWAbFDHUddA==",
         "dependencies": {
           "HarmonyX": "2.10.1",
           "MonoMod.Utils": "22.5.1.1",
@@ -144,8 +144,8 @@
       },
       "BepInEx.Unity.Common": {
         "type": "Transitive",
-        "resolved": "6.0.0-be.691",
-        "contentHash": "7YP0JAWo3ozSOz8u4TBmGuasKRG5/iIIQEveCR0Z5Xiuaun1a8F4c6Wz3oY0//p9A2NFZvXXMIzj2/1YHF8auA==",
+        "resolved": "6.0.0-be.692",
+        "contentHash": "QYsp8Sf4kQwmx4qwFLhS7SW+Dp67iBibb0zo5IdMQXGmS0KY2WH7/SZ+fFmG6ce06BT+E58wsxk0rU6NW0qWbg==",
         "dependencies": {
           "AssetRipper.Primitives": "3.1.1",
           "MonoMod.Utils": "22.5.1.1"

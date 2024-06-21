@@ -40,6 +40,7 @@ public static class MapUtilities
     }
 }
 
+/*
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Awake))]
 public static class ShipStatus_Awake_Patch
 {
@@ -63,4 +64,4 @@ public static class ShipStatus_OnDestroy_Patch
         MapUtilities.MapDestroyed();
         SubmergedCompatibility.SetupMap(null);
     }
-}
+}*/
