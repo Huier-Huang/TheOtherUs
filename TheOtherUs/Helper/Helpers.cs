@@ -38,13 +38,6 @@ public enum SabatageTypes
     None
 }
 
-public enum CustomGameModes
-{
-    Classic,
-    Guesser,
-    HideNSeek,
-    PropHunt
-}
 
 public static class Helpers
 {
@@ -438,21 +431,7 @@ public static class Helpers
 
         return cs(roleInfo.color, $"{roleInfo.name}: {roleInfo.shortDescription}");
     }
-
-    public static bool isD(byte playerId)
-    {
-        return playerId % 2 == 0;
-    }
-
-    public static bool isLighterColor(PlayerControl target)
-    {
-        return isD(target.PlayerId);
-    }
-
-    public static bool isLighterColor2(int colorId)
-    {
-        return CustomColors.lighterColors.Contains(colorId);
-    }
+    
 
     public static bool isCustomServer()
     {

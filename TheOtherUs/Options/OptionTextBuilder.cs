@@ -46,7 +46,7 @@ public class OptionTextBuilder(ICollection options, BuildRule rule)
         return this;
     }
 
-    public OptionTextBuilder Build(OptionTypes type)
+    public OptionTextBuilder Build(CustomOptionTypes type)
     {
         PageTexts.Clear();
         return this;

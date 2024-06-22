@@ -75,9 +75,6 @@ public class Deputy : RoleBase
     public static void deputyPromotes(MessageReader reader)
     {
         if (!RoleIsAlive<Deputy>()) return;
-        Sheriff.replaceCurrentSheriff(Deputy.deputy);
-        Sheriff.formerDeputy = Deputy.deputy;
-        Deputy.deputy = null;
     }
 
     public override void ClearAndReload()
@@ -94,6 +91,8 @@ public class Deputy : RoleBase
         handcuffDuration = deputyHandcuffDuration;
         knowsSheriff = deputyKnowsSheriff;
     }
+
+    public override bool EnableAssign { get; set; } = false;
 
     public override void OptionCreate()
     {
@@ -134,7 +133,7 @@ public class Deputy : RoleBase
             () => ((deputy != null && CachedPlayer.LocalPlayer.Control.Is<Deputy>()) ||
                    (CachedPlayer.LocalPlayer.Control.Is<Sheriff>() && Get<Sheriff>().formerDeputy.Is<Sheriff>() &&
                     keepsHandcuffsOnPromotion)) &&
-                  !CachedPlayer.LocalPlayer.Data.IsDead,
+                  !CachedPlayer.LocalPlayer.NetPlayerInfo.IsDead,
             () =>
             {
                 ButtonHelper.showTargetNameOnButton(currentTarget, deputyHandcuffButton, "CUFF");
@@ -148,7 +147,7 @@ public class Deputy : RoleBase
             },
             () => { deputyHandcuffButton.Timer = deputyHandcuffButton.MaxTimer; },
             buttonSprite,
-            CustomButton.ButtonPositions.lowerRowRight,
+            DefButtonPositions.lowerRowRight,
             _hudManager,
             KeyCode.F
         );
@@ -219,18 +218,18 @@ public class Deputy : RoleBase
                 // Kill Button if enabled for the Role
                 if (FastDestroyableSingleton<HudManager>.Instance.KillButton.isActiveAndEnabled)
                     addReplacementHandcuffedButton(Get<Arsonist>().arsonistButton,
-                        CustomButton.ButtonPositions.upperRowRight,
+                        DefButtonPositions.upperRowRight,
                         () => FastDestroyableSingleton<HudManager>.Instance.KillButton.currentTarget != null);
                 // Vent Button if enabled
                 if (CachedPlayer.LocalPlayer.Control.roleCanUseVents())
                     addReplacementHandcuffedButton(Get<Arsonist>().arsonistButton,
-                        CustomButton.ButtonPositions.upperRowCenter,
+                        DefButtonPositions.upperRowCenter,
                         () => FastDestroyableSingleton<HudManager>.Instance.ImpostorVentButton.currentTarget != null);
                 // Report Button
                 addReplacementHandcuffedButton(Get<Arsonist>().arsonistButton,
-                    !CachedPlayer.LocalPlayer.Data.Role.IsImpostor
+                    !CachedPlayer.LocalPlayer.NetPlayerInfo.Role.IsImpostor
                         ? new Vector3(-1f, -0.06f, 0)
-                        : CustomButton.ButtonPositions.lowerRowRight,
+                        : DefButtonPositions.lowerRowRight,
                     () => FastDestroyableSingleton<HudManager>.Instance.ReportButton.graphic.color ==
                           Palette.EnabledColor);
                 break;

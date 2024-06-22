@@ -18,100 +18,9 @@ using TMPro;
 using UnityEngine;
 using static TheOtherUs.GameHistory;
 using static TheOtherUs.HudManagerStartPatch;
-using static TheOtherUs.MapOptions;
 using Object = UnityEngine.Object;
 
 namespace TheOtherUs;
-
-public enum RoleId
-{
-    Jester,
-    Mayor,
-    Portalmaker,
-    Engineer,
-    PrivateInvestigator,
-    Sheriff,
-    Deputy,
-    Cultist,
-    Lighter,
-    Werewolf,
-    Godfather,
-    Mafioso,
-    Crew,
-    Janitor,
-    Detective,
-    TimeMaster,
-    Mimic,
-    Veteren,
-    Amnisiac,
-    Cursed,
-    Medic,
-    Swapper,
-    Seer,
-    Morphling,
-    Bomber2,
-    Camouflager,
-    Hacker,
-    Tracker,
-    Vampire,
-    Snitch,
-    Jackal,
-    Sidekick,
-    Follower,
-    Eraser,
-    BodyGuard,
-    Spy,
-    Trickster,
-    Cleaner,
-    Undertaker,
-    Warlock,
-    SecurityGuard,
-    Arsonist,
-    EvilGuesser,
-    NiceGuesser,
-    Disperser,
-    BountyHunter,
-    Miner,
-    Vulture,
-    Medium,
-    Trapper,
-    Lawyer,
-    Prosecutor,
-    Pursuer,
-    Witch,
-    Jumper,
-    Escapist,
-    Ninja,
-    Blackmailer,
-    Thief,
-    Poucher,
-    Bomber,
-    Crewmate,
-    Impostor,
-
-    // Modifier ---
-    Lover,
-    Bait,
-    Bloody,
-    AntiTeleport,
-    Tiebreaker,
-    Indomitable,
-    Slueth,
-    Swooper,
-    Sunglasses,
-    Torch,
-    Flash,
-    Multitasker,
-    Mini,
-    Vip,
-    Tunneler,
-    Watcher,
-    Radar,
-    Blind,
-    Invert,
-    Chameleon,
-    Shifter
-}
 
 [Harmony]
 public static class RPCProcedure
@@ -216,202 +125,7 @@ public static class RPCProcedure
             }
         }
     }
-
-    public static void setRole(byte roleId, byte playerId)
-    {
-        foreach (var player in CachedPlayer.AllPlayers.Where(player => player.PlayerId == playerId))
-            switch ((RoleId)roleId)
-            {
-                case RoleId.Jester:
-                    Jester.jester = player;
-                    break;
-                case RoleId.Crew:
-                    Crew.crew = player;
-                    break;
-                case RoleId.Werewolf:
-                    Werewolf.werewolf = player;
-                    break;
-                case RoleId.Blackmailer:
-                    Blackmailer.blackmailer = player;
-                    break;
-                case RoleId.Miner:
-                    Miner.miner = player;
-                    break;
-                case RoleId.Mayor:
-                    Mayor.mayor = player;
-                    break;
-                case RoleId.Portalmaker:
-                    Portalmaker.portalmaker = player;
-                    break;
-                case RoleId.Engineer:
-                    Engineer.engineer = player;
-                    break;
-                case RoleId.Sheriff:
-                    Sheriff.sheriff = player;
-                    break;
-                case RoleId.BodyGuard:
-                    BodyGuard.bodyguard = player;
-                    break;
-                case RoleId.Deputy:
-                    Deputy.deputy = player;
-                    break;
-                case RoleId.Lighter:
-                    Lighter.lighter = player;
-                    break;
-                case RoleId.Godfather:
-                    Godfather.godfather = player;
-                    break;
-                case RoleId.Mafioso:
-                    Mafioso.mafioso = player;
-                    break;
-                case RoleId.Janitor:
-                    Janitor.janitor = player;
-                    break;
-                case RoleId.Detective:
-                    Detective.detective = player;
-                    break;
-                case RoleId.TimeMaster:
-                    TimeMaster.timeMaster = player;
-                    break;
-                case RoleId.Amnisiac:
-                    Amnisiac.amnisiac = player;
-                    break;
-                case RoleId.Veteren:
-                    Veteren.veteren = player;
-                    break;
-                case RoleId.Medic:
-                    Medic.medic = player;
-                    break;
-                case RoleId.Shifter:
-                    Shifter.shifter = player;
-                    break;
-                case RoleId.Swapper:
-                    Swapper.swapper = player;
-                    break;
-                case RoleId.Seer:
-                    Seer.seer = player;
-                    break;
-                case RoleId.Morphling:
-                    Morphling.morphling = player;
-                    break;
-                case RoleId.Bomber2:
-                    Bomber2.bomber2 = player;
-                    break;
-                case RoleId.Camouflager:
-                    Camouflager.camouflager = player;
-                    break;
-                case RoleId.Hacker:
-                    Hacker.hacker = player;
-                    break;
-                case RoleId.Tracker:
-                    Tracker.tracker = player;
-                    break;
-                case RoleId.Vampire:
-                    Vampire.vampire = player;
-                    break;
-                case RoleId.Snitch:
-                    Snitch.snitch = player;
-                    break;
-                case RoleId.Jackal:
-                    Jackal.jackal = player;
-                    break;
-                case RoleId.Sidekick:
-                    Sidekick.sidekick = player;
-                    break;
-                case RoleId.Follower:
-                    Follower.follower = player;
-                    break;
-                case RoleId.Eraser:
-                    Eraser.eraser = player;
-                    break;
-                case RoleId.Spy:
-                    Spy.spy = player;
-                    break;
-                case RoleId.Trickster:
-                    Trickster.trickster = player;
-                    break;
-                case RoleId.Cleaner:
-                    Cleaner.cleaner = player;
-                    break;
-                case RoleId.Undertaker:
-                    Undertaker.undertaker = player;
-                    break;
-                case RoleId.Poucher:
-                    Poucher.poucher = player;
-                    break;
-                case RoleId.PrivateInvestigator:
-                    PrivateInvestigator.privateInvestigator = player;
-                    break;
-                case RoleId.Mimic:
-                    Mimic.mimic = player;
-                    break;
-                case RoleId.Warlock:
-                    Warlock.warlock = player;
-                    break;
-                case RoleId.SecurityGuard:
-                    SecurityGuard.securityGuard = player;
-                    break;
-                case RoleId.Arsonist:
-                    Arsonist.arsonist = player;
-                    break;
-                /*
-                case RoleId.EvilGuesser:
-                    Guesser.evilGuesser = player;
-                    break;
-                    */
-                case RoleId.NiceGuesser:
-                    Guesser.niceGuesser = player;
-                    break;
-                case RoleId.BountyHunter:
-                    BountyHunter.bountyHunter = player;
-                    break;
-                case RoleId.Vulture:
-                    Vulture.vulture = player;
-                    break;
-                case RoleId.Medium:
-                    Medium.medium = player;
-                    break;
-                case RoleId.Trapper:
-                    Trapper.trapper = player;
-                    break;
-                case RoleId.Lawyer:
-                    Lawyer.lawyer = player;
-                    break;
-                case RoleId.Prosecutor:
-                    Lawyer.lawyer = player;
-                    Lawyer.isProsecutor = true;
-                    break;
-                case RoleId.Pursuer:
-                    Pursuer.pursuer = player;
-                    break;
-                case RoleId.Witch:
-                    Witch.witch = player;
-                    break;
-                case RoleId.Ninja:
-                    Ninja.ninja = player;
-                    break;
-                case RoleId.Jumper:
-                    Jumper.jumper = player;
-                    break;
-                case RoleId.Escapist:
-                    Escapist.escapist = player;
-                    break;
-                case RoleId.Cultist:
-                    Cultist.cultist = player;
-                    var impostors = PlayerControl.AllPlayerControls.ToArray().ToList().OrderBy(x => Guid.NewGuid())
-                        .ToList();
-                    impostors.RemoveAll(x => !x.Data.Role.IsImpostor);
-                    Helpers.turnToCrewmate(impostors, player);
-
-                    break;
-                case RoleId.Thief:
-                    Thief.thief = player;
-                    break;
-                case RoleId.Bomber:
-                    Bomber.bomber = player;
-                    break;
-            }
-    }
+    
 
     public static void setModifier(byte modifierId, byte playerId, byte flag)
     {
@@ -741,12 +455,7 @@ public static class RPCProcedure
                 Deputy.deputy = amnisiac;
                 Amnisiac.clearAndReload();
                 break;
-
-            case RoleId.Lighter:
-                if (Amnisiac.resetRole) Lighter.clearAndReload();
-                Lighter.lighter = amnisiac;
-                Amnisiac.clearAndReload();
-                break;
+            
 
             case RoleId.Godfather:
                 Helpers.turnToImpostor(Amnisiac.amnisiac);
@@ -1491,7 +1200,6 @@ public static class RPCProcedure
         if (player == PrivateInvestigator.privateInvestigator) PrivateInvestigator.clearAndReload();
         if (player == Sheriff.sheriff) Sheriff.clearAndReload();
         if (player == Deputy.deputy) Deputy.clearAndReload();
-        if (player == Lighter.lighter) Lighter.clearAndReload();
         if (player == Detective.detective) Detective.clearAndReload();
         if (player == TimeMaster.timeMaster) TimeMaster.clearAndReload();
         if (player == Amnisiac.amnisiac) Amnisiac.clearAndReload();

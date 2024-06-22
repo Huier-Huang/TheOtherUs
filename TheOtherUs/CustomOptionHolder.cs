@@ -185,11 +185,6 @@ public class CustomOptionHolder
     public static CustomOption sheriffCanKillPursuer;
     public static CustomOption deputySpawnRate;
 
-    public static CustomOption lighterSpawnRate;
-    public static CustomOption lighterModeLightsOnVision;
-    public static CustomOption lighterModeLightsOffVision;
-    public static CustomOption lighterFlashlightWidth;
-
     public static CustomOption detectiveSpawnRate;
     public static CustomOption detectiveAnonymousFootprints;
     public static CustomOption detectiveFootprintIntervall;
@@ -918,15 +913,6 @@ public class CustomOptionHolder
         sheriffCanKillPursuer = new CustomOption(30051, Types.Crewmate,
             "Sheriff Can Kill " + cs(Pursuer.color, "Pursuer"), false, sheriffCanKillNeutrals);
         
-
-        lighterSpawnRate = new CustomOption(30070, Types.Crewmate, cs(Lighter.color, "Lighter"), rates, null, true);
-        lighterModeLightsOnVision = new CustomOption(30071, Types.Crewmate, "Vision On Lights On", 1.5f, 0.25f, 5f,
-            0.25f, lighterSpawnRate);
-        lighterModeLightsOffVision = new CustomOption(30072, Types.Crewmate, "Vision On Lights Off", 0.5f, 0.25f, 5f,
-            0.25f, lighterSpawnRate);
-        lighterFlashlightWidth = new CustomOption(30073, Types.Crewmate, "Flashlight Width", 0.3f, 0.1f, 1f, 0.1f,
-            lighterSpawnRate);
-
         detectiveSpawnRate =
             new CustomOption(30080, Types.Crewmate, cs(Detective.color, "Investigator"), rates, null, true);
         detectiveAnonymousFootprints =

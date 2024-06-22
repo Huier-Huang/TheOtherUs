@@ -58,17 +58,9 @@ public class ShipStatusPatch
                 __result = GetNeutralLightRadius(__instance, true);
                 return false;
             }
+            
 
-        // If player is Lighter with ability active
-        if (Lighter.lighter != null && Lighter.lighter.PlayerId == player.PlayerId)
-        {
-            var unlerped = Mathf.InverseLerp(__instance.MinLightRadius, __instance.MaxLightRadius,
-                GetNeutralLightRadius(__instance, false));
-            __result = Mathf.Lerp(__instance.MaxLightRadius * Lighter.lighterModeLightsOffVision,
-                __instance.MaxLightRadius * Lighter.lighterModeLightsOnVision, unlerped);
-        }
-
-        // If Game mode is Hide N Seek and hunter with ability active
+        /*// If Game mode is Hide N Seek and hunter with ability active
         else if (HideNSeek.isHideNSeekGM && Hunter.isLightActive(player.PlayerId))
         {
             var unlerped = Mathf.InverseLerp(__instance.MinLightRadius, __instance.MaxLightRadius,
@@ -76,10 +68,10 @@ public class ShipStatusPatch
             __result = Mathf.Lerp(__instance.MaxLightRadius * Hunter.lightVision,
                 __instance.MaxLightRadius * Hunter.lightVision, unlerped);
             return false;
-        }
+        }*/
 
         // If there is a Trickster with their ability active
-        else if (Trickster.trickster != null && Trickster.lightsOutTimer > 0f)
+        if (Trickster.trickster != null && Trickster.lightsOutTimer > 0f)
         {
             var lerpValue = 1f;
             if (Trickster.lightsOutDuration - Trickster.lightsOutTimer < 0.5f)

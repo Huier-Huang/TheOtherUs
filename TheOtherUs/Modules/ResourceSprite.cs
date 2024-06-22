@@ -16,9 +16,9 @@ public class ResourceSprite(
 
     private static readonly Assembly assembly = Assembly.GetExecutingAssembly();
 
-    public bool _cache = cache;
+    public readonly bool _cache = cache;
 
-    public string _pathName = pathName;
+    public readonly string _pathName = pathName;
 
     public float _pixel = pixel;
     private Sprite? _sprite;

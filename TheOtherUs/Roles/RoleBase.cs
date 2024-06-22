@@ -19,6 +19,7 @@ public abstract class RoleBase : IDisposable
 
     public CustomRoleType CustomRoleType => RoleInfo.RoleType;
 
+    public virtual bool EnableAssign { get; set; } = true;
     public virtual bool IsVanilla { get; set; } = false;
     public virtual bool HasImpostorVision { get; set; } = false;
     public virtual bool IsKiller { get; set; } = false;

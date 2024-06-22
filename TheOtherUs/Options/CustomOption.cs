@@ -15,7 +15,7 @@ using Color = UnityEngine.Color;
 
 namespace TheOtherUs.Options;
 
-public enum OptionTypes
+public enum CustomOptionTypes
 {
     General,
     Role,
@@ -26,19 +26,19 @@ public class CustomRoleOption : CustomParentOption
 {
     public CustomRoleOption(RoleBase @base, bool enableNumber = true, bool enableRate = true, bool enableVision = false) 
         : 
-        base(@base.RoleInfo.Name, OptionTypes.Role, new StringOptionSelection(0, roleRateStrings),  color:@base.RoleInfo.Color)
+        base(@base.RoleInfo.Name, CustomOptionTypes.Role, new StringOptionSelection(0, roleRateStrings),  color:@base.RoleInfo.Color)
     {
         roleBase = @base;
         EnabledTranslate = true;
         TabType = TabTypes.Classic;
 
         if (enableVision)
-            visionOption = new CustomOption("Impostor Vision", this, new BoolOptionSelection(false));
+            visionOption = AddChild("Impostor Vision", new BoolOptionSelection(false));
         
         switch (enableNumber)
         {
             case true when enableRate:
-                numberOption = new CustomOption("Role Number", this, new IntOptionSelection(0, 0, 5, 1));
+                numberOption = AddChild("Role Number", new IntOptionSelection(0, 0, 5, 1));
                 return;
             case true:
                 OptionSelection = new IntOptionSelection(0, 0, 5, 1);
@@ -59,7 +59,7 @@ public class CustomModeOption : CustomParentOption
     public CustomGameModes mode;
 
     public CustomModeOption(CustomGameModes mode, string Title, OptionSelectionBase selection, Color color = default) 
-        : base(Title, OptionTypes.Mode, selection, color)
+        : base(Title, CustomOptionTypes.Mode, selection, color)
     {
         this.mode = mode;
         TabType = this.mode switch
@@ -74,14 +74,26 @@ public class CustomModeOption : CustomParentOption
 
 public class CustomGeneralOption : CustomParentOption
 {
-    public CustomGeneralOption(string title, OptionSelectionBase selection, Color color = default) : base(title, OptionTypes.General, selection, color)
+    public CustomGeneralOption(string title, OptionSelectionBase selection, Color color = default) : base(title, CustomOptionTypes.General, selection, color)
     {
         TabType = TabTypes.Classic;
     }
 }
 
-public class CustomParentOption(string Title, OptionTypes type, OptionSelectionBase selection, Color color)
-    : CustomOption(Title, type, selection, null, color);
+public class CustomParentOption(string Title, CustomOptionTypes type, OptionSelectionBase selection, Color color)
+    : CustomOption(Title, type, selection, null, color)
+{
+    public readonly List<CustomOption> Child = [];
+    public CustomOption AddChild(string title, OptionSelectionBase selection, Color color = default)
+    {
+        var option = new CustomOption(title, CustomOptionType, selection, this, color == default ? Color : color);
+        Child.Add(option);
+        return option;
+    }
+
+    public CustomOption this[Index index] => Child[index];
+    public CustomOption this[string title] => Child.First(n => n.Title == title);
+}
 
 
 public class CustomOption
@@ -126,13 +138,13 @@ public class CustomOption
 
 
     public CustomOption(string Title, CustomOption Parent, OptionSelectionBase selection, Color color = default)
-        : this(Title, Parent.optionType, selection, Parent, color)
+        : this(Title, Parent.CustomOptionType, selection, Parent, color)
     {
     }
     
-    public CustomOption(string Title, OptionTypes type, OptionSelectionBase selection, CustomOption Parent, Color color = default)
+    public CustomOption(string Title, CustomOptionTypes type, OptionSelectionBase selection, CustomOption Parent, Color color = default)
     {
-        optionType = type;
+        CustomOptionType = type;
         selection.option = this;
         optionInfo = new OptionInfo
         {
@@ -154,7 +166,7 @@ public class CustomOption
         CustomOptionManager.Instance.Register(this);
     }
 
-    public OptionTypes optionType { get; set; }
+    public CustomOptionTypes CustomOptionType { get; set; }
 
     [JsonIgnore] 
     public OptionEvent optionEvent { get; } = new();

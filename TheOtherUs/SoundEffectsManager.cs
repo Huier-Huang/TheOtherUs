@@ -25,54 +25,48 @@ public static class SoundEffectsManager
     public static AudioClip get(string path)
     {
         // Convenience: As as SoundEffects are stored in the same folder, allow using just the name as well
-        if (!path.Contains(".")) path = "TheOtherUs.Resources.SoundEffects." + path + ".raw";
-        AudioClip returnValue;
-        return soundEffects.TryGetValue(path, out returnValue) ? returnValue : null;
+        if (!path.Contains('.')) path = "TheOtherUs.Resources.SoundEffects." + path + ".raw";
+        return soundEffects.GetValueOrDefault(path);
     }
 
 
     public static void play(string path, float volume = 0.8f, bool loop = false)
     {
-        if (!MapOptions.enableSoundEffects) return;
         var clipToPlay = get(path);
         stop(path);
-        if (Constants.ShouldPlaySfx() && clipToPlay != null)
-        {
-            var source = SoundManager.Instance.PlaySound(clipToPlay, false, volume);
-            source.loop = loop;
-        }
+        if (!Constants.ShouldPlaySfx() || clipToPlay == null) return;
+        var source = SoundManager.Instance.PlaySound(clipToPlay, false, volume);
+        source.loop = loop;
     }
 
     public static void playAtPosition(string path, Vector2 position, float maxDuration = 15f, float range = 5f,
         bool loop = false)
     {
-        if (!MapOptions.enableSoundEffects || !Constants.ShouldPlaySfx()) return;
+        if (!Constants.ShouldPlaySfx()) return;
         var clipToPlay = get(path);
 
         var source = SoundManager.Instance.PlaySound(clipToPlay, false);
         source.loop = loop;
         HudManager.Instance.StartCoroutine(Effects.Lerp(maxDuration, new Action<float>(p =>
         {
-            if (source != null)
-            {
-                if (p == 1) source.Stop();
-                float distance, volume;
-                distance = Vector2.Distance(position, CachedPlayer.LocalPlayer.Control.GetTruePosition());
-                if (distance < range)
-                    volume = 1f - (distance / range);
-                else
-                    volume = 0f;
-                source.volume = volume;
-            }
+            if (source == null) return;
+            if ((int)p == 1) source.Stop();
+            float volume;
+            var distance = Vector2.Distance(position, CachedPlayer.LocalPlayer.Control.GetTruePosition());
+            if (distance < range)
+                volume = 1f - (distance / range);
+            else
+                volume = 0f;
+            source.volume = volume;
         })));
     }
 
     public static void stop(string path)
     {
         var soundToStop = get(path);
-        if (soundToStop != null)
-            if (Constants.ShouldPlaySfx())
-                SoundManager.Instance.StopSound(soundToStop);
+        if (soundToStop == null) return;
+        if (Constants.ShouldPlaySfx())
+            SoundManager.Instance.StopSound(soundToStop);
     }
 
     public static void stopAll()

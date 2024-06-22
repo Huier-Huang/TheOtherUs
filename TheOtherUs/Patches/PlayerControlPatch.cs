@@ -2242,29 +2242,26 @@ public static class IsFlashlightEnabledPatch
         if (GameOptionsManager.Instance.currentGameOptions.GameMode == GameModes.HideNSeek)
             return true;
         __result = false;
-        if (!CachedPlayer.LocalPlayer.Data.IsDead && Lighter.lighter != null &&
-            Lighter.lighter.PlayerId == CachedPlayer.LocalPlayer.PlayerId) __result = true;
 
         return false;
     }
 }
 
-[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.AdjustLighting))]
+/*[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.AdjustLighting))]
 public static class AdjustLight
 {
     public static bool Prefix(PlayerControl __instance)
     {
-        if (__instance == null || CachedPlayer.LocalPlayer == null || Lighter.lighter == null) return true;
+        if (__instance == null || CachedPlayer.LocalPlayer == null) return true;
 
-        var hasFlashlight = !CachedPlayer.LocalPlayer.Data.IsDead &&
-                            Lighter.lighter.PlayerId == CachedPlayer.LocalPlayer.PlayerId;
+        var hasFlashlight = !CachedPlayer.LocalPlayer.Data.IsDead ;
         __instance.SetFlashlightInputMethod();
         __instance.lightSource.SetupLightingForGameplay(hasFlashlight, Lighter.flashlightWidth,
             __instance.TargetFlashlight.transform);
 
         return false;
     }
-}
+}*/
 
 [HarmonyPatch(typeof(GameData), nameof(GameData.HandleDisconnect), [
     typeof(PlayerControl), typeof(DisconnectReasons)

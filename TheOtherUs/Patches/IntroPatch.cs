@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Linq;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
 using Hazel;
 using Il2CppSystem.Collections.Generic;
 using TheOtherUs.CustomGameMode;
@@ -11,6 +13,23 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace TheOtherUs.Patches;
+
+[Harmony]
+internal static class IntroPatches
+{
+    [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.CoBegin))]
+    private static bool IntroCutscene_CoBegin(IntroCutscene __instance,
+        ref Il2CppSystem.Collections.IEnumerator __result)
+    {
+        __result = CoBegin(__instance).WrapToIl2Cpp();
+        return false;
+    }
+
+    private static IEnumerator CoBegin(IntroCutscene cutscene)
+    {
+        yield return null;
+    }
+}
 
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.OnDestroy))]
 internal class IntroCutsceneOnDestroyPatch

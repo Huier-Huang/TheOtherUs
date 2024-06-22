@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Hazel;
 using InnerNet;
+using TheOtherUs.CustomGameMode;
 using TheOtherUs.Patches;
 
 namespace TheOtherUs.Helper;
@@ -32,7 +33,7 @@ public static class HandshakeHelper
     {
         if (CachedPlayer.LocalPlayer == null) return;
         FastRpcWriter.StartNewRpcWriter(CustomRPC.ShareGamemode)
-            .Write((byte)MapOptions.gameMode)
+            .Write((byte)CustomModeBase.mode)
             .RPCSend();
     }
 

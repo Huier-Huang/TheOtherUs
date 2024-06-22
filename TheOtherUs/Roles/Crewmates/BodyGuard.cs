@@ -25,7 +25,7 @@ public class BodyGuard : RoleBase
         Color = new Color32(145, 102, 64, byte.MaxValue),
         GetRole = Get<BodyGuard>,
         CreateRoleController = n => new BodyGuardController(n),
-        Description = "Protect someone with your own life",
+        DescriptionText = "Protect someone with your own life",
         IntroInfo = "Protect someone with your own life",
         Name = nameof(BodyGuard),
         RoleClassType = typeof(BodyGuard),
@@ -57,8 +57,8 @@ public class BodyGuard : RoleBase
     public override void OptionCreate()
     {
         roleOption = new CustomRoleOption(this);
-        bodyGuardResetTargetAfterMeeting = new CustomOption("Reset Target After Meeting", OptionTypes.Role, new BoolOptionSelection(), roleOption);
-        bodyGuardFlash = new CustomOption("Show Flash On Death", OptionTypes.Role, new BoolOptionSelection(),roleOption);
+        bodyGuardResetTargetAfterMeeting = roleOption.AddChild("Reset Target After Meeting", new BoolOptionSelection());
+        bodyGuardFlash = roleOption.AddChild("Show Flash On Death", new BoolOptionSelection());
     }
 
     public override void ButtonCreate(HudManager _hudManager)

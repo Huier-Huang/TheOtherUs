@@ -140,8 +140,6 @@ public class RoleInfo
     public static RoleInfo deputy = new("Deputy", Sheriff.color, "Handcuff the <color=#FF1919FF>Impostors</color>",
         "Handcuff the Impostors", RoleId.Deputy);
 
-    public static RoleInfo lighter = new("Lighter", Lighter.color, "Your light never goes out",
-        "Your light never goes out", RoleId.Lighter);
 
     public static RoleInfo poucher = new("Poucher", Poucher.color, "Keep info on the players you kill",
         "Investigate the kills", RoleId.Poucher);
@@ -313,8 +311,6 @@ public class RoleInfo
         privateInvestigator,
         sheriff,
         deputy,
-        bodyguard,
-        lighter,
         jumper,
         detective,
         timeMaster,

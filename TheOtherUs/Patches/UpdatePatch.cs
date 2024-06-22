@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using InnerNet;
+using TheOtherUs.CustomCosmetics;
 using TheOtherUs.CustomGameMode;
 using TheOtherUs.Objects;
 using TheOtherUs.Roles.Crewmates;
@@ -278,12 +279,14 @@ internal class HudManagerUpdatePatch
         }
 
         // Display lighter / darker color for all alive players
-        if (CachedPlayer.LocalPlayer != null && MeetingHud.Instance != null && MapOptions.showLighterDarker)
+        if (CachedPlayer.LocalPlayer == null || MeetingHud.Instance == null || !MapOptions.showLighterDarker) return;
+        {
             foreach (var player in MeetingHud.Instance.playerStates)
             {
                 var target = Helpers.playerById(player.TargetPlayerId);
-                if (target != null) player.NameText.text += $" ({(Helpers.isLighterColor(target) ? "L" : "D")})";
+                if (target != null) player.NameText.text += $" ({(DIYColor.IsLighter(target.Data.Color) ? "L" : "D")})";
             }
+        }
     }
 
     private static void updateShielded()

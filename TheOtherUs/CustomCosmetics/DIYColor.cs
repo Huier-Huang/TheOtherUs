@@ -220,6 +220,12 @@ public class DIYColor : IColorData
         Info($"DIYColor Text:{text} Color:{color} Shadow:{shadow} gValue:{gValue} Lighter:{Lighter}");
     }
 
+    public static bool IsLighter(Color color)
+    {
+        var gValue = (color.r * 0.299) + (color.g * 0.587) + (color.b * 0.114);
+        return gValue < 125;
+    }
+
     public Color Color { get; set; }
     public Color Shadow { get; set; }
 

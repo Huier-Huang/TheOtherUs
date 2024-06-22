@@ -57,7 +57,6 @@ public abstract class OptionTabMenuBase
     public void UpdateOptionTab()
     {
         GameSettings.SetActive(IsDefault);
-        GameSettingMenu!.GameSettingsHightlight.enabled = IsDefault;
         foreach (var optionTab in OptionTabs)
         {
             if (IsDefault)
@@ -98,7 +97,7 @@ public class OptionTab
 
     public Vector3 TabPos { get; set; }
 
-    public OptionTypes OptionType { get; set; }
+    public CustomOptionTypes CustomOptionType { get; set; }
 
     public GameObject TabGameObject { get; set; }
 

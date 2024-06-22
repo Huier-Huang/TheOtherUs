@@ -45,4 +45,8 @@ public sealed class BepInConfig<T>(ConfigFile configFile, string Key, T value)
 
     private readonly ConfigEntry<T> entry = configFile.Bind(Section, Key, value);
     public static implicit operator T(BepInConfig<T> config) => config.entry.Value;
+
+    public static implicit operator ConfigEntry<T>(BepInConfig<T> config) => config.entry;
+    
+    public void SetValue(T value) => entry.Value = value;
 }
