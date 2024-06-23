@@ -116,15 +116,15 @@ public abstract class OptionSelection(object[] selections, int def)
     }
 }
 
-public class BoolOptionSelection(bool Def = true) : StringOptionSelection(Def ? 1 : 0, strings:Switches)
+public class BoolOptionSelection(bool Def = true) : StringOptionSelection(strings:Switches, Def ? 1 : 0)
 {
     public static readonly string[] Switches = ["False", "True"];
 }
 
-public class StringOptionSelection(int Def, params string[] strings)
+public class StringOptionSelection(string[] strings, int Def = 0)
     : IntOptionSelection(Def, 0, strings.Length - 1, 1)
 {
-    public string[] Strings = strings;
+    public readonly string[] Strings = strings;
     
     public override string GetString()
     {

@@ -24,7 +24,7 @@ public class CustomRoleOption : CustomParentOption
 {
     public CustomRoleOption(RoleBase @base, bool enableNumber = true, bool enableRate = true, bool enableVision = false) 
         : 
-        base(@base.RoleInfo.Name, CustomOptionTypes.Role, new StringOptionSelection(0, roleRateStrings),  color:@base.RoleInfo.Color)
+        base(@base.RoleInfo.Name, CustomOptionTypes.Role, new StringOptionSelection(roleRateStrings),  color:@base.RoleInfo.Color)
     {
         roleBase = @base;
         EnabledTranslate = true;
@@ -82,7 +82,7 @@ public class CustomParentOption(string Title, CustomOptionTypes type, OptionSele
     : CustomOption(Title, type, selection, null, color)
 {
     public List<CustomOption> Child = [];
-    public CustomOption AddChild(string title, OptionSelectionBase selection, Color color = default)
+    public override CustomOption AddChild(string title, OptionSelectionBase selection, Color color = default)
     {
         var option = new CustomOption(title, CustomOptionType, selection, this, color == default ? Color : color);
         Child.Add(option);
@@ -140,8 +140,13 @@ public class CustomOption
 
         optionBehaviour = stringOption;
     }
-
-
+    
+    public virtual CustomOption AddChild(string title, OptionSelectionBase selection, Color color = default)
+    {
+        var option = new CustomOption(title, CustomOptionType, selection, this, color == default ? Color : color);
+        return option;
+    }
+    
     public CustomOption(string Title, CustomOption Parent, OptionSelectionBase selection, Color color = default)
         : this(Title, Parent.CustomOptionType, selection, Parent, color)
     {

@@ -117,7 +117,7 @@ public class Deputy : RoleBase
             new CustomOption("Handcuff Cooldown", roleOption, new FloatOptionSelection(30, 10, 60, 2.5f));
         deputyHandcuffDuration = new CustomOption("Handcuff Duration", roleOption, new FloatOptionSelection(15, 5, 60, 2.5f));
         deputyKnowsSheriff = new CustomOption("Sheriff And Deputy Know Each Other ", roleOption, new BoolOptionSelection());;
-        deputyGetsPromoted = new CustomOption( "Deputy Gets Promoted To Sheriff", roleOption, new StringOptionSelection(0, 
+        deputyGetsPromoted = new CustomOption( "Deputy Gets Promoted To Sheriff", roleOption, new StringOptionSelection(
             ["Off", "On (Immediately)", "On (After Meeting)"]));
         deputyKeepsHandcuffs = new CustomOption("Deputy Keeps Handcuffs When Promoted", roleOption, new BoolOptionSelection());
     }

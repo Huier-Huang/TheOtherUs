@@ -124,9 +124,6 @@ public class RoleInfo
     public static RoleInfo swapper = new("Swapper", Swapper.color,
         "Swap votes to exile the <color=#FF1919FF>Impostors</color>", "Swap votes", RoleId.Swapper);
 
-    public static RoleInfo seer = new("Seer", Seer.color, "You will see players die", "You will see players die",
-        RoleId.Seer);
-
     public static RoleInfo tracker = new("Tracker", Tracker.color, "Track the <color=#FF1919FF>Impostors</color> down",
         "Track the Impostors down", RoleId.Tracker);
 
