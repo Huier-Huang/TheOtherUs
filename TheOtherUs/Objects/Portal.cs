@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using TheOtherUs.Modules.Compatibility;
-using TheOtherUs.Roles.Crewmates;
-using TheOtherUs.Roles.Impostors;
 using UnityEngine;
 
 namespace TheOtherUs.Objects;
@@ -82,7 +80,7 @@ public class Portal
         secondPortal.animationFgRenderer.flipX = flip;
         if (Morphling.morphling != null && Morphling.morphTimer > 0)
             playerControl = Morphling.morphTarget; // Will output info of morph-target instead
-        var playerNameDisplay = Portalmaker.logOnlyHasColors
+        var playerNameDisplay = PortalMaker.logOnlyHasColors
             ? "A player (" + (Helpers.isLighterColor(playerControl) ? "L" : "D") + ")"
             : playerControl.Data.PlayerName;
 

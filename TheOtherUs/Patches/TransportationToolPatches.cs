@@ -1,5 +1,4 @@
 ﻿using System;
-using TheOtherUs.Roles.Impostors;
 
 namespace TheOtherUs.Patches;
 

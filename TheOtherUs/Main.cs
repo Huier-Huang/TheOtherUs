@@ -60,13 +60,13 @@ public partial class TheOtherRolesPlugin : BasePlugin
 
     private void CheckUpdate()
     {
-        if (BepInExUpdater.UpdateRequired)
+        /*if (BepInExUpdater.UpdateRequired)
         {
             AddComponent<BepInExUpdater>();
             return;
         }
 
-        AddComponent<ModUpdater>();
+        AddComponent<ModUpdater>();*/
     }
 
     private static void DownLoadDependent()
@@ -115,6 +115,7 @@ public partial class TheOtherRolesPlugin : BasePlugin
             {
                 AttributeManager.Instance
                     .SetInit()
+                    .Add<ManagerBaseLoad>(TaskQueue.GetOrCreate(1))
                     .Add<MonoRegisterAndDontDestroy>()
                     .Add<RegisterRole>(_RoleManager)
                     .Add<OnEvent>()

@@ -1,5 +1,4 @@
-using System;
-using TheOtherUs.Modules.Compatibility;
+using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Crewmates;
@@ -7,10 +6,16 @@ namespace TheOtherUs.Roles.Crewmates;
 [RegisterRole]
 public class SecurityGuard : RoleBase
 {
-    private ResourceSprite animatedVentSealedSprite;
     public int camPrice = 2;
 
-    private ResourceSprite camSprite = new(onGetSprite: sprite =>
+    public bool cantMove = true;
+    public int charges = 1;
+
+    public float cooldown = 30f;
+    public float duration = 10f;
+
+    public ResourceSprite animatedVentSealedSprite = new("AnimatedVentSealed.png", 185f);
+    public ResourceSprite camSprite = new(onGetSprite: sprite =>
     {
         if (sprite.ReturnSprite != null)
             return;
@@ -18,20 +23,9 @@ public class SecurityGuard : RoleBase
             .fastUseSettings[ImageNames.CamsButton]
             .Image;
     });
-
-    public bool cantMove = true;
-    public int charges = 1;
-
-    private ResourceSprite closeVentButtonSprite = new("CloseVentButton.png");
-    public Color color = new Color32(195, 178, 95, byte.MaxValue);
-
-    public float cooldown = 30f;
-    public float duration = 10f;
-    private ResourceSprite fungleVentSealedSprite = new("FungleVentSealed.png", 160f);
-
-    private float lastPPU;
-
-    private ResourceSprite logSprite = new(onGetSprite: sprite =>
+    public ResourceSprite closeVentButtonSprite = new("CloseVentButton.png");
+    public ResourceSprite fungleVentSealedSprite = new("FungleVentSealed.png", 160f);
+    public ResourceSprite logSprite = new(onGetSprite: sprite =>
     {
         if (sprite.ReturnSprite != null)
             return;
@@ -39,36 +33,43 @@ public class SecurityGuard : RoleBase
             .fastUseSettings[ImageNames.DoorLogsButton]
             .Image;
     });
+    
+    public ResourceSprite staticVentSealedSprite = new("StaticVentSealed.png", 160f);
+    public ResourceSprite submergedCentralLowerVentSealedSprite = new("CentralLowerBlocked.png", 145f);
+    public ResourceSprite submergedCentralUpperVentSealedSprite = new("CentralUpperBlocked.png", 145f);
+    public ResourceSprite placeCameraButtonSprite = new("PlaceCameraButton.png");
 
     public int maxCharges = 5;
     public Minigame minigame;
-    private ResourceSprite placeCameraButtonSprite = new("PlaceCameraButton.png");
     public int placedCameras;
     public int rechargedTasks = 3;
     public int rechargeTasksNumber = 3;
     public int remainingScrews = 7;
     public PlayerControl securityGuard;
-    private ResourceSprite staticVentSealedSprite = new("StaticVentSealed.png", 160f);
-    private ResourceSprite submergedCentralLowerVentSealedSprite = new("CentralLowerBlocked.png", 145f);
-    private ResourceSprite submergedCentralUpperVentSealedSprite = new("CentralUpperBlocked.png", 145f);
     public int totalScrews = 7;
     public int ventPrice = 1;
     public Vent ventTarget;
 
-    public SecurityGuard()
+    public override RoleInfo RoleInfo { get; protected set; } = new()
     {
-        animatedVentSealedSprite = new ResourceSprite("AnimatedVentSealed.png", onGetSprite: sprite =>
-        {
-            var ppu = 185f;
-            if (SubmergedCompatibility.IsSubmerged) ppu = 120f;
-            lastPPU = ppu;
-
-            sprite._pixel = ppu;
-        });
+        Color = new Color32(195, 178, 95, byte.MaxValue),
+        GetRole = Get<SecurityGuard>,
+        CreateRoleController = n => new SecurityGuardController(n),
+        DescriptionText = "Seal vents and place cameras",
+        IntroInfo = "Seal vents and place cameras",
+        Name = nameof(SecurityGuard),
+        RoleClassType = typeof(SecurityGuard),
+        RoleId = RoleId.SecurityGuard,
+        RoleTeam = RoleTeam.Crewmate,
+        RoleType = CustomRoleType.Main
+    };
+    
+    public class SecurityGuardController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<SecurityGuard>();
     }
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    
+    public override CustomRoleOption roleOption { get; set; }
 
 
     public override void ClearAndReload()
@@ -76,16 +77,16 @@ public class SecurityGuard : RoleBase
         securityGuard = null;
         ventTarget = null;
         minigame = null;
-        duration = CustomOptionHolder.securityGuardCamDuration.getFloat();
-        maxCharges = Mathf.RoundToInt(CustomOptionHolder.securityGuardCamMaxCharges.getFloat());
-        rechargeTasksNumber = Mathf.RoundToInt(CustomOptionHolder.securityGuardCamRechargeTasksNumber.getFloat());
-        rechargedTasks = Mathf.RoundToInt(CustomOptionHolder.securityGuardCamRechargeTasksNumber.getFloat());
-        charges = Mathf.RoundToInt(CustomOptionHolder.securityGuardCamMaxCharges.getFloat()) / 2;
+        duration = CustomOptionHolder.securityGuardCamDuration;
+        maxCharges = Mathf.RoundToInt(CustomOptionHolder.securityGuardCamMaxCharges);
+        rechargeTasksNumber = Mathf.RoundToInt(CustomOptionHolder.securityGuardCamRechargeTasksNumber);
+        rechargedTasks = Mathf.RoundToInt(CustomOptionHolder.securityGuardCamRechargeTasksNumber);
+        charges = Mathf.RoundToInt(CustomOptionHolder.securityGuardCamMaxCharges) / 2;
         placedCameras = 0;
-        cooldown = CustomOptionHolder.securityGuardCooldown.getFloat();
-        totalScrews = remainingScrews = Mathf.RoundToInt(CustomOptionHolder.securityGuardTotalScrews.getFloat());
-        camPrice = Mathf.RoundToInt(CustomOptionHolder.securityGuardCamPrice.getFloat());
-        ventPrice = Mathf.RoundToInt(CustomOptionHolder.securityGuardVentPrice.getFloat());
-        cantMove = CustomOptionHolder.securityGuardNoMove.getBool();
+        cooldown = CustomOptionHolder.securityGuardCooldown;
+        totalScrews = remainingScrews = Mathf.RoundToInt(CustomOptionHolder.securityGuardTotalScrews);
+        camPrice = Mathf.RoundToInt(CustomOptionHolder.securityGuardCamPrice);
+        ventPrice = Mathf.RoundToInt(CustomOptionHolder.securityGuardVentPrice);
+        cantMove = CustomOptionHolder.securityGuardNoMove;
     }
 }

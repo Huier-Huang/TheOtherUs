@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using TheOtherUs.Options;
-using TheOtherUs.Roles.Crewmates;
-using TheOtherUs.Roles.Impostors;
 using UnityEngine;
 
 namespace TheOtherUs;
@@ -1004,7 +1002,7 @@ public class CustomOptionHolder
         spyHasImpostorVision = new CustomOption(30184, Types.Crewmate, "Spy Has Impostor Vision", false, spySpawnRate);
 
         portalmakerSpawnRate =
-            new CustomOption(30190, Types.Crewmate, cs(Portalmaker.color, "Portalmaker"), rates, null, true);
+            new CustomOption(30190, Types.Crewmate, cs(PortalMaker.color, "Portalmaker"), rates, null, true);
         portalmakerCooldown = new CustomOption(30191, Types.Crewmate, "Portalmaker Cooldown", 30f, 10f, 60f, 2.5f,
             portalmakerSpawnRate);
         portalmakerUsePortalCooldown = new CustomOption(30192, Types.Crewmate, "Use Portal Cooldown", 30f, 10f, 60f,

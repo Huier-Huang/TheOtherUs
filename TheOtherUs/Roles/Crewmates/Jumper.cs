@@ -5,9 +5,10 @@ namespace TheOtherUs.Roles.Crewmates;
 
 [RegisterRole]
 public class Jumper : RoleBase
-{
-    public Color color = new Color32(204, 155, 20, byte.MaxValue); // mint
-    private Sprite jumpButtonSprite;
+{ // mint
+    private ResourceSprite jumpButtonSprite = new ("JumperJumpButton.png");
+    private ResourceSprite jumpMarkButtonSprite = new ("JumperButton.png");
+    
     public PlayerControl jumper;
 
     //    public static float jumperChargesGainOnMeeting = 2f;
@@ -19,31 +20,33 @@ public class Jumper : RoleBase
 
     public Vector3 jumpLocation;
 
-    private Sprite jumpMarkButtonSprite;
-
     public bool resetPlaceAfterMeeting;
     public bool usedPlace;
 
-    public override RoleInfo RoleInfo { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Color = new Color32(204, 155, 20, byte.MaxValue),
+        GetRole = Get<Jumper>,
+        CreateRoleController = n => new JumperController(n),
+        DescriptionText = "Surprise the Impostors",
+        IntroInfo = "Surprise the <color=#FF1919FF>Impostors</color>",
+        Name = nameof(Jumper),
+        RoleClassType = typeof(Jumper),
+        RoleId = RoleId.Jumper,
+        RoleTeam = RoleTeam.Crewmate,
+        RoleType = CustomRoleType.Main
+    };
+    
+    public class JumperController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Jumper>();
+    }
+    
     public override CustomRoleOption roleOption { get; set; }
-
-    public Sprite getJumpMarkButtonSprite()
-    {
-        if (jumpMarkButtonSprite) return jumpMarkButtonSprite;
-        jumpMarkButtonSprite = UnityHelper.loadSpriteFromResources("TheOtherUs.Resources.JumperButton.png", 115f);
-        return jumpMarkButtonSprite;
-    }
-
-    public Sprite getJumpButtonSprite()
-    {
-        if (jumpButtonSprite) return jumpButtonSprite;
-        jumpButtonSprite = UnityHelper.loadSpriteFromResources("TheOtherUs.Resources.JumperJumpButton.png", 115f);
-        return jumpButtonSprite;
-    }
 
     public void resetPlaces()
     {
-        jumperCharges = Mathf.RoundToInt(CustomOptionHolder.jumperChargesOnPlace.getFloat());
+        jumperCharges = Mathf.RoundToInt(CustomOptionHolder.jumperChargesOnPlace);
         jumpLocation = Vector3.zero;
         usedPlace = false;
     }

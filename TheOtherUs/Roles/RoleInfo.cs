@@ -21,10 +21,11 @@ public class RoleInfo
     public string DescriptionText { get; set; } = string.Empty;
     public string IntroInfo { get; set; } = string.Empty;
     public RoleTeam RoleTeam { get; set; }
-    public string Intro => IntroInfo == string.Empty ? Get(Enum.GetName(RoleId) ?? string.Empty, "Intro") : Intro;
+    
+    public string Intro => IntroInfo == string.Empty ? Get(Enum.GetName(RoleId) ?? string.Empty, "Info", "Intro") : Intro;
     public string Description =>
         DescriptionText == string.Empty
-            ? Get(Enum.GetName(RoleId) ?? string.Empty, "Description")
+            ? Get(Enum.GetName(RoleId) ?? string.Empty, "Info", "Description")
             : DescriptionText;
 
     public CustomRoleType RoleType { get; set; } = CustomRoleType.Main;

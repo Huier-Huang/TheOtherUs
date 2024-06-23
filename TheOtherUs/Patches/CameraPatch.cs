@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using Hazel;
-using TheOtherUs.Roles.Crewmates;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;

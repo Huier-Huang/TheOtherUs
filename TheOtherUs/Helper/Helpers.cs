@@ -8,12 +8,9 @@ using AmongUs.GameOptions;
 using Hazel;
 using InnerNet;
 using Reactor.Utilities.Extensions;
-using TheOtherUs.CustomGameMode;
 using TheOtherUs.Modules.Compatibility;
 using TheOtherUs.Objects;
 using TheOtherUs.Patches;
-using TheOtherUs.Roles.Crewmates;
-using TheOtherUs.Roles.Impostors;
 using UnityEngine;
 
 namespace TheOtherUs.Helper;

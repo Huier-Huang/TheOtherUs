@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using UnityEngine;
-
 namespace TheOtherUs.CustomGameMode;
 
 internal class GuesserGM : CustomModeBase

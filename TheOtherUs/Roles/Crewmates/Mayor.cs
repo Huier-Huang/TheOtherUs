@@ -10,6 +10,7 @@ public class Mayor : RoleBase
     {
         Name = nameof(Mayor),
         Color = new Color32(32, 77, 66, byte.MaxValue),
+        CreateRoleController = n => new MayorController(n),
         DescriptionText = "Your vote counts twice",
         IntroInfo = "Your vote counts twice",
         GetRole = Get<Mayor>,
@@ -18,6 +19,11 @@ public class Mayor : RoleBase
         RoleTeam = RoleTeam.Crewmate,
         RoleType = CustomRoleType.Main
     };
+    
+    public class MayorController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Mayor>();
+    }
 
     public bool canSeeVoteColors;
     public Color color = new Color32(32, 77, 66, byte.MaxValue);

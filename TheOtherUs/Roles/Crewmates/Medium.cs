@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using TheOtherUs.Roles.Impostors;
+using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Crewmates;
@@ -10,7 +9,6 @@ namespace TheOtherUs.Roles.Crewmates;
 public class Medium : RoleBase
 {
     public float chanceAdditionalInfo;
-    public Color color = new Color32(98, 120, 115, byte.MaxValue);
 
     public float cooldown = 30f;
     public List<Tuple<DeadPlayer, Vector3>> deadBodies = [];
@@ -27,8 +25,27 @@ public class Medium : RoleBase
     public DeadPlayer soulTarget;
     public DeadPlayer target;
 
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Color = new Color32(98, 120, 115, byte.MaxValue),
+        GetRole = Get<Medium>,
+        CreateRoleController = n => new MediumRoleController(n),
+        DescriptionText = "Question the souls",
+        IntroInfo = "Question the souls of the dead to gain information",
+        Name = nameof(Medium),
+        RoleClassType = typeof(Medium),
+        RoleId = RoleId.Medium,
+        RoleTeam = RoleTeam.Crewmate,
+        RoleType = CustomRoleType.Main
+    };
+    
+    public class MediumRoleController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Medium>();
+    }
+    
+    
+    public override CustomRoleOption roleOption { get; set; }
 
     public override void ClearAndReload()
     {
@@ -39,15 +56,15 @@ public class Medium : RoleBase
         futureDeadBodies = [];
         souls = [];
         meetingStartTime = DateTime.UtcNow;
-        cooldown = CustomOptionHolder.mediumCooldown.getFloat();
-        duration = CustomOptionHolder.mediumDuration.getFloat();
-        oneTimeUse = CustomOptionHolder.mediumOneTimeUse.getBool();
-        chanceAdditionalInfo = CustomOptionHolder.mediumChanceAdditionalInfo.getSelection() / 10f;
+        cooldown = CustomOptionHolder.mediumCooldown;
+        duration = CustomOptionHolder.mediumDuration;
+        oneTimeUse = CustomOptionHolder.mediumOneTimeUse;
+        chanceAdditionalInfo = CustomOptionHolder.mediumChanceAdditionalInfo / 10f;
     }
 
     public string getInfo(PlayerControl target, PlayerControl killer)
     {
-        var msg = "";
+        /*var msg = "";
 
         var infos = new List<SpecialMediumInfo>();
         // collect fitting death info types.
@@ -175,7 +192,8 @@ public class Medium : RoleBase
             msg += $"\nWhen you asked, {count} " + condition + (count == 1 ? " was" : " were") + " still alive";
         }
 
-        return this.target.player.Data.PlayerName + "'s Soul:\n" + msg;
+        return this.target.player.Data.PlayerName + "'s Soul:\n" + msg;*/
+        return string.Empty;
     }
 
     private enum SpecialMediumInfo

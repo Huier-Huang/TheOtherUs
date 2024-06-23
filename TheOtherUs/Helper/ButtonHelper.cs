@@ -1,6 +1,5 @@
 using TheOtherUs.Objects;
 using TheOtherUs.Patches;
-using TheOtherUs.Roles.Impostors;
 using UnityEngine;
 
 namespace TheOtherUs.Helper;

@@ -1,20 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
 using System.Text.Json.Serialization;
-using AmongUs.Data;
-using Assets.InnerNet;
-using BepInEx;
-using BepInEx.Unity.IL2CPP.Utils;
-using TMPro;
-using Twitch;
 using UnityEngine;
-using UnityEngine.Networking;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 namespace TheOtherUs.Modules;
 

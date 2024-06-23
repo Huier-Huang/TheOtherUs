@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TheOtherUs.CustomGameMode;
-using TheOtherUs.Roles.Impostors;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;

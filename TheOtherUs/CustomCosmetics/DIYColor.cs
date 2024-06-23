@@ -6,7 +6,6 @@ using AmongUs.Data;
 using AmongUs.Data.Legacy;
 using Csv;
 using UnityEngine;
-using UnityEngine.Video;
 using Object = UnityEngine.Object;
 
 namespace TheOtherUs.CustomCosmetics;

@@ -1,10 +1,3 @@
-using System;
-using System.Collections.Generic;
-using TheOtherUs.Objects;
-using TMPro;
-using UnityEngine;
-using Object = UnityEngine.Object;
-
 namespace TheOtherUs.CustomGameMode;
 
 /*public class HideNSeek : CustomModeBase

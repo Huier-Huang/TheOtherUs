@@ -1,5 +1,4 @@
 using System;
-using TheOtherUs.Roles.Impostors;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Modifier;

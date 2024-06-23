@@ -2,12 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Hazel;
-using TheOtherUs.CustomGameMode;
 using TheOtherUs.Modules.Compatibility;
 using TheOtherUs.Objects;
 using TheOtherUs.Patches;
-using TheOtherUs.Roles.Crewmates;
-using TheOtherUs.Roles.Impostors;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -134,9 +131,9 @@ internal static class HudManagerStartPatch
         morphlingButton.MaxTimer = Morphling.cooldown;
         bomber2BombButton.MaxTimer = Bomber2.cooldown;
         camouflagerButton.MaxTimer = Camouflager.cooldown;
-        portalmakerPlacePortalButton.MaxTimer = Portalmaker.cooldown;
-        usePortalButton.MaxTimer = Portalmaker.usePortalCooldown;
-        portalmakerMoveToPortalButton.MaxTimer = Portalmaker.usePortalCooldown;
+        portalmakerPlacePortalButton.MaxTimer = PortalMaker.cooldown;
+        usePortalButton.MaxTimer = PortalMaker.usePortalCooldown;
+        portalmakerMoveToPortalButton.MaxTimer = PortalMaker.usePortalCooldown;
         hackerButton.MaxTimer = Hacker.cooldown;
         hackerVitalsButton.MaxTimer = Hacker.cooldown;
         hackerAdminTableButton.MaxTimer = Hacker.cooldown;
@@ -1459,12 +1456,12 @@ internal static class HudManagerStartPatch
             },
             () =>
             {
-                return Portalmaker.portalmaker != null && Portalmaker.portalmaker == CachedPlayer.LocalPlayer.Control &&
+                return PortalMaker.portalmaker != null && PortalMaker.portalmaker == CachedPlayer.LocalPlayer.Control &&
                        !CachedPlayer.LocalPlayer.Data.IsDead && Portal.secondPortal == null;
             },
             () => { return CachedPlayer.LocalPlayer.Control.CanMove && Portal.secondPortal == null; },
             () => { portalmakerPlacePortalButton.Timer = portalmakerPlacePortalButton.MaxTimer; },
-            Portalmaker.getPlacePortalButtonSprite(),
+            PortalMaker.getPlacePortalButtonSprite(),
             CustomButton.ButtonPositions.lowerRowRight,
             __instance,
             KeyCode.F
@@ -1518,10 +1515,10 @@ internal static class HudManagerStartPatch
             },
             () =>
             {
-                if (CachedPlayer.LocalPlayer.Control == Portalmaker.portalmaker && Portal.bothPlacedAndEnabled)
+                if (CachedPlayer.LocalPlayer.Control == PortalMaker.portalmaker && Portal.bothPlacedAndEnabled)
                     portalmakerButtonText1.text =
                         Portal.locationNearEntry(CachedPlayer.LocalPlayer.transform.position) ||
-                        !Portalmaker.canPortalFromAnywhere
+                        !PortalMaker.canPortalFromAnywhere
                             ? ""
                             : "1. " + Portal.firstPortal.room;
                 return Portal.bothPlacedAndEnabled;
@@ -1530,11 +1527,11 @@ internal static class HudManagerStartPatch
             {
                 return CachedPlayer.LocalPlayer.Control.CanMove &&
                        (Portal.locationNearEntry(CachedPlayer.LocalPlayer.transform.position) ||
-                        (Portalmaker.canPortalFromAnywhere &&
-                         CachedPlayer.LocalPlayer.Control == Portalmaker.portalmaker)) && !Portal.isTeleporting;
+                        (PortalMaker.canPortalFromAnywhere &&
+                         CachedPlayer.LocalPlayer.Control == PortalMaker.portalmaker)) && !Portal.isTeleporting;
             },
             () => { usePortalButton.Timer = usePortalButton.MaxTimer; },
-            Portalmaker.getUsePortalButtonSprite(),
+            PortalMaker.getUsePortalButtonSprite(),
             new Vector3(0.9f, -0.06f, 0),
             __instance,
             KeyCode.H,
@@ -1579,8 +1576,8 @@ internal static class HudManagerStartPatch
             },
             () =>
             {
-                return Portalmaker.canPortalFromAnywhere && Portal.bothPlacedAndEnabled &&
-                       CachedPlayer.LocalPlayer.Control == Portalmaker.portalmaker;
+                return PortalMaker.canPortalFromAnywhere && Portal.bothPlacedAndEnabled &&
+                       CachedPlayer.LocalPlayer.Control == PortalMaker.portalmaker;
             },
             () =>
             {
@@ -1588,7 +1585,7 @@ internal static class HudManagerStartPatch
                        !Portal.locationNearEntry(CachedPlayer.LocalPlayer.transform.position) && !Portal.isTeleporting;
             },
             () => { portalmakerMoveToPortalButton.Timer = usePortalButton.MaxTimer; },
-            Portalmaker.getUsePortalButtonSprite(),
+            PortalMaker.getUsePortalButtonSprite(),
             new Vector3(0.9f, 1f, 0),
             __instance,
             KeyCode.J,

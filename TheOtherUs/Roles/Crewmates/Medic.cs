@@ -1,4 +1,4 @@
-using System;
+using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Crewmates;
@@ -16,8 +16,7 @@ public class Medic : RoleBase
     public bool reset;
     public bool setShieldAfterMeeting;
     public PlayerControl shielded;
-
-    public Color shieldedColor = new Color32(0, 221, 255, byte.MaxValue);
+    
     public bool showAttemptToMedic;
     public bool showAttemptToShielded;
     public bool showShieldAfterMeeting;
@@ -26,8 +25,25 @@ public class Medic : RoleBase
     public bool unbreakableShield = true;
     public bool usedShield;
 
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Color = new Color32(0, 221, 255, byte.MaxValue),
+        GetRole = Get<Medic>,
+        CreateRoleController = n => new MedicController(n),
+        DescriptionText = "Protect other players",
+        IntroInfo = "Protect someone with your shield",
+        Name = nameof(Medic),
+        RoleClassType = typeof(Medic),
+        RoleId = RoleId.Medic,
+        RoleTeam = RoleTeam.Crewmate,
+        RoleType = CustomRoleType.Main
+    };
+    
+    public class MedicController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Medic>();
+    }
+    public override CustomRoleOption roleOption { get; set; }
 
     public void resetShielded()
     {
@@ -42,14 +58,13 @@ public class Medic : RoleBase
         futureShielded = null;
         currentTarget = null;
         usedShield = false;
-        reset = CustomOptionHolder.medicResetTargetAfterMeeting.getBool();
-        showShielded = CustomOptionHolder.medicShowShielded.getSelection();
-        showAttemptToShielded = CustomOptionHolder.medicShowAttemptToShielded.getBool();
-        //      unbreakableShield = true; //CustomOptionHolder.medicBreakShield.getBool();
-        unbreakableShield = CustomOptionHolder.medicBreakShield.getBool();
-        showAttemptToMedic = CustomOptionHolder.medicShowAttemptToMedic.getBool();
-        setShieldAfterMeeting = CustomOptionHolder.medicSetOrShowShieldAfterMeeting.getSelection() == 2;
-        showShieldAfterMeeting = CustomOptionHolder.medicSetOrShowShieldAfterMeeting.getSelection() == 1;
+        reset = CustomOptionHolder.medicResetTargetAfterMeeting;
+        showShielded = CustomOptionHolder.medicShowShielded;
+        showAttemptToShielded = CustomOptionHolder.medicShowAttemptToShielded;
+        unbreakableShield = CustomOptionHolder.medicBreakShield;
+        showAttemptToMedic = CustomOptionHolder.medicShowAttemptToMedic;
+        setShieldAfterMeeting = CustomOptionHolder.medicSetOrShowShieldAfterMeeting.Selection == 2;
+        showShieldAfterMeeting = CustomOptionHolder.medicSetOrShowShieldAfterMeeting.Selection == 1;
         meetingAfterShielding = false;
     }
 }

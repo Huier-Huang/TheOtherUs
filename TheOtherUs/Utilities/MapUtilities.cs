@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Il2CppSystem;
-using TheOtherUs.Modules.Compatibility;
 
 namespace TheOtherUs.Utilities;
 

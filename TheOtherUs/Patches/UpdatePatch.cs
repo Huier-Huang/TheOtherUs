@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -6,8 +5,6 @@ using InnerNet;
 using TheOtherUs.CustomCosmetics;
 using TheOtherUs.CustomGameMode;
 using TheOtherUs.Objects;
-using TheOtherUs.Roles.Crewmates;
-using TheOtherUs.Roles.Impostors;
 using UnityEngine;
 
 namespace TheOtherUs.Patches;

@@ -1,17 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using AmongUs.Data;
-using AmongUs.GameOptions;
-using Hazel;
-using Reactor.Utilities.Extensions;
-using TheOtherUs.Patches;
-using TMPro;
-using UnityEngine;
-using Object = UnityEngine.Object;
-
-namespace TheOtherUs.CustomGameMode;
+﻿namespace TheOtherUs.CustomGameMode;
 
 /*[HarmonyPatch]
 internal class PropHunt : CustomModeBase

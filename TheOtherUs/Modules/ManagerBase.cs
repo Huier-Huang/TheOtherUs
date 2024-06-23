@@ -4,7 +4,12 @@ using System.Collections.Generic;
 
 namespace TheOtherUs.Modules;
 
-public interface IManagerBase;
+public interface IManagerBase
+{
+    public virtual void Load()
+    {
+    }
+};
 
 public static class MangerBases
 {
@@ -26,6 +31,22 @@ public abstract class ManagerBase<T> : IDisposable, IManagerBase where T : Manag
 
     public virtual void Dispose()
     {
+    }
+}
+
+[AttributeUsage(AttributeTargets.Class)]
+public class ManagerBaseLoad : RegisterAttribute
+{
+    [Register]
+    internal void Register(List<Type> findTypes, TaskQueue queue)
+    {
+        foreach (var manager in MangerBases.AllManager)
+        {
+            if (manager.GetType().IsDefined(typeof(ManagerBaseLoad), true))
+            {
+                queue.StartTask(manager.Load, $"ManagerBaseLoad name:{manager.GetType().Name}");
+            }
+        }
     }
 }
 

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Hazel;
-using TheOtherUs.Roles.Crewmates;
 using TMPro;
 using UnityEngine;
 using static TheOtherUs.GameHistory;

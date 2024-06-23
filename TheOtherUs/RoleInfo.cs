@@ -1,9 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using InnerNet;
-using TheOtherUs.Roles.Crewmates;
-using TheOtherUs.Roles.Impostors;
 using UnityEngine;
 
 namespace TheOtherUs;
@@ -12,16 +7,7 @@ public class RoleInfo
 {
     public static RoleInfo assassin = new("Assassin", Color.red, "Guess and shoot", "Guess and shoot",
         RoleId.EvilGuesser, false, true);
-
-    public static RoleInfo godfather = new("Godfather", Godfather.color, "Kill all Crewmates", "Kill all Crewmates",
-        RoleId.Godfather);
-
-    public static RoleInfo mafioso = new("Mafioso", Mafioso.color,
-        "Work with the <color=#FF1919FF>Mafia</color> to kill the Crewmates", "Kill all Crewmates", RoleId.Mafioso);
-
-    public static RoleInfo janitor = new("Janitor", Janitor.color,
-        "Work with the <color=#FF1919FF>Mafia</color> by hiding dead bodies", "Hide dead bodies", RoleId.Janitor);
-
+    
     public static RoleInfo morphling = new("Morphling", Morphling.color, "Change your look to not get caught",
         "Change your look", RoleId.Morphling);
 
@@ -120,25 +106,14 @@ public class RoleInfo
 
     public static RoleInfo goodGuesser =
         new("Vigilante", Guesser.color, "Guess and shoot", "Guess and shoot", RoleId.NiceGuesser);
-
-    public static RoleInfo mayor = new("Mayor", Mayor.color, "Your vote counts twice", "Your vote counts twice",
-        RoleId.Mayor);
-
-    public static RoleInfo portalmaker = new("Portalmaker", Portalmaker.color, "You can create portals",
-        "You can create portals", RoleId.Portalmaker);
-
-    public static RoleInfo privateInvestigator = new("Detective", PrivateInvestigator.color,
-        "See who is interacting with others", "Spy on the ship.", RoleId.PrivateInvestigator);
-
+    
     public static RoleInfo sheriff = new("Sheriff", Sheriff.color, "Shoot the <color=#FF1919FF>Impostors</color>",
         "Shoot the Impostors", RoleId.Sheriff);
 
 
     public static RoleInfo poucher = new("Poucher", Poucher.color, "Keep info on the players you kill",
         "Investigate the kills", RoleId.Poucher);
-
-    public static RoleInfo jumper = new("Jumper", Jumper.color, "Surprise the <color=#FF1919FF>Impostors</color>",
-        "Surprise the Impostors", RoleId.Jumper);
+    
 
     public static RoleInfo timeMaster = new("Time Master", TimeMaster.color, "Save yourself with your time shield",
         "Use your time shield", RoleId.TimeMaster);
@@ -146,17 +121,11 @@ public class RoleInfo
     public static RoleInfo veteren = new("Veteran", Veteren.color, "Protect yourself from other",
         "Protect yourself from others", RoleId.Veteren);
 
-    public static RoleInfo medic = new("Medic", Medic.color, "Protect someone with your shield",
-        "Protect other players", RoleId.Medic);
-
     public static RoleInfo swapper = new("Swapper", Swapper.color,
         "Swap votes to exile the <color=#FF1919FF>Impostors</color>", "Swap votes", RoleId.Swapper);
 
     public static RoleInfo seer = new("Seer", Seer.color, "You will see players die", "You will see players die",
         RoleId.Seer);
-
-    public static RoleInfo hacker = new("Hacker", Hacker.color,
-        "Hack systems to find the <color=#FF1919FF>Impostors</color>", "Hack to find the Impostors", RoleId.Hacker);
 
     public static RoleInfo tracker = new("Tracker", Tracker.color, "Track the <color=#FF1919FF>Impostors</color> down",
         "Track the Impostors down", RoleId.Tracker);
@@ -166,12 +135,7 @@ public class RoleInfo
 
     public static RoleInfo spy = new("Spy", Spy.color, "Confuse the <color=#FF1919FF>Impostors</color>",
         "Confuse the Impostors", RoleId.Spy);
-
-    public static RoleInfo securityGuard = new("Security Guard", SecurityGuard.color, "Seal vents and place cameras",
-        "Seal vents and place cameras", RoleId.SecurityGuard);
-
-    public static RoleInfo medium = new("Medium", Medium.color, "Question the souls of the dead to gain information",
-        "Question the souls", RoleId.Medium);
+    
 
     public static RoleInfo trapper = new("Trapper", Trapper.color, "Place traps to find the Impostors", "Place traps",
         RoleId.Trapper);
@@ -305,7 +269,6 @@ public class RoleInfo
         medic,
         swapper,
         seer,
-        hacker,
         tracker,
         snitch,
         spy,

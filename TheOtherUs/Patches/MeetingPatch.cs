@@ -4,12 +4,8 @@ using System.Linq;
 using Hazel;
 using Reactor.Utilities;
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
-using TheOtherUs.Roles.Crewmates;
-using TheOtherUs.Roles.Impostors;
 using TMPro;
 using UnityEngine;
-using static TheOtherUs.MapOptions;
 using Object = UnityEngine.Object;
 
 namespace TheOtherUs.Patches;
@@ -905,20 +901,20 @@ internal class MeetingHudPatch
 
 
             // Add Portal info into Portalmaker Chat:
-            if (Portalmaker.portalmaker != null &&
-                (CachedPlayer.LocalPlayer.Control == Portalmaker.portalmaker || Helpers.shouldShowGhostInfo()) &&
-                !Portalmaker.portalmaker.Data.IsDead)
+            if (PortalMaker.portalmaker != null &&
+                (CachedPlayer.LocalPlayer.Control == PortalMaker.portalmaker || Helpers.shouldShowGhostInfo()) &&
+                !PortalMaker.portalmaker.Data.IsDead)
                 if (Portal.teleportedPlayers.Count > 0)
                 {
                     var msg = "Portal Log:\n";
                     foreach (var entry in Portal.teleportedPlayers)
                     {
                         var timeBeforeMeeting = (float)(DateTime.UtcNow - entry.time).TotalMilliseconds / 1000;
-                        msg += Portalmaker.logShowsTime ? $"{(int)timeBeforeMeeting}s ago: " : "";
+                        msg += PortalMaker.logShowsTime ? $"{(int)timeBeforeMeeting}s ago: " : "";
                         msg = msg + $"{entry.name} used the teleporter\n";
                     }
 
-                    FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(Portalmaker.portalmaker, $"{msg}");
+                    FastDestroyableSingleton<HudManager>.Instance.Chat.AddChat(PortalMaker.portalmaker, $"{msg}");
                 }
 
             // Add trapped Info into Trapper chat

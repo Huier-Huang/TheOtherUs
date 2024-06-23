@@ -1,4 +1,3 @@
-using System;
 using TheOtherUs.Options;
 using UnityEngine;
 

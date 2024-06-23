@@ -1,7 +1,6 @@
 using System;
 using Hazel;
 using TheOtherUs.Modules.Compatibility;
-using TheOtherUs.Roles.Impostors;
 using UnityEngine;
 
 namespace TheOtherUs.Objects;

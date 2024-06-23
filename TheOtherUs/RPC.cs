@@ -12,8 +12,6 @@ using TheOtherUs.Modules.Compatibility;
 using TheOtherUs.Objects;
 using TheOtherUs.Options;
 using TheOtherUs.Patches;
-using TheOtherUs.Roles.Crewmates;
-using TheOtherUs.Roles.Impostors;
 using TMPro;
 using UnityEngine;
 using static TheOtherUs.GameHistory;
@@ -431,8 +429,8 @@ public static class RPCProcedure
                 break;
 
             case RoleId.Portalmaker:
-                if (Amnisiac.resetRole) Portalmaker.clearAndReload();
-                Portalmaker.portalmaker = amnisiac;
+                if (Amnisiac.resetRole) PortalMaker.clearAndReload();
+                PortalMaker.portalmaker = amnisiac;
                 Amnisiac.clearAndReload();
                 break;
 
@@ -853,8 +851,8 @@ public static class RPCProcedure
                 break;
 
             case RoleId.Portalmaker:
-                if (Amnisiac.resetRole) Portalmaker.clearAndReload();
-                Portalmaker.portalmaker = Mimic.mimic;
+                if (Amnisiac.resetRole) PortalMaker.clearAndReload();
+                PortalMaker.portalmaker = Mimic.mimic;
                 portalmakerPlacePortalButton.PositionOffset = CustomButton.ButtonPositions.upperRowLeft;
                 Mimic.hasMimic = true;
                 break;
@@ -1195,7 +1193,7 @@ public static class RPCProcedure
             Guesser.evilGuesser.RemoveAll(x => x.PlayerId == player.PlayerId);
         if (player == Swooper.swooper) Swooper.clearAndReload();
         if (player == Mayor.mayor) Mayor.clearAndReload();
-        if (player == Portalmaker.portalmaker) Portalmaker.clearAndReload();
+        if (player == PortalMaker.portalmaker) PortalMaker.clearAndReload();
         if (player == Engineer.engineer) Engineer.clearAndReload();
         if (player == PrivateInvestigator.privateInvestigator) PrivateInvestigator.clearAndReload();
         if (player == Sheriff.sheriff) Sheriff.clearAndReload();
