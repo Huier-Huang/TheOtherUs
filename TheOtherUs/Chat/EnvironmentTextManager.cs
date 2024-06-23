@@ -55,6 +55,11 @@ public class EnvironmentTextManager : ManagerBase<EnvironmentTextManager>
     }
 }
 
+public sealed class TextEnvironment
+{
+    
+}
+
 public sealed class EnvironmentTextList : List<EnvironmentText>
 {
     public EnvironmentText GetEnvironment(string Environment)

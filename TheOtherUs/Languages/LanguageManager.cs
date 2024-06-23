@@ -5,6 +5,7 @@ using System.Reflection;
 using AmongUs.Data.Legacy;
 using BepInEx;
 using Il2CppSystem;
+using TheOtherUs.Chat;
 
 namespace TheOtherUs.Languages;
 
@@ -179,7 +180,7 @@ internal static class LanguageExtension
         return TranslationController.Instance.GetString(name, objects);
     }
     
-    internal static string Get(params string[] strings)
+    internal static string Get(string[] strings, TextEnvironment? environment = null)
     {
         TranslateNode? node = null;
         var count = 1;
@@ -194,5 +195,10 @@ internal static class LanguageExtension
         }
 
         return node?.Def ?? string.Empty;
+    }
+
+    internal static string[] GetStrings(string[] strings, TextEnvironment? environment = null)
+    {
+        return new string[] { };
     }
 }
