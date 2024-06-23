@@ -12,13 +12,12 @@ public abstract class RoleControllerBase : IDisposable
         _RoleManager._AllControllerBases.Add(this);
     }
 
-    public abstract RoleBase _RoleBase { get; protected set; }
+    public abstract RoleBase _RoleBase { get; }
 
     public PlayerControl Player { get; protected set; }
 
     public virtual void Dispose()
     {
-        _RoleBase = null;
         Player = null;
         _RoleManager._AllControllerBases.Remove(this);
     }

@@ -15,7 +15,7 @@ namespace TheOtherUs.Modules;
 
 public class BepInExUpdater : MonoBehaviour
 {
-    public const string RequiredBepInExVersion = "6.0.0-be.688+49015217f3becf052d33fa4658ac19229f5daa3a";
+    /*public const string RequiredBepInExVersion = "6.0.0-be.688+49015217f3becf052d33fa4658ac19229f5daa3a";
 
     public const string BepInExDownloadURL =
         "https://builds.bepinex.dev/projects/bepinex_be/688/BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.688%2B4901521.zip";
@@ -67,19 +67,10 @@ public class BepInExUpdater : MonoBehaviour
     [DllImport("user32.dll")]
     public static extern IntPtr GetForegroundWindow();
 
-    [DllImport("user32.dll")]
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     public static extern int MessageBox(IntPtr hWnd, string text, string caption, int options);
 
-    [DllImport("user32.dll")]
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     public static extern int MessageBoxTimeout(IntPtr hwnd, string text, string title, uint type, short wLanguageId,
-        int milliseconds);
-}
-
-[HarmonyPatch(typeof(SplashManager), nameof(SplashManager.Update))]
-public static class StopLoadingMainMenu
-{
-    public static bool Prefix()
-    {
-        return !BepInExUpdater.UpdateRequired;
-    }
+        int milliseconds);*/
 }

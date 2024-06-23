@@ -1,3 +1,4 @@
+using System;
 using TheOtherUs.Options;
 using UnityEngine;
 
@@ -6,74 +7,71 @@ namespace TheOtherUs.Roles.Crewmates;
 [RegisterRole]
 public class Hacker : RoleBase
 {
-    private Sprite adminSprite;
-
-    private Sprite buttonSprite;
+    public ResourceSprite adminSprite = new (onGetSprite: s =>
+    {
+        var fastUseSettings = FastDestroyableSingleton<HudManager>.Instance.UseButton
+            .fastUseSettings;
+        var imageName = (MapData.Maps)MapData.MapId switch
+        {
+            MapData.Maps.Skeld => ImageNames.AdminMapButton,
+            MapData.Maps.Mira => ImageNames.MIRAAdminButton,
+            MapData.Maps.Polus => ImageNames.PolusAdminButton,
+            MapData.Maps.Fungle => ImageNames.AdminMapButton,
+            MapData.Maps.Airship => ImageNames.AirshipAdminButton,
+            _ => ImageNames.PolusAdminButton
+        };
+        var button = fastUseSettings[imageName];
+        s.ReturnSprite = button.Image;
+    });
+    public ResourceSprite logSprite = new (onGetSprite: s =>
+    {
+        s.ReturnSprite = FastDestroyableSingleton<HudManager>.Instance.UseButton
+            .fastUseSettings[ImageNames.DoorLogsButton]
+            .Image;
+    });
+    public ResourceSprite vitalsSprite = new(onGetSprite: s =>
+    {
+        s.ReturnSprite = FastDestroyableSingleton<HudManager>.Instance.UseButton
+            .fastUseSettings[ImageNames.VitalsButton]
+            .Image;
+    });
+    public ResourceSprite buttonSprite = new ("HackerButton.png");
+    
     public bool cantMove = true;
     public int chargesAdminTable = 1;
     public int chargesVitals = 1;
-    public Color color = new Color32(117, 250, 76, byte.MaxValue);
 
     public float cooldown = 30f;
     public Minigame doorLog;
     public float duration = 10f;
     public PlayerControl hacker;
     public float hackerTimer;
-    private Sprite logSprite;
     public bool onlyColorType;
     public int rechargedTasks = 2;
     public int rechargeTasksNumber = 2;
     public float toolsNumber = 5f;
     public Minigame vitals;
-    private Sprite vitalsSprite;
 
-    public override RoleInfo RoleInfo { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Color = new Color32(117, 250, 76, byte.MaxValue),
+        GetRole = Get<Hacker>,
+        CreateRoleController = n => new HackerController(n),
+        DescriptionText = "Hack to find the Impostors",
+        IntroInfo = "Hack systems to find the <color=#FF1919FF>Impostors</color>",
+        Name = nameof(Hacker),
+        RoleClassType = typeof(Hacker),
+        RoleId = RoleId.Hacker,
+        RoleTeam = RoleTeam.Crewmate,
+        RoleType = CustomRoleType.Main
+    };
+    
+    public class HackerController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Hacker>();
+    }
+    
     public override CustomRoleOption roleOption { get; set; }
-
-    public Sprite getButtonSprite()
-    {
-        if (buttonSprite) return buttonSprite;
-        buttonSprite = UnityHelper.loadSpriteFromResources("TheOtherUs.Resources.HackerButton.png", 115f);
-        return buttonSprite;
-    }
-
-    public Sprite getVitalsSprite()
-    {
-        if (vitalsSprite) return vitalsSprite;
-        vitalsSprite = FastDestroyableSingleton<HudManager>.Instance.UseButton.fastUseSettings[ImageNames.VitalsButton]
-            .Image;
-        return vitalsSprite;
-    }
-
-    public Sprite getLogSprite()
-    {
-        if (logSprite) return logSprite;
-        logSprite = FastDestroyableSingleton<HudManager>.Instance.UseButton.fastUseSettings[ImageNames.DoorLogsButton]
-            .Image;
-        return logSprite;
-    }
-
-    public Sprite getAdminSprite()
-    {
-        var mapId = GameOptionsManager.Instance.currentNormalGameOptions.MapId;
-        var button =
-            FastDestroyableSingleton<HudManager>.Instance.UseButton
-                .fastUseSettings[ImageNames.PolusAdminButton]; // Polus
-        if (Helpers.isSkeld() || mapId == 3)
-            button = FastDestroyableSingleton<HudManager>.Instance.UseButton
-                .fastUseSettings[ImageNames.AdminMapButton]; // Skeld || Dleks
-        else if (Helpers.isMira())
-            button = FastDestroyableSingleton<HudManager>.Instance.UseButton
-                .fastUseSettings[ImageNames.MIRAAdminButton]; // Mira HQ
-        else if (Helpers.isAirship())
-            button = FastDestroyableSingleton<HudManager>.Instance.UseButton.fastUseSettings[
-                ImageNames.AirshipAdminButton]; // Airship
-        else if (Helpers.isFungle())
-            button = FastDestroyableSingleton<HudManager>.Instance.UseButton
-                .fastUseSettings[ImageNames.AdminMapButton]; // Hacker can Access the Admin panel on Fungle
-        adminSprite = button.Image;
-        return adminSprite;
-    }
 
     public override void ClearAndReload()
     {
@@ -82,14 +80,14 @@ public class Hacker : RoleBase
         doorLog = null;
         hackerTimer = 0f;
         adminSprite = null;
-        cooldown = CustomOptionHolder.hackerCooldown.getFloat();
-        duration = CustomOptionHolder.hackerHackeringDuration.getFloat();
-        onlyColorType = CustomOptionHolder.hackerOnlyColorType.getBool();
-        toolsNumber = CustomOptionHolder.hackerToolsNumber.getFloat();
-        rechargeTasksNumber = Mathf.RoundToInt(CustomOptionHolder.hackerRechargeTasksNumber.getFloat());
-        rechargedTasks = Mathf.RoundToInt(CustomOptionHolder.hackerRechargeTasksNumber.getFloat());
-        chargesVitals = Mathf.RoundToInt(CustomOptionHolder.hackerToolsNumber.getFloat()) / 2;
-        chargesAdminTable = Mathf.RoundToInt(CustomOptionHolder.hackerToolsNumber.getFloat()) / 2;
-        cantMove = CustomOptionHolder.hackerNoMove.getBool();
+        cooldown = CustomOptionHolder.hackerCooldown;
+        duration = CustomOptionHolder.hackerHackeringDuration;
+        onlyColorType = CustomOptionHolder.hackerOnlyColorType;
+        toolsNumber = CustomOptionHolder.hackerToolsNumber;
+        rechargeTasksNumber = Mathf.RoundToInt(CustomOptionHolder.hackerRechargeTasksNumber);
+        rechargedTasks = Mathf.RoundToInt(CustomOptionHolder.hackerRechargeTasksNumber);
+        chargesVitals = Mathf.RoundToInt(CustomOptionHolder.hackerToolsNumber) / 2;
+        chargesAdminTable = Mathf.RoundToInt(CustomOptionHolder.hackerToolsNumber) / 2;
+        cantMove = CustomOptionHolder.hackerNoMove;
     }
 }

@@ -8,19 +8,24 @@ public class Engineer : RoleBase
 {
     public static readonly RoleInfo Info = new()
     {
-        Name = nameof(Engineer),
         Color = new Color32(0, 40, 245, byte.MaxValue),
-        Description = "Repair the ship",
-        IntroInfo = "Maintain important systems on the ship",
         GetRole = Get<Engineer>,
+        CreateRoleController = n => new EngineerController(n),
+        DescriptionText = "Repair the ship",
+        IntroInfo = "Maintain important systems on the ship",
+        Name = nameof(Engineer),
         RoleClassType = typeof(Engineer),
         RoleId = RoleId.Engineer,
         RoleTeam = RoleTeam.Crewmate,
         RoleType = CustomRoleType.Main
     };
+    
+    public class EngineerController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase =>  Get<Engineer>();
+    }
 
     private Sprite buttonSprite;
-    public Color color = new Color32(0, 40, 245, byte.MaxValue);
     public PlayerControl engineer;
     public bool highlightForImpostors = true;
     public bool highlightForTeamJackal = true;
@@ -44,7 +49,7 @@ public class Engineer : RoleBase
 
     public void resetFixes()
     {
-        remainingFixes = Mathf.RoundToInt(CustomOptionHolder.engineerNumberOfFixes.getFloat());
+        remainingFixes = Mathf.RoundToInt(CustomOptionHolder.engineerNumberOfFixes);
         usedFix = false;
     }
 

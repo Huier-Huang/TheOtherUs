@@ -1,5 +1,6 @@
 using System.Linq;
 using InnerNet;
+using TheOtherUs.CustomGameMode;
 
 namespace TheOtherUs.Modules;
 
@@ -24,7 +25,7 @@ public static class ChatCommands
                     case "ban":
                         var playerName = strings[1];
                         PlayerControl target =
-                            CachedPlayer.AllPlayers.FirstOrDefault(x => x.Data.PlayerName.Equals(playerName));
+                            CachedPlayer.AllPlayers.FirstOrDefault(x => x.NetPlayerInfo.PlayerName.Equals(playerName));
                         if (target != null && AmongUsClient.Instance != null && AmongUsClient.Instance.CanBan())
                         {
                             var client = AmongUsClient.Instance.GetClient(target.OwnerId);

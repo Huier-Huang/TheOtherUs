@@ -10,7 +10,7 @@ public class Mayor : RoleBase
     {
         Name = nameof(Mayor),
         Color = new Color32(32, 77, 66, byte.MaxValue),
-        Description = "Your vote counts twice",
+        DescriptionText = "Your vote counts twice",
         IntroInfo = "Your vote counts twice",
         GetRole = Get<Mayor>,
         RoleClassType = typeof(Mayor),

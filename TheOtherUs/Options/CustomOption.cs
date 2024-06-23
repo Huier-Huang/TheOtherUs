@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using AmongUs.GameOptions;
 using Hazel;
 using Reactor.Utilities.Extensions;
+using TheOtherUs.CustomGameMode;
 using TheOtherUs.Modules.Components;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using Object = UnityEngine.Object;
 using Color = UnityEngine.Color;
 
@@ -56,7 +54,7 @@ public class CustomRoleOption : CustomParentOption
 
 public class CustomModeOption : CustomParentOption
 {
-    public CustomGameModes mode;
+    public readonly CustomGameModes mode;
 
     public CustomModeOption(CustomGameModes mode, string Title, OptionSelectionBase selection, Color color = default) 
         : base(Title, CustomOptionTypes.Mode, selection, color)
@@ -83,7 +81,7 @@ public class CustomGeneralOption : CustomParentOption
 public class CustomParentOption(string Title, CustomOptionTypes type, OptionSelectionBase selection, Color color)
     : CustomOption(Title, type, selection, null, color)
 {
-    public readonly List<CustomOption> Child = [];
+    public List<CustomOption> Child = [];
     public CustomOption AddChild(string title, OptionSelectionBase selection, Color color = default)
     {
         var option = new CustomOption(title, CustomOptionType, selection, this, color == default ? Color : color);
@@ -91,6 +89,13 @@ public class CustomParentOption(string Title, CustomOptionTypes type, OptionSele
         return option;
     }
 
+    public static CustomParentOption Form(CustomOption option)
+    {
+        var po = (CustomParentOption)option;
+        po.Child = option.optionInfo.Children.Select(n => n.option).ToList();
+        return po;
+    }
+    
     public CustomOption this[Index index] => Child[index];
     public CustomOption this[string title] => Child.First(n => n.Title == title);
 }

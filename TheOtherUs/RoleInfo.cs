@@ -127,18 +127,11 @@ public class RoleInfo
     public static RoleInfo portalmaker = new("Portalmaker", Portalmaker.color, "You can create portals",
         "You can create portals", RoleId.Portalmaker);
 
-    public static RoleInfo engineer = new("Engineer", Engineer.color, "Maintain important systems on the ship",
-        "Repair the ship", RoleId.Engineer);
-
     public static RoleInfo privateInvestigator = new("Detective", PrivateInvestigator.color,
         "See who is interacting with others", "Spy on the ship.", RoleId.PrivateInvestigator);
 
     public static RoleInfo sheriff = new("Sheriff", Sheriff.color, "Shoot the <color=#FF1919FF>Impostors</color>",
         "Shoot the Impostors", RoleId.Sheriff);
-    
-
-    public static RoleInfo deputy = new("Deputy", Sheriff.color, "Handcuff the <color=#FF1919FF>Impostors</color>",
-        "Handcuff the Impostors", RoleId.Deputy);
 
 
     public static RoleInfo poucher = new("Poucher", Poucher.color, "Keep info on the players you kill",
@@ -146,9 +139,6 @@ public class RoleInfo
 
     public static RoleInfo jumper = new("Jumper", Jumper.color, "Surprise the <color=#FF1919FF>Impostors</color>",
         "Surprise the Impostors", RoleId.Jumper);
-
-    public static RoleInfo detective = new("Investigator", Detective.color,
-        "Find the <color=#FF1919FF>Impostors</color> by examining footprints", "Examine footprints", RoleId.Detective);
 
     public static RoleInfo timeMaster = new("Time Master", TimeMaster.color, "Save yourself with your time shield",
         "Use your time shield", RoleId.TimeMaster);
@@ -307,12 +297,9 @@ public class RoleInfo
         goodGuesser,
         mayor,
         portalmaker,
-        engineer,
         privateInvestigator,
         sheriff,
-        deputy,
         jumper,
-        detective,
         timeMaster,
         veteren,
         medic,

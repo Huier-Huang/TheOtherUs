@@ -184,13 +184,7 @@ public class CustomOptionHolder
     public static CustomOption sheriffCanKillAmnesiac;
     public static CustomOption sheriffCanKillPursuer;
     public static CustomOption deputySpawnRate;
-
-    public static CustomOption detectiveSpawnRate;
-    public static CustomOption detectiveAnonymousFootprints;
-    public static CustomOption detectiveFootprintIntervall;
-    public static CustomOption detectiveFootprintDuration;
-    public static CustomOption detectiveReportNameDuration;
-    public static CustomOption detectiveReportColorDuration;
+    
 
     public static CustomOption timeMasterSpawnRate;
     public static CustomOption timeMasterCooldown;
@@ -913,19 +907,6 @@ public class CustomOptionHolder
         sheriffCanKillPursuer = new CustomOption(30051, Types.Crewmate,
             "Sheriff Can Kill " + cs(Pursuer.color, "Pursuer"), false, sheriffCanKillNeutrals);
         
-        detectiveSpawnRate =
-            new CustomOption(30080, Types.Crewmate, cs(Detective.color, "Investigator"), rates, null, true);
-        detectiveAnonymousFootprints =
-            new CustomOption(30081, Types.Crewmate, "Anonymous Footprints", false, detectiveSpawnRate);
-        detectiveFootprintIntervall = new CustomOption(30082, Types.Crewmate, "Footprint Intervall", 0.5f, 0.25f, 10f,
-            0.25f, detectiveSpawnRate);
-        detectiveFootprintDuration = new CustomOption(30083, Types.Crewmate, "Footprint Duration", 5f, 0.25f, 10f,
-            0.25f, detectiveSpawnRate);
-        detectiveReportNameDuration = new CustomOption(30084, Types.Crewmate,
-            "Time Where Investigator Reports Will Have Name", 0, 0, 60, 2.5f, detectiveSpawnRate);
-        detectiveReportColorDuration = new CustomOption(30085, Types.Crewmate,
-            "Time Where Investigator Reports Will Have Color Type", 20, 0, 120, 2.5f, detectiveSpawnRate);
-
         timeMasterSpawnRate =
             new CustomOption(30090, Types.Crewmate, cs(TimeMaster.color, "Time Master"), rates, null, true);
         timeMasterCooldown = new CustomOption(30091, Types.Crewmate, "Time Master Cooldown", 30f, 10f, 120f, 2.5f,

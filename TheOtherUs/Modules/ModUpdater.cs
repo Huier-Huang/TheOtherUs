@@ -20,7 +20,7 @@ namespace TheOtherUs.Modules;
 
 public class ModUpdater(IntPtr ptr) : MonoBehaviour(ptr)
 {
-    public const string RepositoryOwner = "SpexGH";
+    /*public const string RepositoryOwner = "SpexGH";
     public const string RepositoryName = "TheOtherUs";
 
     private bool _busy;
@@ -235,7 +235,7 @@ public class ModUpdater(IntPtr ptr) : MonoBehaviour(ptr)
                 DataManager.Player.Announcements.allAnnouncements = backup;
             }
         })));
-    }
+    }*/
 }
 
 public class GithubRelease

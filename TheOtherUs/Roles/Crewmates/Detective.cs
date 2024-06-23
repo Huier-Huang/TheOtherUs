@@ -7,7 +7,6 @@ namespace TheOtherUs.Roles.Crewmates;
 public class Detective : RoleBase
 {
     public bool anonymousFootprints;
-    public Color color = new Color32(8, 180, 180, byte.MaxValue);
     public PlayerControl detective;
     public CustomOption detectiveAnonymousFootprints;
     public CustomOption detectiveFootprintDuration;
@@ -23,7 +22,25 @@ public class Detective : RoleBase
     public float reportNameDuration;
     public float timer = 6.2f;
 
-    public override RoleInfo RoleInfo { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Color = new Color32(8, 180, 180, byte.MaxValue),
+        GetRole = Get<Detective>,
+        CreateRoleController = n => new DetectiveController(n),
+        DescriptionText = "Examine footprints",
+        IntroInfo = "Find the <color=#FF1919FF>Impostors</color> by examining footprints",
+        Name = nameof(Detective),
+        RoleClassType = typeof(Detective),
+        RoleId = RoleId.Detective,
+        RoleTeam = RoleTeam.Crewmate,
+        RoleType = CustomRoleType.Main
+    };
+    
+    public class DetectiveController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase  => Get<Detective>();
+    }
+    
     public override CustomRoleOption roleOption { get; set; }
 
     public override void ClearAndReload()
@@ -39,17 +56,11 @@ public class Detective : RoleBase
 
     public override void OptionCreate()
     {
-        detectiveSpawnRate =
-            new CustomOption(120, "Investigator".ColorString(color), CustomOptionHolder.rates, null, true);
-        detectiveAnonymousFootprints =
-            new CustomOption(121, "Anonymous Footprints", false, detectiveSpawnRate);
-        detectiveFootprintIntervall = new CustomOption(122, "Footprint Intervall", 0.5f, 0.25f, 10f,
-            0.25f, detectiveSpawnRate);
-        detectiveFootprintDuration = new CustomOption(123, "Footprint Duration", 5f, 0.25f, 10f,
-            0.25f, detectiveSpawnRate);
-        detectiveReportNameDuration = new CustomOption(124,
-            "Time Where Investigator Reports Will Have Name", 0, 0, 60, 2.5f, detectiveSpawnRate);
-        detectiveReportColorDuration = new CustomOption(125,
-            "Time Where Investigator Reports Will Have Color Type", 20, 0, 120, 2.5f, detectiveSpawnRate);
+        roleOption = new CustomRoleOption(this);
+        detectiveAnonymousFootprints = roleOption.AddChild("Anonymous Footprints", new BoolOptionSelection(false));
+        detectiveFootprintIntervall = roleOption.AddChild("Footprint Intervall", new FloatOptionSelection(0.5f, 0.25f, 10f, 0.25f));
+        detectiveFootprintDuration = roleOption.AddChild("Footprint Duration", new FloatOptionSelection(5f, 0.25f, 10f, 0.25f));
+        detectiveReportNameDuration = roleOption.AddChild("Time Where Investigator Reports Will Have Name", new FloatOptionSelection(0, 0, 60, 2.5f));
+        detectiveReportColorDuration = roleOption.AddChild("Time Where Investigator Reports Will Have Color Type", new FloatOptionSelection(20, 0, 120, 2.5f));
     }
 }

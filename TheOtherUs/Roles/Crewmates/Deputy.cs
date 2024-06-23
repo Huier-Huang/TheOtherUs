@@ -12,9 +12,14 @@ namespace TheOtherUs.Roles.Crewmates;
 [RegisterRole]
 public class Deputy : RoleBase
 {
+    public class DeputyController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Deputy>();
+    }
+    
+    
     private readonly ResourceSprite buttonSprite = new("DeputyHandcuffButton.png");
-
-    public Color color = new Color32(248, 205, 70, byte.MaxValue);
+    
     public PlayerControl currentTarget;
     public PlayerControl deputy;
     public TMP_Text deputyButtonHandcuffsText;
@@ -40,7 +45,16 @@ public class Deputy : RoleBase
 
     public override RoleInfo RoleInfo { get; protected set; } = new()
     {
-
+        Color = new Color32(248, 205, 70, byte.MaxValue),
+        GetRole = Get<Deputy>,
+        CreateRoleController = n => new DeputyController(n),
+        DescriptionText = "Handcuff the Impostors",
+        IntroInfo = "Handcuff the <color=#FF1919FF>Impostors</color>",
+        Name = nameof(Deputy),
+        RoleClassType = typeof(Deputy),
+        RoleId = RoleId.Deputy,
+        RoleTeam = RoleTeam.Crewmate,
+        RoleType = CustomRoleType.Main
     };
 
     public override CustomRoleOption roleOption { get; set; }

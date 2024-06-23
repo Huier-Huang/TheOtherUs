@@ -17,7 +17,7 @@ public class BodyGuard : RoleBase
     
     public class BodyGuardController(PlayerControl player) : RoleControllerBase(player)
     {
-        public override RoleBase _RoleBase { get; protected set; } = Get<BodyGuard>();
+        public override RoleBase _RoleBase => Get<BodyGuard>();
     }
 
     public override RoleInfo RoleInfo { get; protected set; } = new()
