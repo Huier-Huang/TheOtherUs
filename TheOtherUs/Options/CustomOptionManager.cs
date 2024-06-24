@@ -94,7 +94,7 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
 
     public void copyToClipboard()
     {
-        GUIUtility.systemCopyBuffer = string.Join("!/!/!", TheOtherRolesPlugin.Version, currentPreset.Serialize(), vanillaSettings);
+        GUIUtility.systemCopyBuffer = string.Join("!/!/!", Main.Version, currentPreset.Serialize(), vanillaSettings);
     }
 
     public bool pasteFromClipboard()
@@ -104,7 +104,7 @@ public class CustomOptionManager : ManagerBase<CustomOptionManager>
         {
             var settingsSplit = allSettings.Split(SettingSplitString);
             var versionInfo = Version.Parse(settingsSplit[0]);
-            if (versionInfo.CompareTo(TheOtherRolesPlugin.Version) != 0)
+            if (versionInfo.CompareTo(Main.Version) != 0)
                 return false;
             var Preset = JsonSerializer.Deserialize<OptionPreset>(settingsSplit[1]);
             presets.Add(Preset);

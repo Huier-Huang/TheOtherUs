@@ -8,7 +8,7 @@ namespace TheOtherUs.Patches;
 public static class CredentialsPatch
 {
     public static string fullCredentialsVersion =
-        $@"<size=130%><color=#ff351f>TheOtherUs</color></size> v{TheOtherRolesPlugin.Version}";
+        $@"<size=130%><color=#ff351f>TheOtherUs</color></size> v{Main.Version}";
 
     public static string fullCredentials =
         @"<size=60%>Modified by <color=#FCCE03FF>Spex</color>
@@ -108,7 +108,7 @@ Design by <color=#FCCE03FF>Bavari</color>";
             var credentialObject = new GameObject("credentialsTOR");
             var credentials = credentialObject.AddComponent<TextMeshPro>();
             credentials.SetText(
-                $"v{TheOtherRolesPlugin.Version}\n<size=30f%>\n</size>{mainMenuCredentials}\n<size=30%>\n</size>{contributorsCredentials}");
+                $"v{Main.Version}\n<size=30f%>\n</size>{mainMenuCredentials}\n<size=30%>\n</size>{contributorsCredentials}");
             credentials.alignment = TextAlignmentOptions.Center;
             credentials.fontSize *= 0.05f;
 

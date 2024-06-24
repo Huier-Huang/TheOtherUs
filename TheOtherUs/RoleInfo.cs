@@ -106,36 +106,11 @@ public class RoleInfo
 
     public static RoleInfo goodGuesser =
         new("Vigilante", Guesser.color, "Guess and shoot", "Guess and shoot", RoleId.NiceGuesser);
-    
-    public static RoleInfo sheriff = new("Sheriff", Sheriff.color, "Shoot the <color=#FF1919FF>Impostors</color>",
-        "Shoot the Impostors", RoleId.Sheriff);
 
 
     public static RoleInfo poucher = new("Poucher", Poucher.color, "Keep info on the players you kill",
         "Investigate the kills", RoleId.Poucher);
     
-
-    public static RoleInfo timeMaster = new("Time Master", TimeMaster.color, "Save yourself with your time shield",
-        "Use your time shield", RoleId.TimeMaster);
-
-    public static RoleInfo veteren = new("Veteran", Veteren.color, "Protect yourself from other",
-        "Protect yourself from others", RoleId.Veteren);
-
-    public static RoleInfo swapper = new("Swapper", Swapper.color,
-        "Swap votes to exile the <color=#FF1919FF>Impostors</color>", "Swap votes", RoleId.Swapper);
-
-    public static RoleInfo tracker = new("Tracker", Tracker.color, "Track the <color=#FF1919FF>Impostors</color> down",
-        "Track the Impostors down", RoleId.Tracker);
-
-    public static RoleInfo snitch = new("Snitch", Snitch.color,
-        "Finish your tasks to find the <color=#FF1919FF>Impostors</color>", "Finish your tasks", RoleId.Snitch);
-
-    public static RoleInfo spy = new("Spy", Spy.color, "Confuse the <color=#FF1919FF>Impostors</color>",
-        "Confuse the Impostors", RoleId.Spy);
-    
-
-    public static RoleInfo trapper = new("Trapper", Trapper.color, "Place traps to find the Impostors", "Place traps",
-        RoleId.Trapper);
 
     // Modifier
     public static RoleInfo bloody = new("Bloody", Color.yellow, "Your killer leaves a bloody trail",
@@ -203,101 +178,7 @@ public class RoleInfo
 
     public static RoleInfo shifter = new("Shifter", Color.yellow, "Shift your role", "Shift your role", RoleId.Shifter,
         false, true);
-
-    public static RoleInfo hunter = new("Hunter", Palette.ImpostorRed,
-        Helpers.cs(Palette.ImpostorRed, "Seek and kill everyone"), "Seek and kill everyone", RoleId.Impostor);
-
-    public static RoleInfo hunted = new("Hunted", Color.white, "Hide", "Hide", RoleId.Crewmate);
-
-    public static RoleInfo prop = new("Prop", Color.white, "Disguise As An Object and Survive", "Disguise As An Object",
-        RoleId.Crewmate);
-
-
-    public static List<RoleInfo> allRoleInfos =
-    [
-        impostor,
-        assassin,
-        godfather,
-        mafioso,
-        janitor,
-        morphling,
-        bomber2,
-        mimic,
-        camouflager,
-        miner,
-        eraser,
-        vampire,
-        undertaker,
-        escapist,
-        warlock,
-        trickster,
-        bountyHunter,
-        cultist,
-        cleaner,
-        bomber,
-        blackmailer,
-        witch,
-        ninja,
-
-        //Neutral
-        amnisiac,
-        jester,
-        vulture,
-        lawyer,
-        prosecutor,
-        pursuer,
-        jackal,
-        sidekick,
-        arsonist,
-        werewolf,
-        thief,
-        swooper,
-
-        //Crewmate
-        crewmate,
-        goodGuesser,
-        mayor,
-        portalmaker,
-        privateInvestigator,
-        sheriff,
-        jumper,
-        timeMaster,
-        veteren,
-        medic,
-        swapper,
-        seer,
-        tracker,
-        snitch,
-        spy,
-        securityGuard,
-        medium,
-        trapper,
-
-        //Modifier
-        disperser,
-        poucher,
-        bloody,
-        antiTeleport,
-        tiebreaker,
-        bait,
-        sunglasses,
-        torch,
-        flash,
-        multitasker,
-        lover,
-        mini,
-        vip,
-        indomitable,
-        slueth,
-        cursed,
-        invert,
-        blind,
-        watcher,
-        radar,
-        tunneler,
-        chameleon,
-        shifter
-    ];
+    
 
     private static string ReadmePage = "";
     public Color color;

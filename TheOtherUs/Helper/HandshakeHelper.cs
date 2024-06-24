@@ -32,7 +32,7 @@ public static class HandshakeHelper
     public static void ShareGameMode()
     {
         if (CachedPlayer.LocalPlayer == null) return;
-        FastRpcWriter.StartNewRpcWriter(CustomRPC.ShareGamemode)
+        FastRpcWriter.StartNewRpcWriter(CustomRPC.ShareGamemode, LobbyBehaviour.Instance)
             .Write((byte)CustomModeBase.mode)
             .RPCSend();
     }
@@ -65,7 +65,7 @@ public static class HandshakeHelper
             else
             {
                 var PV = playerVersions[client.Id];
-                var diff = TheOtherRolesPlugin.version.CompareTo(PV.version);
+                var diff = Main.version.CompareTo(PV.version);
                 if (PV.guid == null)
                 {
                     againSend(client.Id, ShareMode.Guid);
@@ -104,11 +104,11 @@ public static class HandshakeHelper
     {
         var writer = FastRpcWriter.StartNewRpcWriter(CustomRPC.VersionHandshake, LobbyBehaviour.Instance)
             .WritePacked(AmongUsClient.Instance.ClientId)
-            .Write(TheOtherRolesPlugin.version.Major)
-            .Write(TheOtherRolesPlugin.version.Minor)
-            .Write(TheOtherRolesPlugin.version.Build)
+            .Write(Main.version.Major)
+            .Write(Main.version.Minor)
+            .Write(Main.version.Build)
             .Write(AmongUsClient.Instance.AmHost ? GameStartManagerPatch.timer : -1f)
-            .Write(TheOtherRolesPlugin.version.Revision);
+            .Write(Main.version.Revision);
         writer.RPCSend();
     }
 

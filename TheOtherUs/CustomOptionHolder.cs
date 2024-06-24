@@ -567,7 +567,7 @@ public class CustomOptionHolder
 
     public static void Load()
     {
-        CustomOption.vanillaSettings = TheOtherRolesPlugin.Instance.Config.Bind("Preset0", "VanillaOptions", "");
+        CustomOption.vanillaSettings = Main.Instance.Config.Bind("Preset0", "VanillaOptions", "");
 
         // Role Options
         presetSelection = new CustomOption(0, cs(new Color(204f / 255f, 204f / 255f, 0, 1f), "Preset"), presets, null,

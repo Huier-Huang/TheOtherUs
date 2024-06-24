@@ -60,6 +60,7 @@ public abstract class RoleBase : IDisposable
 public abstract class VanillaRole : RoleBase
 {
     public override bool IsVanilla { get; set; } = true;
+    public virtual Type? RoleType { get; set; }
 }
 
 public interface Invisable

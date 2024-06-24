@@ -149,7 +149,7 @@ public class GameStartManagerPatch
             else
             {
                 if (!HandshakeHelper.playerVersions.ContainsKey(AmongUsClient.Instance.HostId) ||
-                    TheOtherRolesPlugin.version.CompareTo(HandshakeHelper.playerVersions[AmongUsClient.Instance.HostId].version) != 0)
+                    Main.version.CompareTo(HandshakeHelper.playerVersions[AmongUsClient.Instance.HostId].version) != 0)
                 {
                     kickingTimer += Time.deltaTime;
                     if (kickingTimer > 10)

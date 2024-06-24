@@ -66,7 +66,7 @@ internal static class MapBehaviourPatch
                                                        PlayerControl.LocalPlayer.Data.IsDead))
                 continue; //for trickster vents
 
-            if (!TheOtherRolesPlugin.ShowVentsOnMap.Value)
+            if (!Main.ShowVentsOnMap.Value)
             {
                 if (mapIcons.Count > 0)
                 {

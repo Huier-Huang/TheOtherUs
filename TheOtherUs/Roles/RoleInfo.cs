@@ -35,13 +35,13 @@ public class RoleInfo
 
     public Type RoleClassType { get; set; }
 }
-
+[Flags]
 public enum RoleTeam
 {
-    Crewmate,
-    Impostor,
-    Neutral,
-    Special
+    Crewmate = 1,
+    Impostor = 2,
+    Neutral = 5,
+    Special = 10
 }
 
 [Flags]

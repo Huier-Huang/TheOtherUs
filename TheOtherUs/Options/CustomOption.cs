@@ -235,6 +235,9 @@ public class CustomOption
         return option.OptionSelection;
     }
 
+    public T CastEnum<T>() where T : struct, Enum =>
+        Enum.TryParse<T>(OptionSelection.GetString(), out var result) ? result : Enum.GetValues<T>()[Selection];
+
     public void Serialize(FastRpcWriter writer)
     {
         writer.Write(JsonSerializer.Serialize(OptionSelection));
