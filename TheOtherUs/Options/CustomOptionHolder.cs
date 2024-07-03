@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using TheOtherUs.Options;
 using UnityEngine;
 
-namespace TheOtherUs;
+namespace TheOtherUs.Options;
 
 public class CustomOptionHolder
 {
@@ -565,7 +564,7 @@ public class CustomOptionHolder
         return option == propHuntMap && option == hideNSeekMap;
     }
 
-    public static void Load()
+    /*public static void Load()
     {
         CustomOption.vanillaSettings = Main.Instance.Config.Bind("Preset0", "VanillaOptions", "");
 
@@ -982,7 +981,7 @@ public class CustomOptionHolder
         snitchLeftTasksForReveal = new CustomOption(30171, Types.Crewmate, "Task Count Where The Snitch Will Be Revealed", 5f, 0f, 25f, 1f, snitchSpawnRate);
         snitchMode = new CustomOption(30172, Types.Crewmate, "Information Mode", new string[] { "Chat", "Map", "Chat & Map" }, snitchSpawnRate);
         snitchTargets = new CustomOption(30173, Types.Crewmate, "Targets", new string[] { "All Evil Players", "Killing Players" }, snitchSpawnRate);
-        */
+        #1#
 
         snitchSpawnRate = new CustomOption(30170, Types.Crewmate, cs(Snitch.color, "Snitch"), rates, null, true);
         snitchLeftTasksForReveal = new CustomOption(30171, Types.Crewmate,
@@ -1323,5 +1322,5 @@ public class CustomOptionHolder
         blockedRolePairings.Add((byte)RoleId.Tunneler, [(byte)RoleId.Engineer]);
         blockedRolePairings.Add((byte)RoleId.Bomber2, [(byte)RoleId.Bait]);
         blockedRolePairings.Add((byte)RoleId.Bait, [(byte)RoleId.Bomber2]);
-    }
+    }*/
 }

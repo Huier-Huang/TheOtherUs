@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Crewmates;

@@ -13,7 +13,6 @@ namespace TheOtherUs.Patches;
 [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start))]
 public class MainMenuPatch
 {
-    private static bool horseButtonState = MapOptions.enableHorseMode;
     
     private static AnnouncementPopUp popUp;
 
@@ -153,7 +152,7 @@ ugackMiner53 - Idea and core code for the Prop Hunt game mode</size>";
         SceneManager.add_sceneLoaded((Action<Scene, LoadSceneMode>)((scene, _) =>
         {
             if (!scene.name.Equals("MatchMaking", StringComparison.Ordinal)) return;
-            MapOptions.gameMode = CustomGameModes.Classic;
+            CustomModeManager.Instance.CurrentMode = CustomGameModes.Classic;
             // Add buttons For Guesser Mode, Hide N Seek in this scene.
             // find "HostLocalGameButton"
             var template = Object.FindObjectOfType<HostLocalGameButton>();
@@ -168,7 +167,7 @@ ugackMiner53 - Idea and core code for the Prop Hunt game mode</size>";
             guesserButtonPassiveButton.OnClick = new Button.ButtonClickedEvent();
             guesserButtonPassiveButton.OnClick.AddListener((Action)(() =>
             {
-                MapOptions.gameMode = CustomGameModes.Guesser;
+                CustomModeManager.Instance.CurrentMode = CustomGameModes.Guesser;
                 template.OnClick();
             }));
 
@@ -180,7 +179,7 @@ ugackMiner53 - Idea and core code for the Prop Hunt game mode</size>";
             HideNSeekButtonPassiveButton.OnClick = new Button.ButtonClickedEvent();
             HideNSeekButtonPassiveButton.OnClick.AddListener((Action)(() =>
             {
-                MapOptions.gameMode = CustomGameModes.HideNSeek;
+                CustomModeManager.Instance.CurrentMode = CustomGameModes.HideNSeek;
                 template.OnClick();
             }));
 
@@ -192,7 +191,7 @@ ugackMiner53 - Idea and core code for the Prop Hunt game mode</size>";
             PropHuntButtonPassiveButton.OnClick = new Button.ButtonClickedEvent();
             PropHuntButtonPassiveButton.OnClick.AddListener((Action)(() =>
             {
-                MapOptions.gameMode = CustomGameModes.PropHunt;
+                CustomModeManager.Instance.CurrentMode = CustomGameModes.PropHunt;
                 template.OnClick();
             }));
 

@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Reactor.Utilities.Extensions;
 using UnityEngine;
 
 namespace TheOtherUs.Modules;
@@ -56,4 +58,50 @@ public class ResourceSprite(
 
         return _pathName;
     }
+
+    internal void Destroy()
+    {
+        _sprite?.Destroy();
+        ReturnSprite?.Destroy();
+    }
+}
+
+
+public class ResourceSpriteArray((string, float)[] sprites, bool cache = true, Action<ResourceSpriteArray>? onGet = null) : List<ResourceSprite>
+{
+    public (string, float)[] Sprites = sprites;
+    public int Current = 0;
+    private Action<ResourceSpriteArray>? OnGet = onGet;
+    
+    public ResourceSprite GetSprite(int value = -1)
+    {
+        if (Current != value && value != -1)
+        {
+            Current = value;
+        }
+        OnGet?.Invoke(this);
+        if (Current >= Count)
+        {
+            ForEach(n => n.Destroy());
+            Clear();
+
+            foreach (var (path, pixel) in Sprites)
+            {
+                var sp = new ResourceSprite(path, pixel, cache);
+                Add(sp);
+            }
+        }
+        
+        return this[Current];
+    }
+
+    public ResourceSprite Set(Index index)
+    {
+        Current = index.Value;
+        return this;
+    }
+
+    public static implicit operator ResourceSprite(ResourceSpriteArray array) => array.GetSprite();
+    public static implicit operator Sprite(ResourceSpriteArray array) => array.GetSprite();
+    public static implicit operator (string, float)(ResourceSpriteArray array) => array.Sprites[array.Current];
 }

@@ -1,13 +1,11 @@
-using System;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Modifier;
 
 [RegisterRole]
-public class Lovers : RoleBase
+public class Lover : RoleBase
 {
     public bool bothDie = true;
-    public Color color = new Color32(232, 57, 185, byte.MaxValue);
 
     public bool enableChat = true;
     public PlayerControl lover1;
@@ -16,8 +14,30 @@ public class Lovers : RoleBase
     // Lovers save if next to be exiled is a lover, because RPC of ending game comes before RPC of exiled
     public bool notAckedExiledIsLover;
 
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Lover),
+        RoleClassType = typeof(Lover),
+        Color=  new Color32(232, 57, 185, byte.MaxValue),
+        RoleId = RoleId.Lover,
+        RoleType = CustomRoleType.Modifier,
+        RoleTeam = RoleTeam.Special,
+        GetRole = Get<Lover>,
+        IntroInfo = "You are in love",
+        DescriptionText = "You are in love",
+        CreateRoleController = player => new LoverController(player)
+    };
+    public class LoverController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Lover>();
+    }
+    
+    public override CustomRoleOption roleOption { get; set; }
+
+    public override void OptionCreate()
+    {
+        roleOption = new CustomRoleOption(this);
+    }
 
     public bool existing()
     {
@@ -34,8 +54,7 @@ public class Lovers : RoleBase
     {
         if (!existingAndAlive()) return null;
         if (oneLover == lover1) return lover2;
-        if (oneLover == lover2) return lover1;
-        return null;
+        return oneLover == lover2 ? lover1 : null;
     }
 
     public bool existingWithKiller()
@@ -58,8 +77,8 @@ public class Lovers : RoleBase
         lover1 = null;
         lover2 = null;
         notAckedExiledIsLover = false;
-        bothDie = CustomOptionHolder.modifierLoverBothDie.getBool();
-        enableChat = CustomOptionHolder.modifierLoverEnableChat.getBool();
+        bothDie = CustomOptionHolder.modifierLoverBothDie;
+        enableChat = CustomOptionHolder.modifierLoverEnableChat;
     }
 
     public PlayerControl getPartner(PlayerControl player)
@@ -68,8 +87,6 @@ public class Lovers : RoleBase
             return null;
         if (lover1 == player)
             return lover2;
-        if (lover2 == player)
-            return lover1;
-        return null;
+        return lover2 == player ? lover1 : null;
     }
 }

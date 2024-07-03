@@ -1,25 +1,29 @@
-using System;
 using System.Collections.Generic;
 using TheOtherUs.Modules.Compatibility;
 using UnityEngine;
-using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 namespace TheOtherUs.Objects;
 
-internal class Bloodytrail
+internal class BloodyTrail
 {
-    private static readonly List<Bloodytrail> bloodytrail = [];
-    private static readonly List<Sprite> sprites = [];
+    private static readonly List<BloodyTrail> bloodytrail = [];
+    private static readonly ResourceSpriteArray BloodySprites = new
+    (
+        [
+            ("Blood1.png", 700),
+            ("Blood2.png", 500),
+            ("Blood3.png", 300),
+        ]
+    );
     private readonly GameObject blood;
     private readonly Color color;
     private readonly SpriteRenderer spriteRenderer;
 
-    public Bloodytrail(PlayerControl player, PlayerControl bloodyPlayer)
+    public BloodyTrail(PlayerControl player, PlayerControl bloodyPlayer)
     {
         color = Palette.PlayerColors[bloodyPlayer.Data.DefaultOutfit.ColorId];
-        var sp = getBloodySprites();
-        var index = sp.RandomIndex();
+        var index = BloodySprites.RandomIndex();
 
 
         blood = new GameObject("Blood" + index);
@@ -33,38 +37,22 @@ internal class Bloodytrail
         blood.transform.Rotate(0.0f, 0.0f, Random.Range(0.0f, 360.0f));
 
         spriteRenderer = blood.AddComponent<SpriteRenderer>();
-        spriteRenderer.sprite = sp[index];
+        spriteRenderer.sprite = BloodySprites.Set(index);
         spriteRenderer.material = FastDestroyableSingleton<HatManager>.Instance.PlayerMaterial;
         bloodyPlayer.SetPlayerMaterialColors(spriteRenderer);
 
         blood.SetActive(true);
         bloodytrail.Add(this);
 
-        FastDestroyableSingleton<HudManager>.Instance.StartCoroutine(Effects.Lerp(10f, new Action<float>(p =>
+        /*FastDestroyableSingleton<HudManager>.Instance.StartCoroutine(Effects.Lerp(10f, new Action<float>(p =>
         {
             var c = color;
-            if (Camouflager.camouflageTimer > 0 || Helpers.MushroomSabotageActive()) c = Palette.PlayerColors[6];
+            if (Get<Camouflager>().camouflageTimer > 0 || Helpers.MushroomSabotageActive()) c = Palette.PlayerColors[6];
             if (spriteRenderer) spriteRenderer.color = new Color(c.r, c.g, c.b, Mathf.Clamp01(1 - p));
 
-            if (p == 1f && blood != null)
-            {
-                Object.Destroy(blood);
-                bloodytrail.Remove(this);
-            }
-        })));
-    }
-
-    public static List<Sprite> getBloodySprites()
-    {
-        if (sprites.Count > 0) return sprites;
-        sprites.Add(UnityHelper.loadSpriteFromResources("TheOtherUs.Resources.Blood1.png", 700));
-        sprites.Add(UnityHelper.loadSpriteFromResources("TheOtherUs.Resources.Blood2.png", 500));
-        sprites.Add(UnityHelper.loadSpriteFromResources("TheOtherUs.Resources.Blood3.png", 300));
-        return sprites;
-    }
-
-    public static void resetSprites()
-    {
-        sprites.Clear();
+            if ((int)p != 1 || blood == null) return;
+            Object.Destroy(blood);
+            bloodytrail.Remove(this);
+        })));*/
     }
 }

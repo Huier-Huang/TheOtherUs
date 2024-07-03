@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AmongUs.GameOptions;
-using Hazel;
-using TheOtherUs.CustomGameMode;
-using UnityEngine;
+﻿using AmongUs.GameOptions;
 
 namespace TheOtherUs.Patches;
 
@@ -13,13 +7,13 @@ internal class RoleOptionsDataGetNumPerGamePatch
 {
     public static void Postfix(ref int __result)
     {
-        if (CustomOptionHolder.activateRoles.getBool() &&
+        if (CustomOptionHolder.activateRoles &&
             GameOptionsManager.Instance.CurrentGameOptions.GameMode == GameModes.Normal)
             __result = 0; // Deactivate Vanilla Roles if the mod roles are active
     }
 }
 
-[HarmonyPatch(typeof(IGameOptionsExtensions), nameof(IGameOptionsExtensions.GetAdjustedNumImpostors))]
+/*[HarmonyPatch(typeof(IGameOptionsExtensions), nameof(IGameOptionsExtensions.GetAdjustedNumImpostors))]
 internal class GameOptionsDataGetAdjustedNumImpostorsPatch
 {
     public static void Postfix(ref int __result)
@@ -66,7 +60,7 @@ internal class RoleManagerSelectRolesPatch
 
     public static void Postfix()
     {
-        var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+        var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
             (byte)CustomRPC.ResetVaribles, SendOption.Reliable);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
         RPCProcedure.resetVariables();
@@ -248,7 +242,7 @@ internal class RoleManagerSelectRolesPatch
 
             }
         }
-        */
+        #1#
 
         // Assign Sheriff
         if ((CustomOptionHolder.deputySpawnRate.getSelection() > 0 &&
@@ -351,7 +345,7 @@ internal class RoleManagerSelectRolesPatch
         //bool isGuesser = !guesserFlag;
 
         // --- Simulate Crew & Imp ticket system ---
-        while (crew > 0 && !isSheriff /* || (!isEvilGuesser && !isGuesser)*/)
+        while (crew > 0 && !isSheriff /* || (!isEvilGuesser && !isGuesser)#1#)
         {
             if (!isSheriff && rnd.Next(crewValues) < CustomOptionHolder.sheriffSpawnRate.getSelection())
                 isSheriff = true;
@@ -365,7 +359,7 @@ internal class RoleManagerSelectRolesPatch
             imp--;
             impValues -= impSteps;
         }
-        */
+        #1#
 
         // --- Assign Main Roles if they won the lottery ---
         if (isSheriff && Sheriff.sheriff == null && data.crewmates.Count > 0 && data.maxCrewmateRoles > 0 &&
@@ -389,7 +383,7 @@ internal class RoleManagerSelectRolesPatch
                 data.maxImpostorRoles--;
             }
         }
-        */
+        #1#
 
         // --- Assign Dependent Roles if main role exists ---
         if (Sheriff.sheriff != null)
@@ -432,7 +426,7 @@ internal class RoleManagerSelectRolesPatch
                         data.crewSettings.Add((byte)RoleId.NiceGuesser, CustomOptionHolder.guesserSpawnBothRate.getSelection());
                 }
             }
-            */
+            #1#
     }
 
     private static void assignChanceRoles(RoleAssignmentData data)
@@ -507,7 +501,7 @@ internal class RoleManagerSelectRolesPatch
             if (!Lawyer.isProsecutor)
             {
                 // Lawyer
-                foreach (PlayerControl p in CachedPlayer.AllPlayers)
+                foreach (PlayerControl p in AllPlayers)
                     if (!p.Data.IsDead && !p.Data.Disconnected && p != Lovers.lover1 && p != Lovers.lover2 &&
                         (p.Data.Role.IsImpostor || p == Jackal.jackal || p == Werewolf.werewolf ||
                          (Lawyer.targetCanBeJester && p == Jester.jester)))
@@ -516,7 +510,7 @@ internal class RoleManagerSelectRolesPatch
             else
             {
                 // Prosecutor
-                foreach (PlayerControl p in CachedPlayer.AllPlayers)
+                foreach (PlayerControl p in AllPlayers)
                     if (!p.Data.IsDead && !p.Data.Disconnected && p != Lovers.lover1 && p != Lovers.lover2 &&
                         p != Mini.mini && !p.Data.Role.IsImpostor && !Helpers.isNeutral(p) && p != Swapper.swapper)
                         possibleTargets.Add(p);
@@ -524,7 +518,7 @@ internal class RoleManagerSelectRolesPatch
 
             if (possibleTargets.Count == 0)
             {
-                var w = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+                var w = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                     (byte)CustomRPC.LawyerPromotesToPursuer, SendOption.Reliable);
                 AmongUsClient.Instance.FinishRpcImmediately(w);
                 RPCProcedure.lawyerPromotesToPursuer();
@@ -532,7 +526,7 @@ internal class RoleManagerSelectRolesPatch
             else
             {
                 var target = possibleTargets[TheOtherUs.rnd.Next(0, possibleTargets.Count)];
-                var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+                var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                     (byte)CustomRPC.LawyerSetTarget, SendOption.Reliable);
                 writer.Write(target.PlayerId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -730,7 +724,7 @@ internal class RoleManagerSelectRolesPatch
             var playerId = playerList[index].PlayerId;
             playerList.RemoveAt(index);
 
-            var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+            var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                 (byte)CustomRPC.SetGuesserGm, SendOption.Reliable);
             writer.Write(playerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -746,7 +740,7 @@ internal class RoleManagerSelectRolesPatch
 
         playerRoleMap.Add(new Tuple<byte, byte>(playerId, roleId));
 
-        var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+        var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
             (byte)CustomRPC.SetRole, SendOption.Reliable);
         writer.Write(roleId);
         writer.Write(playerId);
@@ -762,7 +756,7 @@ internal class RoleManagerSelectRolesPatch
         var playerId = playerList[index].PlayerId;
         playerList.RemoveAt(index);
 
-        var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+        var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
             (byte)CustomRPC.SetModifier, SendOption.Reliable);
         writer.Write(modifierId);
         writer.Write(playerId);
@@ -841,7 +835,7 @@ internal class RoleManagerSelectRolesPatch
                 playerList.RemoveAll(x => x.PlayerId == playerId);
                 modifiers.RemoveAll(x => x == RoleId.Watcher);
             }
-*/
+#1#
         List<PlayerControl> crewPlayer = [..playerList];
         crewPlayer.RemoveAll(x => x.Data.Role.IsImpostor || RoleInfo.getRoleInfoForPlayer(x).Any(r => r.isNeutral));
         if (modifiers.Contains(RoleId.Shifter))
@@ -1005,7 +999,7 @@ internal class RoleManagerSelectRolesPatch
         while (playerRoleMap.Any())
         {
             var amount = (byte)Math.Min(playerRoleMap.Count, 20);
-            var writer = AmongUsClient.Instance!.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+            var writer = AmongUsClient.Instance!.StartRpcImmediately(LocalPlayer.Control.NetId,
                 (byte)CustomRPC.WorkaroundSetRoles, SendOption.Reliable);
             writer.Write(amount);
             for (var i = 0; i < amount; i++)
@@ -1038,4 +1032,4 @@ internal class RoleManagerSelectRolesPatch
         Neutral = 1,
         Impostor = 2
     }
-}
+}*/

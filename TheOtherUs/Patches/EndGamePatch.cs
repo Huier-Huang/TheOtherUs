@@ -1,12 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TheOtherUs.CustomGameMode;
-using TMPro;
-using UnityEngine;
-using Object = UnityEngine.Object;
-
 namespace TheOtherUs.Patches;
 
 internal enum CustomGameOverReason
@@ -38,6 +29,7 @@ internal enum WinCondition
     EveryoneDied
 }
 
+/*
 internal static class AdditionalTempData
 {
     // Should be implemented using a proper GameOverReason in the future
@@ -78,14 +70,14 @@ public class OnGameEndPatch
         if ((int)endGameResult.GameOverReason >= 10) endGameResult.GameOverReason = GameOverReason.ImpostorByKill;
 
         // Reset zoomed out ghosts
-        Helpers.toggleZoom(true);
+        MapData.ToggleZoom(true);
     }
 
     public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ref EndGameResult endGameResult)
     {
         AdditionalTempData.clear();
 
-        foreach (var playerControl in CachedPlayer.AllPlayers)
+        /*foreach (var playerControl in AllPlayers)
         {
             var roles = RoleInfo.getRoleInfoForPlayer(playerControl);
             var (tasksCompleted, tasksTotal) = TasksHandler.taskInfo(playerControl.Data);
@@ -104,7 +96,7 @@ public class OnGameEndPatch
                 IsAlive = !playerControl.Data.IsDead
             });
 
-            if (Cultist.isCultistGame) GameOptionsManager.Instance.currentNormalGameOptions.NumImpostors = 2;
+            if (Cultist.isCultistGame) GameOptionsManager.Instance.currentNormalGameOptions.NumImpostors = 2;#1#
         }
 
         // Remove Jester, Arsonist, Vulture, Jackal, former Jackals and Sidekick from winners (if they win, they'll be readded)
@@ -210,7 +202,7 @@ public class OnGameEndPatch
             {
                 AdditionalTempData.winCondition = WinCondition.LoversTeamWin;
                 TempData.winners = new Il2CppSystem.Collections.Generic.List<WinningPlayerData>();
-                foreach (PlayerControl p in CachedPlayer.AllPlayers)
+                foreach (PlayerControl p in AllPlayers)
                 {
                     if (p == null) continue;
                     if (p == Lovers.lover1 || p == Lovers.lover2)
@@ -800,4 +792,4 @@ internal class PlayerStatistics
         TeamWerewolfHasAliveLover = werewolfLover;
         TeamWerewolfAlive = numWerewolfAlive;
     }
-}
+}*/

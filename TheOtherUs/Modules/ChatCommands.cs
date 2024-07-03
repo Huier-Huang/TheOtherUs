@@ -1,6 +1,5 @@
 using System.Linq;
 using InnerNet;
-using TheOtherUs.CustomGameMode;
 
 namespace TheOtherUs.Modules;
 
@@ -25,7 +24,7 @@ public static class ChatCommands
                     case "ban":
                         var playerName = strings[1];
                         PlayerControl target =
-                            CachedPlayer.AllPlayers.FirstOrDefault(x => x.NetPlayerInfo.PlayerName.Equals(playerName));
+                            AllPlayers.FirstOrDefault(x => x.NetPlayerInfo.PlayerName.Equals(playerName));
                         if (target != null && AmongUsClient.Instance != null && AmongUsClient.Instance.CanBan())
                         {
                             var client = AmongUsClient.Instance.GetClient(target.OwnerId);
@@ -55,11 +54,11 @@ public static class ChatCommands
                             var writer = FastRpcWriter.StartNewRpcWriter(CustomRPC.ShareGamemode)
                                 .Write(gameMode);
                             writer.RPCSend();
-                            RPCProcedure.shareGamemode((byte)gameMode);
+                            CustomModeManager.Instance.CurrentMode = (CustomGameModes)gameMode;
                         }
                         else
                         {
-                            __instance.AddChat(CachedPlayer.LocalPlayer.Control,
+                            __instance.AddChat(LocalPlayer.Control,
                                 "Nice try, but you have to be the host to use this feature");
                         }
 

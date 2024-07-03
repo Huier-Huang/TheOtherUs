@@ -1,6 +1,4 @@
-using System;
 using System.Linq;
-using Hazel;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -22,17 +20,17 @@ public class CameraPatch
 
     private static void UseCameraTime()
     {
-        // Don't waste network traffic if we're out of time.
+        /*// Don't waste network traffic if we're out of time.
         if (MapOptions.restrictDevices > 0 && MapOptions.restrictCamerasTime > 0f &&
-            CachedPlayer.LocalPlayer.Control.isAlive() && !CachedPlayer.LocalPlayer.Control.Is<Hacker>() &&
-            !CachedPlayer.LocalPlayer.Control.Is<SecurityGuard>())
+            LocalPlayer.Control.isAlive() && !LocalPlayer.Control.Is<Hacker>() &&
+            !LocalPlayer.Control.Is<SecurityGuard>())
         {
-            var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+            var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                 (byte)CustomRPC.UseCameraTime, SendOption.Reliable);
             writer.Write(cameraTimer);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
             RPCProcedure.useCameraTime(cameraTimer);
-        }
+        }*/
 
         cameraTimer = 0f;
     }
@@ -96,6 +94,7 @@ public class CameraPatch
                 if (cameraTimer > 0.1f)
                     UseCameraTime();
 
+                /*
                 if (MapOptions.restrictDevices > 0)
                 {
                     if (TimeRemaining == null)
@@ -115,9 +114,9 @@ public class CameraPatch
                         return false;
                     }
 
-                    if (MapOptions.restrictCamerasTime <= 0f && !CachedPlayer.LocalPlayer.Control.Is<Hacker>() &&
-                        !CachedPlayer.LocalPlayer.Control.Is<SecurityGuard>() &&
-                        !CachedPlayer.LocalPlayer.Data.IsDead)
+                    if (MapOptions.restrictCamerasTime <= 0f && !LocalPlayer.Control.Is<Hacker>() &&
+                        !LocalPlayer.Control.Is<SecurityGuard>() &&
+                        !LocalPlayer.Data.IsDead)
                     {
                         __instance.Close();
                         return false;
@@ -127,6 +126,7 @@ public class CameraPatch
                     TimeRemaining.text = string.Format("Remaining: {0}", timeString);
                     TimeRemaining.gameObject.SetActive(true);
                 }
+                */
 
                 // Update normal and securityGuard cameras
                 timer += Time.deltaTime;
@@ -148,7 +148,7 @@ public class CameraPatch
                 }
 
                 if ((__instance.isStatic || update) &&
-                    !PlayerTask.PlayerHasTaskOfType<IHudOverrideTask>(CachedPlayer.LocalPlayer.Control))
+                    !PlayerTask.PlayerHasTaskOfType<IHudOverrideTask>(LocalPlayer.Control))
                 {
                     __instance.isStatic = false;
                     for (var i = 0; i < __instance.ViewPorts.Length; i++)
@@ -163,7 +163,7 @@ public class CameraPatch
                     }
                 }
                 else if (!__instance.isStatic &&
-                         PlayerTask.PlayerHasTaskOfType<HudOverrideTask>(CachedPlayer.LocalPlayer.Control))
+                         PlayerTask.PlayerHasTaskOfType<HudOverrideTask>(LocalPlayer.Control))
                 {
                     __instance.isStatic = true;
                     for (var j = 0; j < __instance.ViewPorts.Length; j++)
@@ -219,7 +219,7 @@ public class CameraPatch
                 if (cameraTimer > 0.1f)
                     UseCameraTime();
 
-                if (MapOptions.restrictDevices > 0)
+                /*if (MapOptions.restrictDevices > 0)
                 {
                     if (TimeRemaining == null)
                     {
@@ -232,15 +232,16 @@ public class CameraPatch
                         TimeRemaining.color = Palette.White;
                     }
 
+                    /*
                     if (MapOptions.disableCamsRoundOne && MapOptions.isRoundOne)
                     {
                         __instance.Close();
                         return false;
-                    }
+                    }#1#
 
-                    if (MapOptions.restrictCamerasTime <= 0f && !CachedPlayer.LocalPlayer.Control.Is<Hacker>() &&
-                        !CachedPlayer.LocalPlayer.Control.Is<SecurityGuard>() &&
-                        !CachedPlayer.LocalPlayer.Data.IsDead)
+                    if (MapOptions.restrictCamerasTime <= 0f && !LocalPlayer.Control.Is<Hacker>() &&
+                        !LocalPlayer.Control.Is<SecurityGuard>() &&
+                        !LocalPlayer.Data.IsDead)
                     {
                         __instance.Close();
                         return false;
@@ -249,7 +250,7 @@ public class CameraPatch
                     var timeString = TimeSpan.FromSeconds(MapOptions.restrictCamerasTime).ToString(@"mm\:ss\.ff");
                     TimeRemaining.text = string.Format("Remaining: {0}", timeString);
                     TimeRemaining.gameObject.SetActive(true);
-                }
+                }*/
 
                 return true;
             }
@@ -299,7 +300,7 @@ public class CameraPatch
                 if (cameraTimer > 0.1f)
                     UseCameraTime();
 
-                if (MapOptions.restrictDevices > 0)
+                /*if (MapOptions.restrictDevices > 0)
                 {
                     if (TimeRemaining == null)
                     {
@@ -312,9 +313,9 @@ public class CameraPatch
                         TimeRemaining.color = Palette.White;
                     }
 
-                    if (MapOptions.restrictCamerasTime <= 0f && !CachedPlayer.LocalPlayer.Control.Is<Hacker>() &&
-                        !CachedPlayer.LocalPlayer.Control.Is<SecurityGuard>() &&
-                        !CachedPlayer.LocalPlayer.Data.IsDead)
+                    if (MapOptions.restrictCamerasTime <= 0f && !LocalPlayer.Control.Is<Hacker>() &&
+                        !LocalPlayer.Control.Is<SecurityGuard>() &&
+                        !LocalPlayer.Data.IsDead)
                     {
                         __instance.Close();
                         return false;
@@ -323,7 +324,7 @@ public class CameraPatch
                     var timeString = TimeSpan.FromSeconds(MapOptions.restrictCamerasTime).ToString(@"mm\:ss\.ff");
                     TimeRemaining.text = string.Format("Remaining: {0}", timeString);
                     TimeRemaining.gameObject.SetActive(true);
-                }
+                }*/
 
                 return true;
             }

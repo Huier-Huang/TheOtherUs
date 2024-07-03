@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using TheOtherUs.Modules.Compatibility;
 using UnityEngine;
@@ -11,8 +10,30 @@ public class AntiTeleport : RoleBase
     public List<PlayerControl> antiTeleport = [];
     public Vector3 position;
 
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(AntiTeleport),
+        RoleClassType = typeof(AntiTeleport),
+        Color = Color.yellow,
+        RoleId = RoleId.AntiTeleport,
+        RoleType = CustomRoleType.Modifier,
+        RoleTeam = RoleTeam.Special,
+        GetRole = Get<AntiTeleport>,
+        IntroInfo = "You will not get teleported",
+        DescriptionText = "You will not get teleported",
+        CreateRoleController = player => new AntiTeleportController(player)
+    };
+    public class AntiTeleportController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<AntiTeleport>();
+    }
+    
+    public override CustomRoleOption roleOption { get; set; }
+
+    public override void OptionCreate()
+    {
+        roleOption = new CustomRoleOption(this);
+    }
 
     public override void ClearAndReload()
     {
@@ -24,9 +45,9 @@ public class AntiTeleport : RoleBase
     {
         if (position == Vector3.zero)
             return; // Check if this has been set, otherwise first spawn on submerged will fail
-        if (antiTeleport.FindAll(x => x.PlayerId == CachedPlayer.LocalPlayer.PlayerId).Count <= 0) return;
+        if (antiTeleport.FindAll(x => x.PlayerId == LocalPlayer.PlayerId).Count <= 0) return;
 
-        CachedPlayer.LocalPlayer.NetTransform.RpcSnapTo(position);
-        if (SubmergedCompatibility.IsSubmerged) SubmergedCompatibility.ChangeFloor(position.y > -7);
+        LocalPlayer.NetTransform.RpcSnapTo(position);
+        if (MapData.MapIs(Maps.Submerged)) SubmergedCompatibility.Instance.ChangeFloor(position.y > -7);
     }
 }

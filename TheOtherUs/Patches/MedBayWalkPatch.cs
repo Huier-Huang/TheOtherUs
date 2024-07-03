@@ -1,8 +1,6 @@
-using UnityEngine;
-
 namespace TheOtherUs.Patches;
 
-[HarmonyPatch(typeof(MedScanMinigame._WalkToOffset_d__15), nameof(MedScanMinigame._WalkToPad_d__16.MoveNext))]
+/*[HarmonyPatch(typeof(MedScanMinigame._WalkToOffset_d__15), nameof(MedScanMinigame._WalkToPad_d__16.MoveNext))]
 internal class MedscanMiniGamePatchWTP
 {
     private static bool Prefix(MedScanMinigame._WalkToPad_d__16 __instance)
@@ -68,4 +66,4 @@ internal class MedscanMiniGamePatchWTO
 
         return false;
     }
-}
+}*/

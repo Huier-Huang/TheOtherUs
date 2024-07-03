@@ -19,7 +19,7 @@ public static class SoundEffectsManager
         var resourceNames = assembly.GetManifestResourceNames();
         foreach (var resourceName in resourceNames)
             if (resourceName.Contains("TheOtherUs.Resources.SoundEffects.") && resourceName.Contains(".raw"))
-                soundEffects.Add(resourceName, Helpers.loadAudioClipFromResources(resourceName));
+                soundEffects.Add(resourceName, UnityHelper.loadAudioClipFromResources(resourceName));
     }
 
     public static AudioClip get(string path)
@@ -52,7 +52,7 @@ public static class SoundEffectsManager
             if (source == null) return;
             if ((int)p == 1) source.Stop();
             float volume;
-            var distance = Vector2.Distance(position, CachedPlayer.LocalPlayer.Control.GetTruePosition());
+            var distance = Vector2.Distance(position, LocalPlayer.Control.GetTruePosition());
             if (distance < range)
                 volume = 1f - (distance / range);
             else

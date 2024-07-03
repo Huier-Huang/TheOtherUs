@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using TheOtherUs.Options;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;

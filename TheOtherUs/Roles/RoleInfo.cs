@@ -21,12 +21,39 @@ public class RoleInfo
     public string DescriptionText { get; set; } = string.Empty;
     public string IntroInfo { get; set; } = string.Empty;
     public RoleTeam RoleTeam { get; set; }
-    
-    public string Intro => IntroInfo == string.Empty ? Get(Enum.GetName(RoleId) ?? string.Empty, "Info", "Intro") : Intro;
-    public string Description =>
-        DescriptionText == string.Empty
-            ? Get(Enum.GetName(RoleId) ?? string.Empty, "Info", "Description")
-            : DescriptionText;
+    public string RoleClassName => RoleClassType.Name;
+
+    public string InfoStringNode => Enum.GetName(RoleId) ?? RoleClassName + ".Info";
+
+    public string ShowName
+    { 
+        get
+        {
+            var tr = Get(InfoStringNode,"Name");
+            if (tr == string.Empty)
+                tr = Get(RoleClassName);
+            
+            return tr != string.Empty ? tr : Name;
+        } 
+    }
+
+    public string Intro
+    {
+        get
+        {
+            var tr = Get(InfoStringNode, "Intro");
+            return tr != string.Empty ? tr : IntroInfo;
+        }
+    }
+
+    public string Description
+    {
+        get
+        {
+            var tr = Get(InfoStringNode, "Description");
+            return tr != string.Empty ? tr : DescriptionText;
+        }
+    }
 
     public CustomRoleType RoleType { get; set; } = CustomRoleType.Main;
     public Func<RoleBase> GetRole { get; set; }

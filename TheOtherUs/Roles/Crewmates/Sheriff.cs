@@ -1,5 +1,4 @@
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Crewmates;
@@ -114,8 +113,8 @@ public class Sheriff : RoleBase
         sheriffKillButton = new CustomButton(
             () =>
             {
-                if (Helpers.checkAndDoVetKill(currentTarget)) return;
-                var murderAttemptResult = Helpers.checkMuderAttempt(sheriff, currentTarget);
+                if (ButtonHelper.checkAndDoVetKill(currentTarget)) return;
+                var murderAttemptResult = MurderAttemptResult.PerformKill;/*ButtonHelper.checkMuderAttempt(sheriff, currentTarget);*/
                 switch (murderAttemptResult)
                 {
                     case MurderAttemptResult.SuppressKill:
@@ -153,7 +152,7 @@ public class Sheriff : RoleBase
                             switch (misfireKills)
                             {
                                 case 0:
-                                    targetId = CachedPlayer.LocalPlayer.PlayerId;
+                                    targetId = LocalPlayer.PlayerId;
                                     break;
                                 case 1:
                                     targetId = currentTarget.PlayerId;
@@ -164,11 +163,11 @@ public class Sheriff : RoleBase
 
                                     var killWriter2 = FastRpcWriter.StartNewRpcWriter(CustomRPC.UncheckedMurderPlayer)
                                         .Write(sheriff.Data.PlayerId)
-                                        .Write(CachedPlayer.LocalPlayer.PlayerId)
+                                        .Write(LocalPlayer.PlayerId)
                                         .Write(byte.MaxValue);
                                     killWriter2.RPCSend();
-                                    RPCProcedure.uncheckedMurderPlayer(sheriff.Data.PlayerId,
-                                        CachedPlayer.LocalPlayer.PlayerId, byte.MaxValue);
+                                    /*RPCProcedure.uncheckedMurderPlayer(sheriff.Data.PlayerId,
+                                        CachedPlayer.LocalPlayer.PlayerId, byte.MaxValue);*/
                                     break;
                                 }
                             }
@@ -178,23 +177,23 @@ public class Sheriff : RoleBase
                             .Write(targetId)
                             .Write(byte.MaxValue);
                         killWriter.RPCSend();
-                        RPCProcedure.uncheckedMurderPlayer(sheriff.Data.PlayerId, targetId, byte.MaxValue);
+                        /*RPCProcedure.uncheckedMurderPlayer(sheriff.Data.PlayerId, targetId, byte.MaxValue);*/
                         break;
                     }
                     case MurderAttemptResult.BodyGuardKill:
-                        Helpers.checkMuderAttemptAndKill(sheriff, currentTarget);
+                        /*Helpers.checkMuderAttemptAndKill(sheriff, currentTarget);*/
                         break;
                 }
 
                 sheriffKillButton.Timer = sheriffKillButton.MaxTimer;
                 currentTarget = null;
             },
-            () => sheriff != null && CachedPlayer.LocalPlayer.Control.Is<Sheriff>() &&
-                  !CachedPlayer.LocalPlayer.NetPlayerInfo.IsDead,
+            () => sheriff != null && LocalPlayer.Control.Is<Sheriff>() &&
+                  !LocalPlayer.NetPlayerInfo.IsDead,
             () =>
             {
                 ButtonHelper.showTargetNameOnButton(currentTarget, sheriffKillButton, "KILL");
-                return currentTarget && CachedPlayer.LocalPlayer.Control.CanMove;
+                return currentTarget && LocalPlayer.Control.CanMove;
             },
             () => { sheriffKillButton.Timer = sheriffKillButton.MaxTimer; },
             _hudManager.KillButton.graphic.sprite,

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
 using TheOtherUs.CustomCosmetics;
 using UnityEngine;
 
@@ -9,9 +8,9 @@ namespace TheOtherUs.Utilities;
 
 public sealed class CachedPlayer
 {
-    public static readonly Dictionary<IntPtr, CachedPlayer> PlayerPtrs = new();
+    internal static readonly Dictionary<IntPtr, CachedPlayer> PlayerPtrs = new();
     public static readonly List<CachedPlayer> AllPlayers = [];
-    public static CachedPlayer LocalPlayer => PlayerControl.LocalPlayer;
+    internal static CachedPlayer LocalPlayer => PlayerControl.LocalPlayer;
 
     public Transform transform { get; init; }
     public PlayerControl Control { get; init; }
@@ -40,7 +39,8 @@ public sealed class CachedPlayer
     public Vector2 TruePosition => Control.GetTruePosition();
 
     public Vector2 ControlOffset => Control.Collider.offset;
-    
+
+    public bool Disconnected => NetPlayerInfo.Disconnected;
     public bool CanMove => Control.CanMove; 
     public bool IsDead => Control.Data.IsDead;
 
@@ -53,48 +53,69 @@ public sealed class CachedPlayer
     public CustomVisor? _CustomVisor { get; set; }
     public CustomNamePlate? _customNamePlate { get; set; }
     #nullable disable
-
-    // GameStates Form TOH
-    public static class GameStates
-    { 
-        public static bool InGame = false;
-        
-        public static bool AlreadyDied = false;
-
-        /**********Check Game Status***********/
-        public static bool HasGameStart => GameManager.Instance.GameHasStarted;
-        public static bool IsHost => AmongUsClient.Instance.HostId == AmongUsClient.Instance.ClientId;
-        
-        public static bool IsNormalGame =>
-        GameOptionsManager.Instance.CurrentGameOptions.GameMode is GameModes.Normal or GameModes.NormalFools;
-        
-        public static bool IsHideNSeek =>
-        GameOptionsManager.Instance.CurrentGameOptions.GameMode is GameModes.HideNSeek or GameModes.SeekFools;
-        public static bool IsLobby => AmongUsClient.Instance.GameState == InnerNet.InnerNetClient.GameStates.Joined; 
-        public static bool IsInGame => InGame; 
-        public static bool IsEnded => AmongUsClient.Instance.GameState == InnerNet.InnerNetClient.GameStates.Ended; 
-        public static bool IsNotJoined => AmongUsClient.Instance.GameState == InnerNet.InnerNetClient.GameStates.NotJoined; 
-        public static bool IsOnlineGame => AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame; 
-        public static bool IsLocalGame => AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame; 
-        public static bool IsFreePlay => AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay; 
-        public static bool IsInTask => InGame && !MeetingHud.Instance; 
-        public static bool IsMeeting => InGame && MeetingHud.Instance;
-        
-        public static bool IsVoting => IsMeeting &&
-                                       MeetingHud.Instance.state is MeetingHud.VoteStates.Voted
-                                           or MeetingHud.VoteStates.NotVoted;
-        
-        public static bool IsProceeding => IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Proceeding;
-
-        public static bool IsExilling => ExileController.Instance != null;
-        
-        public static bool IsCountDown => GameStartManager.InstanceExists &&
-                                          GameStartManager.Instance.startState == GameStartManager.StartingStates.Countdown;
-
-        /**********TOP ZOOM.cs***********/ 
-        public static bool IsShip => ShipStatus.Instance != null; 
-    }
     
+    
+    public void setDefaultLook(bool enforceNightVisionUpdate = true)
+    {
+        if (ButtonHelper.MushroomSabotageActive())
+        {
+            var instance = ShipStatus.Instance.CastFast<FungleShipStatus>().specialSabotage;
+            var condensedOutfit = instance.currentMixups[Control.PlayerId];
+            var playerOutfit = instance.ConvertToPlayerOutfit(condensedOutfit);
+            Control.MixUpOutfit(playerOutfit);
+        }
+        else
+        {
+            setLook(Control.Data.PlayerName, Control.Data.DefaultOutfit.ColorId, Control.Data.DefaultOutfit.HatId,
+                Control.Data.DefaultOutfit.VisorId, Control.Data.DefaultOutfit.SkinId, Control.Data.DefaultOutfit.PetId,
+                enforceNightVisionUpdate);
+        }
+    }
+
+    public void setLook(string playerName, int colorId, string hatId, string visorId,
+        string skinId, string petId, bool enforceNightVisionUpdate = true)
+    {
+        Control.RawSetColor(colorId);
+        Control.RawSetVisor(visorId, colorId);
+        Control.RawSetHat(hatId, colorId);
+        Control.RawSetName(ButtonHelper.hidePlayerName(LocalPlayer.Control, Control) ? "" : playerName);
+
+
+        SkinViewData nextSkin;
+        try
+        {
+            nextSkin = ShipStatus.Instance.CosmeticsCache.GetSkin(skinId);
+        }
+        catch
+        {
+            return;
+        }
+
+        var playerPhysics = Control.MyPhysics;
+        AnimationClip clip;
+        var spriteAnim = playerPhysics.myPlayer.cosmetics.skin.animator;
+        var currentPhysicsAnim = playerPhysics.Animations.Animator.GetCurrentAnimation();
+
+
+        if (currentPhysicsAnim == playerPhysics.Animations.group.RunAnim) clip = nextSkin.RunAnim;
+        else if (currentPhysicsAnim == playerPhysics.Animations.group.SpawnAnim) clip = nextSkin.SpawnAnim;
+        else if (currentPhysicsAnim == playerPhysics.Animations.group.EnterVentAnim) clip = nextSkin.EnterVentAnim;
+        else if (currentPhysicsAnim == playerPhysics.Animations.group.ExitVentAnim) clip = nextSkin.ExitVentAnim;
+        else if (currentPhysicsAnim == playerPhysics.Animations.group.IdleAnim) clip = nextSkin.IdleAnim;
+        else clip = nextSkin.IdleAnim;
+        var progress = playerPhysics.Animations.Animator.m_animator.GetCurrentAnimatorStateInfo(0).normalizedTime;
+        playerPhysics.myPlayer.cosmetics.skin.skin = nextSkin;
+        playerPhysics.myPlayer.cosmetics.skin.UpdateMaterial();
+
+        spriteAnim.Play(clip);
+        spriteAnim.m_animator.Play("a", 0, progress % 1);
+        spriteAnim.m_animator.Update(0f);
+
+        Control.RawSetPet(petId, colorId);
+
+        /*if (enforceNightVisionUpdate) SurveillanceMinigamePatch.enforceNightVision(target);
+        Chameleon.update(); */
+    }
 
     public CachedPlayer SetName(string name, Color color = default, float size = -1)
     {
@@ -166,6 +187,8 @@ public sealed class CachedPlayer
 [HarmonyPatch]
 public static class CachedPlayerPatches
 {
+    public static CachedPlayer GetCachePlayer(this byte id) => AllPlayers.FirstOrDefault(n => n.PlayerId == id);
+    
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Awake))]
     [HarmonyPostfix]
     public static void CachePlayerPatch(PlayerControl __instance)
@@ -180,8 +203,8 @@ public static class CachedPlayerPatches
             cosmeticsLayer = __instance.cosmetics,
             NetPlayerInfo = __instance.Data
         };
-        CachedPlayer.AllPlayers.Add(player);
-        CachedPlayer.PlayerPtrs[__instance.Pointer] = player;
+        AllPlayers.Add(player);
+        PlayerPtrs[__instance.Pointer] = player;
     }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.OnDestroy))]
@@ -189,8 +212,8 @@ public static class CachedPlayerPatches
     public static void RemoveCachedPlayerPatch(PlayerControl __instance)
     {
         if (__instance.notRealPlayer) return;
-        CachedPlayer.AllPlayers.RemoveAll(p => p.Control.Pointer == __instance.Pointer);
-        CachedPlayer.PlayerPtrs.Remove(__instance.Pointer);
+        AllPlayers.RemoveAll(p => p.Control.Pointer == __instance.Pointer);
+        PlayerPtrs.Remove(__instance.Pointer);
     }
 
     
@@ -199,6 +222,8 @@ public static class CachedPlayerPatches
     [HarmonyPostfix]
     public static void SetCachedPlayerId(PlayerControl __instance)
     {
-        CachedPlayer.PlayerPtrs[__instance.Pointer].PlayerId = __instance.PlayerId;
+        PlayerPtrs[__instance.Pointer].PlayerId = __instance.PlayerId;
     }
 }
+
+    // GameStates Form TOH

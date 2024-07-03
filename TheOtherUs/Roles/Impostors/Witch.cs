@@ -1,9 +1,5 @@
-using System;
 using System.Collections.Generic;
-using Hazel;
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
-using TheOtherUs.Patches;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Impostors;
@@ -13,7 +9,6 @@ public class Witch : RoleBase
 {
     private readonly ResourceSprite buttonSprite = new("SpellButton.png");
     public bool canSpellAnyone;
-    public Color color = Palette.ImpostorRed;
     public float cooldown = 30f;
     public float cooldownAddition = 10f;
     public float currentCooldownAddition;
@@ -31,27 +26,47 @@ public class Witch : RoleBase
     public CustomOption witchCanSpellAnyone;
     public CustomOption witchCooldown;
 
-    public CustomOption witchSpawnRate;
-
     public CustomButton witchSpellButton;
     public CustomOption witchSpellCastingDuration;
     public CustomOption witchTriggerBothCooldowns;
     public CustomOption witchVoteSavesTargets;
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Witch),
+        RoleClassType = typeof(Witch),
+        Color = Palette.ImpostorRed,
+        RoleId = RoleId.Witch,
+        RoleType = CustomRoleType.Main,
+        RoleTeam = RoleTeam.Impostor,
+        GetRole = Get<Witch>,
+        IntroInfo = "Cast a spell upon your foes",
+        DescriptionText = "Cast a spell upon your foes",
+        CreateRoleController = player => new WitchController(player)
+    };
+    public class WitchController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Witch>();
+    }
+    
+    public override CustomRoleOption roleOption { get; set; }
+
+    public override void OptionCreate()
+    {
+        roleOption = new CustomRoleOption(this);
+    }
 
     public override void ClearAndReload()
     {
         witch = null;
         futureSpelled = [];
         currentTarget = spellCastingTarget = null;
-        cooldown = witchCooldown.getFloat();
-        cooldownAddition = witchAdditionalCooldown.getFloat();
+        cooldown = witchCooldown;
+        cooldownAddition = witchAdditionalCooldown;
         currentCooldownAddition = 0f;
-        canSpellAnyone = witchCanSpellAnyone.getBool();
-        spellCastingDuration = witchSpellCastingDuration.getFloat();
-        triggerBothCooldowns = witchTriggerBothCooldowns.getBool();
-        VoteSavesTargets = witchVoteSavesTargets.getBool();
+        canSpellAnyone = witchCanSpellAnyone;
+        spellCastingDuration = witchSpellCastingDuration;
+        triggerBothCooldowns = witchTriggerBothCooldowns;
+        VoteSavesTargets = witchVoteSavesTargets;
     }
 
     public override void ButtonCreate(HudManager _hudManager)
@@ -60,29 +75,24 @@ public class Witch : RoleBase
         witchSpellButton = new CustomButton(
             () =>
             {
-                if (currentTarget != null)
-                {
-                    if (Helpers.checkAndDoVetKill(currentTarget)) return;
-                    Helpers.checkWatchFlash(currentTarget);
-                    spellCastingTarget = currentTarget;
-                    SoundEffectsManager.play("witchSpell");
-                }
+                if (currentTarget == null) return;
+                /*if (Helpers.checkAndDoVetKill(currentTarget)) return;
+                    Helpers.checkWatchFlash(currentTarget);*/
+                spellCastingTarget = currentTarget;
+                SoundEffectsManager.play("witchSpell");
             },
-            () =>
-            {
-                return witch != null && witch == CachedPlayer.LocalPlayer.Control &&
-                       !CachedPlayer.LocalPlayer.Data.IsDead;
-            },
+            () => witch != null && witch == LocalPlayer.Control &&
+                  !LocalPlayer.IsDead,
             () =>
             {
                 ButtonHelper.showTargetNameOnButton(currentTarget, witchSpellButton, "");
                 if (!witchSpellButton.isEffectActive || spellCastingTarget == currentTarget)
-                    return CachedPlayer.LocalPlayer.Control.CanMove && currentTarget != null;
+                    return LocalPlayer.Control.CanMove && currentTarget != null;
                 spellCastingTarget = null;
                 witchSpellButton.Timer = 0f;
                 witchSpellButton.isEffectActive = false;
 
-                return CachedPlayer.LocalPlayer.Control.CanMove && currentTarget != null;
+                return LocalPlayer.Control.CanMove && currentTarget != null;
             },
             () =>
             {
@@ -92,7 +102,7 @@ public class Witch : RoleBase
                 spellCastingTarget = null;
             },
             buttonSprite,
-            CustomButton.ButtonPositions.upperRowLeft,
+            DefButtonPositions.upperRowLeft,
             _hudManager,
             KeyCode.F,
             true,
@@ -100,11 +110,11 @@ public class Witch : RoleBase
             () =>
             {
                 if (spellCastingTarget == null) return;
-                var attempt = Helpers.checkMuderAttempt(witch, spellCastingTarget);
+                /*var attempt = Helpers.checkMuderAttempt(witch, spellCastingTarget);
                 if (attempt == MurderAttemptResult.PerformKill)
                 {
                     var writer = AmongUsClient.Instance.StartRpcImmediately(
-                        CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.SetFutureSpelled,
+                        LocalPlayer.Control.NetId, (byte)CustomRPC.SetFutureSpelled,
                         SendOption.Reliable);
                     writer.Write(currentTarget.PlayerId);
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -120,7 +130,7 @@ public class Witch : RoleBase
                     witchSpellButton.Timer = witchSpellButton.MaxTimer;
                     if (triggerBothCooldowns)
                     {
-                        var multiplier = Get<Mini>().mini != null && CachedPlayer.LocalPlayer.Control.Is<Mini>()
+                        var multiplier = Get<Mini>().mini != null && LocalPlayer.Control.Is<Mini>()
                             ? Get<Mini>().isGrownUp() ? 0.66f : 2f
                             : 1f;
                         witch.killTimer = GameOptionsManager.Instance.currentNormalGameOptions.KillCooldown *
@@ -130,7 +140,7 @@ public class Witch : RoleBase
                 else
                 {
                     witchSpellButton.Timer = 0f;
-                }
+                }*/
 
                 spellCastingTarget = null;
             }

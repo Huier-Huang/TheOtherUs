@@ -7,7 +7,6 @@ namespace TheOtherUs.Roles.Neutral;
 public class Lawyer : RoleBase
 {
     public bool canCallEmergency = true;
-    public Color color = new Color32(134, 153, 25, byte.MaxValue);
     public bool isProsecutor;
     public PlayerControl lawyer;
     public bool lawyerKnowsRole;
@@ -22,8 +21,31 @@ public class Lawyer : RoleBase
 
     public float vision = 1f;
 
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override CustomRoleOption roleOption { get; set; }
+
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Lawyer),
+        RoleClassType = typeof(Lawyer),
+        RoleId = RoleId.Lawyer,
+        RoleTeam = RoleTeam.Neutral,
+        RoleType = CustomRoleType.Main,
+        GetRole = Get<Lawyer>,
+        Color =  new Color32(134, 153, 25, byte.MaxValue),
+        IntroInfo = "Defend your client",
+        DescriptionText = "Defend your client",
+        CreateRoleController = player => new LawyerController(player)
+    };
+    
+    public class LawyerController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Lawyer>();
+    }
+
+    public override void OptionCreate()
+    {
+        roleOption = new CustomRoleOption(this);
+    }
 
     /*public static Sprite getTargetSprite()
     {
@@ -38,10 +60,10 @@ public class Lawyer : RoleBase
 
         isProsecutor = false;
         triggerProsecutorWin = false;
-        vision = CustomOptionHolder.lawyerVision.getFloat();
-        targetKnows = CustomOptionHolder.lawyerTargetKnows.getBool();
-        lawyerKnowsRole = CustomOptionHolder.lawyerKnowsRole.getBool();
-        targetCanBeJester = CustomOptionHolder.lawyerTargetCanBeJester.getBool();
-        canCallEmergency = CustomOptionHolder.lawyerCanCallEmergency.getBool();
+        vision = CustomOptionHolder.lawyerVision;
+        targetKnows = CustomOptionHolder.lawyerTargetKnows;
+        lawyerKnowsRole = CustomOptionHolder.lawyerKnowsRole;
+        targetCanBeJester = CustomOptionHolder.lawyerTargetCanBeJester;
+        canCallEmergency = CustomOptionHolder.lawyerCanCallEmergency;
     }
 }

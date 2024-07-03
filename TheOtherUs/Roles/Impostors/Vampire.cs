@@ -1,7 +1,5 @@
 using System;
-using Hazel;
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Impostors;
@@ -13,7 +11,6 @@ public class Vampire : RoleBase
 
     private readonly ResourceSprite buttonSprite = new("VampireButton.png");
     public bool canKillNearGarlics = true;
-    public Color color = Palette.ImpostorRed;
     public float cooldown = 30f;
 
     public PlayerControl currentTarget;
@@ -33,10 +30,26 @@ public class Vampire : RoleBase
     public CustomButton vampireKillButton;
     public CustomOption vampireKillDelay;
 
-    public CustomOption vampireSpawnRate;
 
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Vampire),
+        RoleClassType = typeof(Vampire),
+        RoleId = RoleId.Vampire,
+        RoleTeam = RoleTeam.Impostor,
+        RoleType = CustomRoleType.Main,
+        GetRole = Get<Vampire>,
+        Color = Palette.ImpostorRed,
+        IntroInfo = "Kill the Crewmates with your bites",
+        DescriptionText = "Bite your enemies",
+        CreateRoleController = player => new VampireController(player)
+    };
+    
+    public class VampireController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Vampire>();
+    }
+    public override CustomRoleOption roleOption { get; set; }
 
     public override void ClearAndReload()
     {
@@ -45,23 +58,21 @@ public class Vampire : RoleBase
         targetNearGarlic = false;
         localPlacedGarlic = false;
         currentTarget = null;
-        garlicsActive = vampireSpawnRate.getSelection() > 0;
-        delay = vampireKillDelay.getFloat();
-        cooldown = vampireCooldown.getFloat();
-        canKillNearGarlics = vampireCanKillNearGarlics.getBool();
-        GarlicButton = vampireGarlicButton.getBool();
+        delay = vampireKillDelay;
+        cooldown = vampireCooldown;
+        canKillNearGarlics = vampireCanKillNearGarlics;
+        GarlicButton = vampireGarlicButton;
     }
 
     public override void OptionCreate()
     {
-        vampireSpawnRate = new CustomOption(40, "Vampire".ColorString(color), CustomOptionHolder.rates, null, true);
+        roleOption = new CustomRoleOption(this);
         vampireKillDelay =
-            new CustomOption(41, "Vampire Kill Delay", 10f, 1f, 20f, 1f, vampireSpawnRate);
+            roleOption.AddChild("Vampire Kill Delay", new FloatOptionSelection(10f, 1f, 20f, 1f));
         vampireCooldown =
-            new CustomOption(42, "Vampire Cooldown", 30f, 10f, 60f, 2.5f, vampireSpawnRate);
-        vampireGarlicButton = new CustomOption(43277854, "Enable Garlic", true, vampireSpawnRate);
-        vampireCanKillNearGarlics = new CustomOption(43, "Vampire Can Kill Near Garlics", true,
-            vampireGarlicButton);
+            roleOption.AddChild("Vampire Cooldown", new FloatOptionSelection(30f, 10f, 60f, 2.5f));
+        vampireGarlicButton = roleOption.AddChild("Enable Garlic", new BoolOptionSelection());
+        vampireCanKillNearGarlics = vampireGarlicButton.AddChild("Vampire Can Kill Near Garlics", new BoolOptionSelection());
     }
 
     public override void ButtonCreate(HudManager _hudManager)
@@ -69,21 +80,21 @@ public class Vampire : RoleBase
         vampireKillButton = new CustomButton(
             () =>
             {
-                if (Helpers.checkAndDoVetKill(currentTarget)) return;
-                var murder = Helpers.checkMuderAttempt(vampire, currentTarget);
+                /*if (Helpers.checkAndDoVetKill(currentTarget)) return;
+                /*var murder = Helpers.checkMuderAttempt(vampire, currentTarget);#1#
                 if (murder == MurderAttemptResult.PerformKill)
                 {
                     if (targetNearGarlic)
                     {
                         var writer = AmongUsClient.Instance.StartRpcImmediately(
-                            CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.UncheckedMurderPlayer,
+                            LocalPlayer.Control.NetId, (byte)CustomRPC.UncheckedMurderPlayer,
                             SendOption.Reliable);
                         writer.Write(vampire.PlayerId);
                         writer.Write(currentTarget.PlayerId);
                         writer.Write(byte.MaxValue);
                         AmongUsClient.Instance.FinishRpcImmediately(writer);
-                        RPCProcedure.uncheckedMurderPlayer(vampire.PlayerId, currentTarget.PlayerId,
-                            byte.MaxValue);
+                        /*RPCProcedure.uncheckedMurderPlayer(vampire.PlayerId, currentTarget.PlayerId,
+                            byte.MaxValue);#1#
 
                         vampireKillButton.HasEffect = false; // Block effect on this click
                         vampireKillButton.Timer = vampireKillButton.MaxTimer;
@@ -93,12 +104,12 @@ public class Vampire : RoleBase
                         bitten = currentTarget;
                         // Notify players about bitten
                         var writer = AmongUsClient.Instance.StartRpcImmediately(
-                            CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.VampireSetBitten,
+                            LocalPlayer.Control.NetId, (byte)CustomRPC.VampireSetBitten,
                             SendOption.Reliable);
                         writer.Write(bitten.PlayerId);
                         writer.Write((byte)0);
                         AmongUsClient.Instance.FinishRpcImmediately(writer);
-                        RPCProcedure.vampireSetBitten(bitten.PlayerId, 0);
+                        /*RPCProcedure.vampireSetBitten(bitten.PlayerId, 0);#1#
 
                         var lastTimer = (byte)delay;
                         FastDestroyableSingleton<HudManager>.Instance.StartCoroutine(Effects.Lerp(delay,
@@ -112,10 +123,10 @@ public class Vampire : RoleBase
                                     {
                                         lastTimer = timer;
                                         var writer = AmongUsClient.Instance.StartRpcImmediately(
-                                            CachedPlayer.LocalPlayer.Control.NetId,
+                                            LocalPlayer.Control.NetId,
                                             (byte)CustomRPC.ShareGhostInfo, SendOption.Reliable);
-                                        writer.Write(CachedPlayer.LocalPlayer.PlayerId);
-                                        writer.Write((byte)RPCProcedure.GhostInfoTypes.VampireTimer);
+                                        writer.Write(LocalPlayer.PlayerId);
+                                        /*writer.Write((byte)RPCProcedure.GhostInfoTypes.VampireTimer);#1#
                                         writer.Write(timer);
                                         AmongUsClient.Instance.FinishRpcImmediately(writer);
                                     }
@@ -123,19 +134,19 @@ public class Vampire : RoleBase
 
                                 if (p == 1f)
                                 {
-                                    // Perform kill if possible and reset bitten (regardless whether the kill was successful or not)
+                                    /#1#/ Perform kill if possible and reset bitten (regardless whether the kill was successful or not)
                                     var res = Helpers.checkMurderAttemptAndKill(vampire, bitten,
                                         showAnimation: false);
                                     if (res == MurderAttemptResult.PerformKill)
                                     {
                                         var writer = AmongUsClient.Instance.StartRpcImmediately(
-                                            CachedPlayer.LocalPlayer.Control.NetId,
+                                            LocalPlayer.Control.NetId,
                                             (byte)CustomRPC.VampireSetBitten, SendOption.Reliable);
                                         writer.Write(byte.MaxValue);
                                         writer.Write(byte.MaxValue);
                                         AmongUsClient.Instance.FinishRpcImmediately(writer);
                                         RPCProcedure.vampireSetBitten(byte.MaxValue, byte.MaxValue);
-                                    }
+                                    }#1#
                                 }
                             })));
                         SoundEffectsManager.play("vampireBite");
@@ -143,7 +154,7 @@ public class Vampire : RoleBase
                         vampireKillButton.HasEffect = true; // Trigger effect on this click
                     }
                 }
-                else if (murder == MurderAttemptResult.BlankKill)
+                /*else if (murder == MurderAttemptResult.BlankKill)
                 {
                     vampireKillButton.Timer = vampireKillButton.MaxTimer;
                     vampireKillButton.HasEffect = false;
@@ -151,17 +162,14 @@ public class Vampire : RoleBase
                 else if (murder == MurderAttemptResult.BodyGuardKill)
                 {
                     Helpers.checkMuderAttemptAndKill(vampire, currentTarget);
-                }
+                }#1#
                 else
                 {
                     vampireKillButton.HasEffect = false;
-                }
+                }*/
             },
-            () =>
-            {
-                return vampire != null && vampire == CachedPlayer.LocalPlayer.Control &&
-                       !CachedPlayer.LocalPlayer.Data.IsDead;
-            },
+            () => vampire != null && vampire == LocalPlayer.Control &&
+                  !LocalPlayer.IsDead,
             () =>
             {
                 ButtonHelper.showTargetNameOnButton(currentTarget, vampireKillButton,
@@ -177,7 +185,7 @@ public class Vampire : RoleBase
                     vampireKillButton.showButtonText = false;
                 }
 
-                return currentTarget != null && CachedPlayer.LocalPlayer.Control.CanMove &&
+                return currentTarget != null && LocalPlayer.Control.CanMove &&
                        (!targetNearGarlic || canKillNearGarlics);
             },
             () =>
@@ -187,7 +195,7 @@ public class Vampire : RoleBase
                 vampireKillButton.actionButton.cooldownTimerText.color = Palette.EnabledColor;
             },
             buttonSprite,
-            CustomButton.ButtonPositions.upperRowLeft,
+            DefButtonPositions.upperRowLeft,
             _hudManager,
             KeyCode.Q,
             false,
@@ -199,28 +207,21 @@ public class Vampire : RoleBase
             () =>
             {
                 localPlacedGarlic = true;
-                var pos = CachedPlayer.LocalPlayer.transform.position;
+                var pos = LocalPlayer.transform.position;
                 var buff = new byte[sizeof(float) * 2];
                 Buffer.BlockCopy(BitConverter.GetBytes(pos.x), 0, buff, 0 * sizeof(float), sizeof(float));
                 Buffer.BlockCopy(BitConverter.GetBytes(pos.y), 0, buff, 1 * sizeof(float), sizeof(float));
 
-                var writer = AmongUsClient.Instance.StartRpc(CachedPlayer.LocalPlayer.Control.NetId,
+                var writer = AmongUsClient.Instance.StartRpc(LocalPlayer.Control.NetId,
                     (byte)CustomRPC.PlaceGarlic);
                 writer.WriteBytesAndSize(buff);
                 writer.EndMessage();
-                RPCProcedure.placeGarlic(buff);
+                /*RPCProcedure.placeGarlic(buff);*/
                 SoundEffectsManager.play("garlic");
             },
-            () =>
-            {
-                return GarlicButton && !localPlacedGarlic && !CachedPlayer.LocalPlayer.Data.IsDead &&
-                       garlicsActive && !HideNSeek.isHideNSeekGM && !PropHunt.isPropHuntGM;
-            },
-            () =>
-            {
-                return GarlicButton && CachedPlayer.LocalPlayer.Control.CanMove &&
-                       !localPlacedGarlic;
-            },
+            () => GarlicButton && !localPlacedGarlic && !LocalPlayer.IsDead,
+            () => GarlicButton && LocalPlayer.Control.CanMove &&
+                  !localPlacedGarlic,
             () => { },
             garlicButtonSprite,
             new Vector3(0, -0.06f, 0),

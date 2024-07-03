@@ -1,7 +1,5 @@
-using System;
 using Hazel;
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Impostors;
@@ -13,23 +11,38 @@ public class Cleaner : RoleBase
     private CustomButton cleanerCleanButton;
     public CustomOption cleanerCooldown;
 
-    public CustomOption cleanerSpawnRate;
-    public Color color = Palette.ImpostorRed;
-
     public float cooldown = 30f;
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Cleaner),
+        RoleClassType = typeof(Cleaner),
+        RoleId = RoleId.Cleaner,
+        RoleTeam = RoleTeam.Impostor,
+        RoleType = CustomRoleType.Main,
+        GetRole = Get<Cleaner>,
+        Color = Palette.ImpostorRed,
+        DescriptionText = "Clean up dead bodies",
+        IntroInfo = "Kill everyone and leave no traces",
+        CreateRoleController = n => new CleanerController(n)
+    };
+    
+    public class CleanerController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Cleaner>();
+    }
+    public override CustomRoleOption roleOption { get; set; }
 
     public override void ClearAndReload()
     {
         cleaner = null;
-        cooldown = cleanerCooldown.getFloat();
+        cooldown = cleanerCooldown;
     }
 
     public override void OptionCreate()
     {
-        cleanerSpawnRate = new CustomOption(260, "Cleaner".ColorString(color), CustomOptionHolder.rates, null, true);
-        cleanerCooldown = new CustomOption(261, "Cleaner Cooldown", 30f, 10f, 60f, 2.5f, cleanerSpawnRate);
+        roleOption = new CustomRoleOption(this);
+        cleanerCooldown = roleOption.AddChild("Cleaner Cooldown", new FloatOptionSelection(30f, 10f, 60f, 2.5f));
     }
 
     public override void ButtonCreate(HudManager _hudManager)
@@ -39,51 +52,47 @@ public class Cleaner : RoleBase
             () =>
             {
                 foreach (var collider2D in Physics2D.OverlapCircleAll(
-                             CachedPlayer.LocalPlayer.Control.GetTruePosition(),
-                             CachedPlayer.LocalPlayer.Control.MaxReportDistance, Constants.PlayersOnlyMask))
+                             LocalPlayer.Control.GetTruePosition(),
+                             LocalPlayer.Control.MaxReportDistance, Constants.PlayersOnlyMask))
                     if (collider2D.tag == "DeadBody")
                     {
                         var component = collider2D.GetComponent<DeadBody>();
-                        if (component && !component.Reported)
-                        {
-                            var truePosition = CachedPlayer.LocalPlayer.Control.GetTruePosition();
-                            var truePosition2 = component.TruePosition;
-                            if (Vector2.Distance(truePosition2, truePosition) <=
-                                CachedPlayer.LocalPlayer.Control.MaxReportDistance &&
-                                CachedPlayer.LocalPlayer.Control.CanMove &&
-                                !PhysicsHelpers.AnythingBetween(truePosition, truePosition2,
-                                    Constants.ShipAndObjectsMask, false))
-                            {
-                                var playerInfo = GameData.Instance.GetPlayerById(component.ParentId);
+                        if (!component || component.Reported) continue;
+                        var truePosition = LocalPlayer.Control.GetTruePosition();
+                        var truePosition2 = component.TruePosition;
+                        if (!(Vector2.Distance(truePosition2, truePosition) <=
+                              LocalPlayer.Control.MaxReportDistance) ||
+                            !LocalPlayer.Control.CanMove ||
+                            PhysicsHelpers.AnythingBetween(truePosition, truePosition2,
+                                Constants.ShipAndObjectsMask, false)) continue;
+                        var playerInfo = GameData.Instance.GetPlayerById(component.ParentId);
 
-                                var writer = AmongUsClient.Instance.StartRpcImmediately(
-                                    CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.CleanBody,
-                                    SendOption.Reliable);
-                                writer.Write(playerInfo.PlayerId);
-                                writer.Write(cleaner.PlayerId);
-                                AmongUsClient.Instance.FinishRpcImmediately(writer);
-                                RPCProcedure.cleanBody(playerInfo.PlayerId, cleaner.PlayerId);
+                        var writer = AmongUsClient.Instance.StartRpcImmediately(
+                            LocalPlayer.Control.NetId, (byte)CustomRPC.CleanBody,
+                            SendOption.Reliable);
+                        writer.Write(playerInfo.PlayerId);
+                        writer.Write(cleaner.PlayerId);
+                        AmongUsClient.Instance.FinishRpcImmediately(writer);
+                        /*RPCProcedure.cleanBody(playerInfo.PlayerId, cleaner.PlayerId);*/
 
-                                cleaner.killTimer = cleanerCleanButton.Timer = cleanerCleanButton.MaxTimer;
-                                SoundEffectsManager.play("cleanerClean");
-                                break;
-                            }
-                        }
+                        cleaner.killTimer = cleanerCleanButton.Timer = cleanerCleanButton.MaxTimer;
+                        SoundEffectsManager.play("cleanerClean");
+                        break;
                     }
             },
             () =>
             {
-                return cleaner != null && cleaner == CachedPlayer.LocalPlayer.Control &&
-                       !CachedPlayer.LocalPlayer.Data.IsDead;
+                return cleaner != null && cleaner == LocalPlayer.Control &&
+                       !LocalPlayer.IsDead;
             },
             () =>
             {
                 return _hudManager.ReportButton.graphic.color == Palette.EnabledColor &&
-                       CachedPlayer.LocalPlayer.Control.CanMove;
+                       LocalPlayer.Control.CanMove;
             },
             () => { cleanerCleanButton.Timer = cleanerCleanButton.MaxTimer; },
             buttonSprite,
-            CustomButton.ButtonPositions.upperRowLeft,
+            DefButtonPositions.upperRowLeft,
             _hudManager,
             KeyCode.F
         );

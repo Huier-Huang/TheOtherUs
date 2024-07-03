@@ -1,5 +1,4 @@
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Neutral;
@@ -12,18 +11,23 @@ public class Werewolf : RoleBase
         Name = nameof(Werewolf),
         RoleId = RoleId.Werewolf,
         Color = new Color32(79, 56, 21, byte.MaxValue),
-        Description = "Rampage and kill everyone",
+        DescriptionText = "Rampage and kill everyone",
         IntroInfo = "Rampage and kill everyone",
         RoleClassType = typeof(Werewolf),
         RoleTeam = RoleTeam.Neutral,
         RoleType = CustomRoleType.Main,
-        GetRole = Get<Werewolf>
+        GetRole = Get<Werewolf>,
+        CreateRoleController = player => new WerewolfController(player)
     };
+    
+    public class WerewolfController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Werewolf>();
+    }
 
     public ResourceSprite buttonSprite = new("Rampage.png");
     public bool canKill;
     public bool canUseVents;
-    public Color color = new Color32(79, 56, 21, byte.MaxValue);
     public PlayerControl currentTarget;
     public bool hasImpostorVision;
 
@@ -40,15 +44,16 @@ public class Werewolf : RoleBase
     public CustomButton werewolfRampageButton;
     public CustomOption werewolfRampageCooldown;
     public CustomOption werewolfRampageDuration;
+    public override RoleInfo RoleInfo { get; protected set; } = roleInfo;
 
-    public CustomOption werewolfSpawnRate;
-    public override RoleInfo RoleInfo { get; protected set; }
-
-
-    public static Vector3 getRampageVector()
+    public override CustomRoleOption roleOption { get; set; }
+    public override void OptionCreate()
     {
-        return new Vector3(-2.7f, -0.06f, 0);
+        roleOption = new CustomRoleOption(this);
     }
+
+    public Vector3 RampageVector = new(-2.7f, -0.06f, 0);
+
 
     public override void ClearAndReload()
     {
@@ -57,9 +62,9 @@ public class Werewolf : RoleBase
         canUseVents = false;
         canKill = false;
         hasImpostorVision = false;
-        rampageCooldown = werewolfRampageCooldown.getFloat();
-        rampageDuration = werewolfRampageDuration.getFloat();
-        killCooldown = werewolfKillCooldown.getFloat();
+        rampageCooldown = werewolfRampageCooldown;
+        rampageDuration = werewolfRampageDuration;
+        killCooldown = werewolfKillCooldown;
     }
 
     public override void ButtonCreate(HudManager _hudManager)
@@ -68,19 +73,19 @@ public class Werewolf : RoleBase
         werewolfKillButton = new CustomButton(
             () =>
             {
-                if (Helpers.checkAndDoVetKill(currentTarget)) return;
+                /*if (Helpers.checkAndDoVetKill(currentTarget)) return;
                 if (Helpers.checkMuderAttemptAndKill(werewolf, currentTarget) ==
-                    MurderAttemptResult.SuppressKill) return;
+                    MurderAttemptResult.SuppressKill) return;*/
 
                 werewolfKillButton.Timer = werewolfKillButton.MaxTimer;
                 currentTarget = null;
             },
-            () => werewolf != null && werewolf == CachedPlayer.LocalPlayer.Control &&
-                  !CachedPlayer.LocalPlayer.Data.IsDead && canKill,
+            () => werewolf != null && werewolf == LocalPlayer.Control &&
+                  !LocalPlayer.IsDead && canKill,
             () =>
             {
                 ButtonHelper.showTargetNameOnButton(currentTarget, werewolfKillButton, "KILL");
-                return currentTarget && CachedPlayer.LocalPlayer.Control.CanMove;
+                return currentTarget && LocalPlayer.Control.CanMove;
             },
             () => { werewolfKillButton.Timer = werewolfKillButton.MaxTimer; },
             _hudManager.KillButton.graphic.sprite,
@@ -96,9 +101,9 @@ public class Werewolf : RoleBase
                 hasImpostorVision = true;
                 werewolfKillButton.Timer = 0f;
             },
-            () => werewolf != null && werewolf == CachedPlayer.LocalPlayer.Control &&
-                  !CachedPlayer.LocalPlayer.Data.IsDead,
-            () => CachedPlayer.LocalPlayer.Control.CanMove,
+            () => werewolf != null && werewolf == LocalPlayer.Control &&
+                  !LocalPlayer.IsDead,
+            () => LocalPlayer.Control.CanMove,
             () =>
             {
                 /* On Meeting End */
@@ -110,7 +115,7 @@ public class Werewolf : RoleBase
                 hasImpostorVision = false;
             },
             buttonSprite,
-            CustomButton.ButtonPositions.lowerRowRight, //brb
+            DefButtonPositions.lowerRowRight, //brb
             _hudManager,
             KeyCode.G,
             true,

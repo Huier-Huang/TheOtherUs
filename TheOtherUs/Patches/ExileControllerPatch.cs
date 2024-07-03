@@ -1,59 +1,52 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Hazel;
-using PowerTools;
-using TheOtherUs.Modules.Compatibility;
-using TheOtherUs.Objects;
-using UnityEngine;
-using Object = UnityEngine.Object;
-
 namespace TheOtherUs.Patches;
 
+/*
 [HarmonyPatch(typeof(ExileController), nameof(ExileController.Begin))]
 [HarmonyPriority(Priority.First)]
 internal class ExileControllerBeginPatch
 {
-    public static GameData.PlayerInfo lastExiled;
+    public static NetworkedPlayerInfo lastExiled;
 
-    public static void Prefix(ExileController __instance, [HarmonyArgument(0)] ref GameData.PlayerInfo exiled,
+    public static void Prefix(ExileController __instance, [HarmonyArgument(0)] ref NetworkedPlayerInfo exiled,
         [HarmonyArgument(1)] bool tie)
     {
         lastExiled = exiled;
 
         // Medic shield
+        /*
         if (Medic.medic != null && AmongUsClient.Instance.AmHost && Medic.futureShielded != null &&
             !Medic.medic.Data.IsDead)
         {
             // We need to send the RPC from the host here, to make sure that the order of shifting and setting the shield is correct(for that reason the futureShifted and futureShielded are being synced)
-            var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+            var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                 (byte)CustomRPC.MedicSetShielded, SendOption.Reliable);
             writer.Write(Medic.futureShielded.PlayerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
             RPCProcedure.medicSetShielded(Medic.futureShielded.PlayerId);
         }
+        #1#
 
-        if (Medic.usedShield) Medic.meetingAfterShielding = true; // Has to be after the setting of the shield
+        /*if (Medic.usedShield) Medic.meetingAfterShielding = true; // Has to be after the setting of the shield
 
         // Shifter shift
         if (Shifter.shifter != null && AmongUsClient.Instance.AmHost && Shifter.futureShift != null)
         {
             // We need to send the RPC from the host here, to make sure that the order of shifting and erasing is correct (for that reason the futureShifted and futureErased are being synced)
-            var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+            var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                 (byte)CustomRPC.ShifterShift, SendOption.Reliable);
             writer.Write(Shifter.futureShift.PlayerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
             RPCProcedure.shifterShift(Shifter.futureShift.PlayerId);
         }
 
-        Shifter.futureShift = null;
+        Shifter.futureShift = null;#1#
 
         // Eraser erase
         if (Eraser.eraser != null && AmongUsClient.Instance.AmHost && Eraser.futureErased != null)
             // We need to send the RPC from the host here, to make sure that the order of shifting and erasing is correct (for that reason the futureShifted and futureErased are being synced)
             foreach (PlayerControl target in Eraser.futureErased)
             {
-                var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+                var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                     (byte)CustomRPC.ErasePlayerRoles, SendOption.Reliable);
                 writer.Write(target.PlayerId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -91,21 +84,21 @@ internal class ExileControllerBeginPatch
                         continue;
                     if (target == Lawyer.target && Lawyer.lawyer != null)
                     {
-                        var writer2 = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+                        var writer2 = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                             (byte)CustomRPC.LawyerPromotesToPursuer, SendOption.Reliable);
                         AmongUsClient.Instance.FinishRpcImmediately(writer2);
                         RPCProcedure.lawyerPromotesToPursuer();
                     }
 
-                    var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+                    var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                         (byte)CustomRPC.UncheckedExilePlayer, SendOption.Reliable);
                     writer.Write(target.PlayerId);
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
                     RPCProcedure.uncheckedExilePlayer(target.PlayerId);
 
-                    var writer3 = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+                    var writer3 = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                         (byte)CustomRPC.ShareGhostInfo, SendOption.Reliable);
-                    writer3.Write(CachedPlayer.LocalPlayer.PlayerId);
+                    writer3.Write(LocalPlayer.PlayerId);
                     writer3.Write((byte)RPCProcedure.GhostInfoTypes.DeathReasonAndKiller);
                     writer3.Write(target.PlayerId);
                     writer3.Write((byte)DeadPlayer.CustomDeathReason.WitchExile);
@@ -134,31 +127,31 @@ internal class ExileControllerBeginPatch
         {
             var animator = vent.GetComponent<SpriteAnim>();
             vent.EnterVentAnim = vent.ExitVentAnim = null;
-            Sprite newSprite = animator == null
+            /*Sprite newSprite = animator == null
                 ? SecurityGuard.getStaticVentSealedSprite()
-                : SecurityGuard.getAnimatedVentSealedSprite();
+                : SecurityGuard.getAnimatedVentSealedSprite();#1#
             var rend = vent.myRend;
-            if (Helpers.isFungle())
+            if (MapData.MapIs(Maps.Fungle))
             {
-                newSprite = SecurityGuard.getFungleVentSealedSprite();
+                /*newSprite = SecurityGuard.getFungleVentSealedSprite();#1#
                 rend = vent.transform.GetChild(3).GetComponent<SpriteRenderer>();
                 animator = vent.transform.GetChild(3).GetComponent<SpriteAnim>();
             }
 
             animator?.Stop();
             rend.sprite = newSprite;
-            if (SubmergedCompatibility.IsSubmerged && vent.Id == 0)
+            /*if (SubmergedCompatibility.IsSubmerged && vent.Id == 0)
                 vent.myRend.sprite = SecurityGuard.getSubmergedCentralUpperSealedSprite();
             if (SubmergedCompatibility.IsSubmerged && vent.Id == 14)
-                vent.myRend.sprite = SecurityGuard.getSubmergedCentralLowerSealedSprite();
+                vent.myRend.sprite = SecurityGuard.getSubmergedCentralLowerSealedSprite();#1#
             rend.color = Color.white;
             vent.name = "SealedVent_" + vent.name;
         }
 
-        MapOptions.ventsToSeal = [];
+        /*MapOptions.ventsToSeal = [];
         // 1 = reset per turn
         if (MapOptions.restrictDevices == 1)
-            MapOptions.resetDeviceTimes();
+            MapOptions.resetDeviceTimes();#1#
     }
 }
 
@@ -177,7 +170,7 @@ internal class ExileControllerWrapUpPatch
         }
 
         // submerged
-        if (!SubmergedCompatibility.IsSubmerged) return;
+        if (!MapData.MapIs(Maps.Submerged)) return;
         if (obj.name.Contains("ExileCutscene"))
         {
             WrapUpPostfix(ExileControllerBeginPatch.lastExiled);
@@ -189,7 +182,7 @@ internal class ExileControllerWrapUpPatch
         }
     }
 
-    private static void WrapUpPostfix(GameData.PlayerInfo exiled)
+    private static void WrapUpPostfix(NetworkedPlayerInfo exiled)
     {
         // Prosecutor win condition
         if (exiled != null && Lawyer.lawyer != null && Lawyer.target != null && Lawyer.isProsecutor &&
@@ -209,14 +202,14 @@ internal class ExileControllerWrapUpPatch
         CustomButton.MeetingEndedUpdate();
 
         // Mini set adapted cooldown
-        if (Mini.mini != null && CachedPlayer.LocalPlayer.Control == Mini.mini && Mini.mini.Data.Role.IsImpostor)
+        if (Mini.mini != null && LocalPlayer.Control == Mini.mini && Mini.mini.Data.Role.IsImpostor)
         {
             var multiplier = Mini.isGrownUp() ? 0.66f : 2f;
             Mini.mini.SetKillTimer(GameOptionsManager.Instance.currentNormalGameOptions.KillCooldown * multiplier);
         }
 
         // Seer spawn souls
-        if (Seer.deadBodyPositions != null && Seer.seer != null && CachedPlayer.LocalPlayer.Control == Seer.seer &&
+        if (Seer.deadBodyPositions != null && Seer.seer != null && LocalPlayer.Control == Seer.seer &&
             (Seer.mode == 0 || Seer.mode == 2))
         {
             foreach (Vector3 pos in Seer.deadBodyPositions)
@@ -253,19 +246,19 @@ internal class ExileControllerWrapUpPatch
         if (Blackmailer.blackmailer != null && Blackmailer.blackmailed != null)
         {
             // Blackmailer reset blackmailed
-            var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+            var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                 (byte)CustomRPC.UnblackmailPlayer, SendOption.Reliable);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
             RPCProcedure.unblackmailPlayer();
         }
 
         // Arsonist deactivate dead poolable players
-        if (Arsonist.arsonist != null && Arsonist.arsonist == CachedPlayer.LocalPlayer.Control)
+        if (Arsonist.arsonist != null && Arsonist.arsonist == LocalPlayer.Control)
         {
             var visibleCounter = 0;
             var newBottomLeft = IntroCutsceneOnDestroyPatch.bottomLeft;
             var BottomLeft = newBottomLeft + new Vector3(-0.25f, -0.25f, 0);
-            foreach (PlayerControl p in CachedPlayer.AllPlayers)
+            foreach (PlayerControl p in AllPlayers)
             {
                 if (!MapOptions.playerIcons.ContainsKey(p.PlayerId)) continue;
                 if (p.Data.IsDead || p.Data.Disconnected)
@@ -285,11 +278,11 @@ internal class ExileControllerWrapUpPatch
         if (Deputy.deputy != null) PlayerControlFixedUpdatePatch.deputyCheckPromotion(true);
 
         // Force Bounty Hunter Bounty Update
-        if (BountyHunter.bountyHunter != null && BountyHunter.bountyHunter == CachedPlayer.LocalPlayer.Control)
+        if (BountyHunter.bountyHunter != null && BountyHunter.bountyHunter == LocalPlayer.Control)
             BountyHunter.bountyUpdateTimer = 0f;
 
         // Medium spawn souls
-        if (Medium.medium != null && CachedPlayer.LocalPlayer.Control == Medium.medium)
+        if (Medium.medium != null && LocalPlayer.Control == Medium.medium)
         {
             if (Medium.souls != null)
             {
@@ -320,7 +313,7 @@ internal class ExileControllerWrapUpPatch
         AntiTeleport.setPosition();
 
         if (CustomOptionHolder.randomGameStartPosition.getBool() && AmongUsClient.Instance.AmHost && AntiTeleport
-                .antiTeleport.FindAll(x => x.PlayerId == CachedPlayer.LocalPlayer.Control.PlayerId).Count ==
+                .antiTeleport.FindAll(x => x.PlayerId == LocalPlayer.Control.PlayerId).Count ==
             0) MapData.RandomSpawnAllPlayers();
 
         // Invert add meeting
@@ -399,4 +392,4 @@ internal class ExileControllerMessagePatch
             // pass - Hopefully prevent leaving while exiling to softlock game
         }
     }
-}
+}*/

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Hazel;
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Neutral;
@@ -13,7 +12,6 @@ public class Thief : RoleBase
     public bool canKillSheriff;
     public bool canStealWithGuess;
     public bool canUseVents;
-    public Color color = new Color32(71, 99, 45, byte.MaxValue);
 
     public float cooldown = 30f;
     public PlayerControl currentTarget;
@@ -33,21 +31,38 @@ public class Thief : RoleBase
 
     public List<RoleInfo> ThiefKillList = [Sheriff.roleInfo, Get<Jackal>().RoleInfo, Get<Sidekick>().RoleInfo];
 
-    public CustomOption thiefSpawnRate;
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; } = typeof(Thief);
+    public override CustomRoleOption roleOption { get; set; }
 
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Thief),
+        RoleClassType = typeof(Thief),
+        RoleId = RoleId.Thief,
+        RoleTeam = RoleTeam.Neutral,
+        RoleType = CustomRoleType.Main,
+        GetRole = Get<Thief>,
+        Color =  new Color32(71, 99, 45, byte.MaxValue),
+        IntroInfo = "Steal a killers role by killing them",
+        DescriptionText = "Steal a killers role",
+        CreateRoleController = player => new ThiefController(player)
+    };
+    
+    public class ThiefController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Thief>();
+    }
+    
     public override void ClearAndReload()
     {
         thief = null;
         suicideFlag = false;
         currentTarget = null;
         formerThief = null;
-        hasImpostorVision = thiefHasImpVision.getBool();
-        cooldown = thiefCooldown.getFloat();
-        canUseVents = thiefCanUseVents.getBool();
-        canKillSheriff = thiefCanKillSheriff.getBool();
-        canStealWithGuess = thiefCanStealWithGuess.getBool();
+        hasImpostorVision = thiefHasImpVision;
+        cooldown = thiefCooldown;
+        canUseVents = thiefCanUseVents;
+        canKillSheriff = thiefCanKillSheriff;
+        canStealWithGuess = thiefCanStealWithGuess;
     }
 
     public bool isFailedThiefKill(PlayerControl target, PlayerControl killer, RoleInfo targetRole)
@@ -57,13 +72,12 @@ public class Thief : RoleBase
 
     public override void OptionCreate()
     {
-        thiefSpawnRate = new CustomOption(400, "Thief".ColorString(color), CustomOptionHolder.rates, null, true);
-        thiefCooldown = new CustomOption(401, "Thief Cooldown", 30f, 5f, 120f, 5f, thiefSpawnRate);
-        thiefCanKillSheriff = new CustomOption(402, "Thief Can Kill Sheriff", true, thiefSpawnRate);
-        thiefHasImpVision = new CustomOption(403, "Thief Has Impostor Vision", true, thiefSpawnRate);
-        thiefCanUseVents = new CustomOption(404, "Thief Can Use Vents", true, thiefSpawnRate);
-        thiefCanStealWithGuess =
-            new CustomOption(405, "Thief Can Guess To Steal A Role (If Guesser)", false, thiefSpawnRate);
+        roleOption = new CustomRoleOption(this);
+        thiefCooldown = roleOption.AddChild("Thief Cooldown", new FloatOptionSelection(30f, 5f, 120f, 5f));
+        thiefCanKillSheriff =  roleOption.AddChild("Thief Can Kill Sheriff", new BoolOptionSelection());
+        thiefHasImpVision = roleOption.AddChild("Thief Has Impostor Vision", new BoolOptionSelection());
+        thiefCanUseVents = roleOption.AddChild( "Thief Can Use Vents", new BoolOptionSelection());
+        thiefCanStealWithGuess = roleOption.AddChild("Thief Can Guess To Steal A Role (If Guesser)", new BoolOptionSelection(false));
     }
 
     public override void ButtonCreate(HudManager _hudManager)
@@ -71,7 +85,7 @@ public class Thief : RoleBase
         thiefKillButton = new CustomButton(
             () =>
             {
-                var target = currentTarget;
+                /*var target = currentTarget;
                 var result = Helpers.checkMuderAttempt(thief, target);
                 if (result == MurderAttemptResult.BlankKill)
                 {
@@ -83,49 +97,46 @@ public class Thief : RoleBase
                 {
                     // Suicide
                     var writer2 = AmongUsClient.Instance.StartRpcImmediately(
-                        CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.UncheckedMurderPlayer,
+                        LocalPlayer.Control.NetId, (byte)CustomRPC.UncheckedMurderPlayer,
                         SendOption.Reliable);
                     writer2.Write(thief.PlayerId);
                     writer2.Write(thief.PlayerId);
                     writer2.Write(0);
-                    RPCProcedure.uncheckedMurderPlayer(thief.PlayerId, thief.PlayerId, 0);
+                    /*RPCProcedure.uncheckedMurderPlayer(thief.PlayerId, thief.PlayerId, 0);#1#
                     AmongUsClient.Instance.FinishRpcImmediately(writer2);
-                    thief.clearAllTasks();
+                    /*thief.clearAllTasks();#1#
                 }
 
                 // Steal role if survived.
                 if (!thief.Data.IsDead && result == MurderAttemptResult.PerformKill)
                 {
                     var writer = AmongUsClient.Instance.StartRpcImmediately(
-                        CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.ThiefStealsRole,
+                        LocalPlayer.Control.NetId, (byte)CustomRPC.ThiefStealsRole,
                         SendOption.Reliable);
                     writer.Write(target.PlayerId);
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
-                    RPCProcedure.thiefStealsRole(target.PlayerId);
+                    /*RPCProcedure.thiefStealsRole(target.PlayerId);#1#
                 }
 
                 // Kill the victim (after becoming their role - so that no win is triggered for other teams)
-                if (result == MurderAttemptResult.PerformKill)
+                if (result != MurderAttemptResult.PerformKill) return;
                 {
                     var writer = AmongUsClient.Instance.StartRpcImmediately(
-                        CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.UncheckedMurderPlayer,
+                        LocalPlayer.Control.NetId, (byte)CustomRPC.UncheckedMurderPlayer,
                         SendOption.Reliable);
                     writer.Write(thief.PlayerId);
                     writer.Write(target.PlayerId);
                     writer.Write(byte.MaxValue);
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
-                    RPCProcedure.uncheckedMurderPlayer(thief.PlayerId, target.PlayerId, byte.MaxValue);
-                }
+                    /*RPCProcedure.uncheckedMurderPlayer(thief.PlayerId, target.PlayerId, byte.MaxValue);#1#
+                }*/
             },
-            () =>
-            {
-                return thief != null && CachedPlayer.LocalPlayer.Control == thief &&
-                       !CachedPlayer.LocalPlayer.Data.IsDead;
-            },
-            () => { return currentTarget != null && CachedPlayer.LocalPlayer.Control.CanMove; },
+            () => thief != null && LocalPlayer.Control == thief &&
+                  !LocalPlayer.IsDead,
+            () => currentTarget != null && LocalPlayer.Control.CanMove,
             () => { thiefKillButton.Timer = thiefKillButton.MaxTimer; },
             _hudManager.KillButton.graphic.sprite,
-            CustomButton.ButtonPositions.upperRowRight,
+            DefButtonPositions.upperRowRight,
             _hudManager,
             KeyCode.Q
         );

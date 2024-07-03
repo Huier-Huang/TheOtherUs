@@ -119,12 +119,12 @@ public class CustomButton
             actionButtonRenderer.color = new Color(1f, 1f, 1f, 0.3f);
             OnClick();
 
-            // Deputy skip onClickEvent if handcuffed
-            if (Deputy.handcuffedKnows.ContainsKey(CachedPlayer.LocalPlayer.PlayerId) &&
-                Deputy.handcuffedKnows[CachedPlayer.LocalPlayer.PlayerId] > 0f) return;
+            /*// Deputy skip onClickEvent if handcuffed
+            if (Deputy.handcuffedKnows.ContainsKey(LocalPlayer.PlayerId) &&
+                Deputy.handcuffedKnows[LocalPlayer.PlayerId] > 0f) return;
 
             if (!HasEffect || isEffectActive) return;
-            DeputyTimer = EffectDuration;
+            DeputyTimer = EffectDuration;*/
             Timer = EffectDuration;
             actionButton.cooldownTimerText.color = new Color(0F, 0.8F, 0F);
             isEffectActive = true;
@@ -195,10 +195,10 @@ public class CustomButton
 
     public void Update()
     {
-        var localPlayer = CachedPlayer.LocalPlayer;
+        var localPlayer = LocalPlayer;
         var moveable = localPlayer.Control.moveable;
 
-        if (localPlayer.Data == null || MeetingHud.Instance || ExileController.Instance || !HasButton())
+        if (MeetingHud.Instance || ExileController.Instance || !HasButton())
         {
             setActive(false);
             return;
@@ -206,7 +206,7 @@ public class CustomButton
 
         setActive(hudManager.UseButton.isActiveAndEnabled || hudManager.PetButton.isActiveAndEnabled);
 
-        if (DeputyTimer >= 0)
+        /*if (DeputyTimer >= 0)
         {
             // This had to be reordered, so that the handcuffs do not stop the underlying timers from running
             if (HasEffect && isEffectActive)
@@ -220,7 +220,7 @@ public class CustomButton
             isEffectActive = false;
             actionButton.cooldownTimerText.color = Palette.EnabledColor;
             OnEffectEnds();
-        }
+        }*/
 
         if (isHandcuffed)
         {
@@ -274,10 +274,11 @@ public class CustomButton
         // Trigger OnClickEvent if the hotkey is being pressed down
         if (hotkey.HasValue && Input.GetKeyDown(hotkey.Value)) onClickEvent();
 
+        /*
         // Deputy disable the button and display Handcuffs instead...
         if (Deputy.handcuffedPlayers.Contains(localPlayer.PlayerId))
             OnClick = () => { Deputy.setHandcuffedKnows(); };
         else // Reset.
-            OnClick = InitialOnClick;
+            OnClick = InitialOnClick;*/
     }
 }

@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

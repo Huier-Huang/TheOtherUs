@@ -65,7 +65,7 @@ public static class UnityHelper
         CacheSprite.Add(sprite);
     }
 
-    public static T Dont<T>(this T obj) where T : UnityEngine.Object
+    public static T Dont<T>(this T obj) where T : Object
     {
         obj.hideFlags |= HideFlags.HideAndDontSave | HideFlags.DontSaveInEditor;
         return obj;
@@ -170,6 +170,34 @@ public static class UnityHelper
         sprite.name = Name;
         sprite.Dont();
         return sprite;
+    }
+    
+    public static AudioClip loadAudioClipFromResources(string path, string clipName = "UNNAMED_TOR_AUDIO_CLIP")
+    {
+        try
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var stream = assembly.GetManifestResourceStream(path);
+            var byteAudio = stream!.ReadFully();
+            var samples = new float[byteAudio.Length / 4]; // 4 bytes per sample
+            for (var i = 0; i < samples.Length; i++)
+            {
+                var offset = i * 4;
+                samples[i] = (float)BitConverter.ToInt32(byteAudio, offset) / int.MaxValue;
+            }
+
+            const int channels = 2;
+            const int sampleRate = 48000;
+            var audioClip = AudioClip.Create(clipName, samples.Length / 2, channels, sampleRate, false);
+            audioClip.hideFlags |= HideFlags.HideAndDontSave | HideFlags.DontSaveInEditor;
+            audioClip.SetData(samples, 0);
+            return audioClip;
+        }
+        catch
+        {
+            Error("loading AudioClip from resources: " + path);
+        }
+        return null;
     }
 
 

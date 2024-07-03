@@ -1,13 +1,5 @@
-using System;
 using System.Collections;
-using System.Linq;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
-using Hazel;
-using Il2CppSystem.Collections.Generic;
-using TheOtherUs.Modules.Compatibility;
-using TMPro;
-using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace TheOtherUs.Patches;
 
@@ -28,7 +20,7 @@ internal static class IntroPatches
     }
 }
 
-[HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.OnDestroy))]
+/*[HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.OnDestroy))]
 internal class IntroCutsceneOnDestroyPatch
 {
     public static PoolablePlayer playerPrefab;
@@ -39,7 +31,7 @@ internal class IntroCutsceneOnDestroyPatch
         // Generate and initialize player icons
         var playerCounter = 0;
         var hideNSeekCounter = 0;
-        if (CachedPlayer.LocalPlayer != null && FastDestroyableSingleton<HudManager>.Instance != null)
+        if (LocalPlayer != null && FastDestroyableSingleton<HudManager>.Instance != null)
         {
             var aspect = Camera.main.aspect;
             var safeOrthographicSize = CameraSafeArea.GetSafeOrthographicSize(Camera.main);
@@ -47,7 +39,7 @@ internal class IntroCutsceneOnDestroyPatch
             var ypos = 0.15f - (safeOrthographicSize * 1.7f);
             bottomLeft = new Vector3(xpos / 2, ypos / 2, -61f);
 
-            foreach (PlayerControl p in CachedPlayer.AllPlayers)
+            foreach (PlayerControl p in AllPlayers)
             {
                 var data = p.Data;
                 var player = Object.Instantiate(__instance.PlayerPrefab,
@@ -56,13 +48,13 @@ internal class IntroCutsceneOnDestroyPatch
                 p.SetPlayerMaterialColors(player.cosmetics.currentBodySprite.BodySprite);
                 player.SetSkin(data.DefaultOutfit.SkinId, data.DefaultOutfit.ColorId);
                 player.cosmetics.SetHat(data.DefaultOutfit.HatId, data.DefaultOutfit.ColorId);
-                CachedPlayer.LocalPlayer.Control.SetKillTimer(ResetButtonCooldown.killCooldown);
+                LocalPlayer.Control.SetKillTimer(ResetButtonCooldown.killCooldown);
                 player.cosmetics.nameText.text = data.PlayerName;
                 player.SetFlipX(true);
                 MapOptions.playerIcons[p.PlayerId] = player;
                 player.gameObject.SetActive(false);
 
-                if (CachedPlayer.LocalPlayer.Control == Arsonist.arsonist && p != Arsonist.arsonist)
+                if (LocalPlayer.Control == Arsonist.arsonist && p != Arsonist.arsonist)
                 {
                     player.transform.localPosition = bottomLeft + new Vector3(-0.25f, -0.25f, 0) +
                                                      (Vector3.right * playerCounter++ * 0.35f);
@@ -111,7 +103,7 @@ internal class IntroCutsceneOnDestroyPatch
         }
 
         // Force Bounty Hunter to load a new Bounty when the Intro is over
-        if (BountyHunter.bounty != null && CachedPlayer.LocalPlayer.Control == BountyHunter.bountyHunter)
+        if (BountyHunter.bounty != null && LocalPlayer.Control == BountyHunter.bountyHunter)
         {
             BountyHunter.bountyUpdateTimer = 0f;
             if (FastDestroyableSingleton<HudManager>.Instance != null)
@@ -125,9 +117,7 @@ internal class IntroCutsceneOnDestroyPatch
                 BountyHunter.cooldownText.gameObject.SetActive(true);
             }
         }
-
-        // Force Reload of SoundEffectHolder
-        SoundEffectsManager.Load();
+        
 
         if (CustomOptionHolder.randomGameStartPosition.getBool() && AmongUsClient.Instance.AmHost)
             //Random spawn on game start
@@ -141,7 +131,7 @@ internal class IntroCutsceneOnDestroyPatch
                 .FirstOrDefault(x => x.Data.PlayerName.Equals(MapOptions.firstKillName));
             if (target != null)
             {
-                var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+                var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                     (byte)CustomRPC.SetFirstKill, SendOption.Reliable);
                 writer.Write(target.PlayerId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -217,22 +207,22 @@ internal class IntroPatch
     public static void setupIntroTeamIcons(IntroCutscene __instance, ref List<PlayerControl> yourTeam)
     {
         // Intro solo teams
-        if (Helpers.isNeutral(CachedPlayer.LocalPlayer.Control))
+        if (LocalPlayer.Control.GetMainRole().RoleInfo.RoleTeam == RoleTeam.Neutral)
         {
             var soloTeam = new List<PlayerControl>();
-            soloTeam.Add(CachedPlayer.LocalPlayer.Control);
+            soloTeam.Add(LocalPlayer.Control);
             yourTeam = soloTeam;
         }
 
         // Add the Spy to the Impostor team (for the Impostors)
-        if (Spy.spy != null && CachedPlayer.LocalPlayer.Data.Role.IsImpostor)
+        if (Spy.spy != null && LocalPlayer.Data.Role.IsImpostor)
         {
             var players = PlayerControl.AllPlayerControls.ToArray().ToList().OrderBy(x => Guid.NewGuid()).ToList();
             var fakeImpostorTeam =
                 new List<PlayerControl>(); // The local player always has to be the first one in the list (to be displayed in the center)
-            fakeImpostorTeam.Add(CachedPlayer.LocalPlayer.Control);
+            fakeImpostorTeam.Add(LocalPlayer.Control);
             foreach (var p in players)
-                if (CachedPlayer.LocalPlayer.Control != p && (p == Spy.spy || p.Data.Role.IsImpostor))
+                if (LocalPlayer.Control != p && (p == Spy.spy || p.Data.Role.IsImpostor))
                     fakeImpostorTeam.Add(p);
             yourTeam = fakeImpostorTeam;
         }
@@ -240,7 +230,7 @@ internal class IntroPatch
 
     public static void setupIntroTeam(IntroCutscene __instance, ref List<PlayerControl> yourTeam)
     {
-        var infos = RoleInfo.getRoleInfoForPlayer(CachedPlayer.LocalPlayer.Control);
+        var infos = RoleInfo.getRoleInfoForPlayer(LocalPlayer.Control);
         var roleInfo = infos.Where(info => !info.isModifier).FirstOrDefault();
         if (roleInfo == null) return;
         if (roleInfo.isNeutral)
@@ -295,7 +285,7 @@ internal class IntroPatch
         public static void SetRoleTexts(IntroCutscene __instance)
         {
             // Don't override the intro of the vanilla roles
-            var infos = RoleInfo.getRoleInfoForPlayer(CachedPlayer.LocalPlayer.Control);
+            var infos = RoleInfo.getRoleInfoForPlayer(LocalPlayer.Control);
             var roleInfo = infos.Where(info => !info.isModifier).FirstOrDefault();
             var modifierInfo = infos.Where(info => info.isModifier).FirstOrDefault();
 
@@ -317,7 +307,7 @@ internal class IntroPatch
                 }
                 else
                 {
-                    PlayerControl otherLover = CachedPlayer.LocalPlayer.Control == Lovers.lover1
+                    PlayerControl otherLover = LocalPlayer.Control == Lovers.lover1
                         ? Lovers.lover2
                         : Lovers.lover1;
                     __instance.RoleBlurbText.text += Helpers.cs(Lovers.color,
@@ -373,4 +363,4 @@ internal class IntroPatch
             setupIntroTeam(__instance, ref yourTeam);
         }
     }
-}
+}*/

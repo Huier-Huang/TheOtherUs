@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Hazel;
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Impostors;
@@ -14,7 +13,6 @@ public class Eraser : RoleBase
 
     private readonly ResourceSprite buttonSprite = new("EraserButton.png");
     public bool canEraseAnyone;
-    public Color color = Palette.ImpostorRed;
     public float cooldown = 30f;
     public PlayerControl currentTarget;
     public PlayerControl eraser;
@@ -22,26 +20,44 @@ public class Eraser : RoleBase
     public CustomOption eraserCanEraseAnyone;
     public CustomOption eraserCooldown;
 
-    public CustomOption eraserSpawnRate;
 
     public List<PlayerControl> futureErased = [];
-    public override RoleInfo RoleInfo { get; protected set; }
+
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Eraser),
+        RoleClassType = typeof(Eraser),
+        Color = Palette.ImpostorRed,
+        GetRole = Get<Eraser>,
+        RoleType = CustomRoleType.Main,
+        RoleId = RoleId.Eraser,
+        RoleTeam = RoleTeam.Impostor,
+        IntroInfo = "Kill the Crewmates and erase their roles",
+        DescriptionText = "Erase the roles of your enemies",
+        CreateRoleController = player => new EraserController(player)
+    };
+    
+    public class EraserController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Eraser>();
+    }
+    public override CustomRoleOption roleOption { get; set; }
 
     public override void ClearAndReload()
     {
         eraser = null;
         futureErased = [];
         currentTarget = null;
-        cooldown = eraserCooldown.getFloat();
-        canEraseAnyone = eraserCanEraseAnyone.getBool();
+        cooldown = eraserCooldown;
+        canEraseAnyone = eraserCanEraseAnyone;
         alreadyErased = [];
     }
 
     public override void OptionCreate()
     {
-        eraserSpawnRate = new CustomOption(230, "Eraser".ColorString(color), CustomOptionHolder.rates, null, true);
-        eraserCooldown = new CustomOption(231, "Eraser Cooldown", 30f, 10f, 120f, 5f, eraserSpawnRate);
-        eraserCanEraseAnyone = new CustomOption(232, "Eraser Can Erase Anyone", false, eraserSpawnRate);
+        roleOption = new CustomRoleOption(this);
+        eraserCooldown = roleOption.AddChild("Eraser Cooldown", new FloatOptionSelection(30f, 10f, 120f, 5f));
+        eraserCanEraseAnyone = roleOption.AddChild("Eraser Can Erase Anyone", new BoolOptionSelection(false));
     }
 
     public override void ButtonCreate(HudManager _hudManager)
@@ -50,31 +66,28 @@ public class Eraser : RoleBase
         eraserButton = new CustomButton(
             () =>
             {
-                if (Helpers.checkAndDoVetKill(currentTarget)) return;
-                Helpers.checkWatchFlash(currentTarget);
+                /*if (Helpers.checkAndDoVetKill(currentTarget)) return;
+                Helpers.checkWatchFlash(currentTarget);*/
                 eraserButton.MaxTimer += 10;
                 eraserButton.Timer = eraserButton.MaxTimer;
 
-                var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+                var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                     (byte)CustomRPC.SetFutureErased, SendOption.Reliable);
                 writer.Write(currentTarget.PlayerId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
-                RPCProcedure.setFutureErased(currentTarget.PlayerId);
+                /*RPCProcedure.setFutureErased(currentTarget.PlayerId);*/
                 SoundEffectsManager.play("eraserErase");
             },
-            () =>
-            {
-                return eraser != null && eraser == CachedPlayer.LocalPlayer.Control &&
-                       !CachedPlayer.LocalPlayer.Data.IsDead;
-            },
+            () => eraser != null && eraser == LocalPlayer.Control &&
+                  !LocalPlayer.IsDead,
             () =>
             {
                 ButtonHelper.showTargetNameOnButton(currentTarget, eraserButton, "ERASE");
-                return CachedPlayer.LocalPlayer.Control.CanMove && currentTarget != null;
+                return LocalPlayer.Control.CanMove && currentTarget != null;
             },
             () => { eraserButton.Timer = eraserButton.MaxTimer; },
             buttonSprite,
-            CustomButton.ButtonPositions.upperRowLeft,
+            DefButtonPositions.upperRowLeft,
             _hudManager,
             KeyCode.F
         );

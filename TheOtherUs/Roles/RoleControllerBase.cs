@@ -38,8 +38,8 @@ public abstract class RoleControllerBase : IDisposable
 
     public FastRpcWriter startRpc()
     {
-        var rpcWrite = FastRpcWriter.StartNewRpcWriter(CustomRPC.RoleRPC, targetObjectId:CachedPlayer.LocalPlayer.Control.NetId);
-        rpcWrite.Write(CachedPlayer.LocalPlayer.PlayerId);
+        var rpcWrite = FastRpcWriter.StartNewRpcWriter(CustomRPC.RoleRPC, targetObjectId:LocalPlayer.Control.NetId);
+        rpcWrite.Write(LocalPlayer.PlayerId);
         rpcWrite.Write(_RoleBase.ClassName);
         return rpcWrite;
     }

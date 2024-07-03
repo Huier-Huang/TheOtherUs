@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Hazel;
 using TheOtherUs.Modules.Compatibility;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -17,8 +16,8 @@ internal class Trap
 
     private static Sprite trapSprite;
     private readonly Arrow arrow = new(Color.blue);
-    public int instanceId;
-    private readonly int neededCount = Trapper.trapCountToReveal;
+    public readonly int instanceId;
+    /*private readonly int neededCount = Trapper.trapCountToReveal;*/
     public bool revealed;
     public GameObject trap;
     public List<PlayerControl> trappedPlayer = [];
@@ -31,12 +30,12 @@ internal class Trap
         trap.AddSubmergedComponent(SubmergedCompatibility.Classes.ElevatorMover);
         var position = new Vector3(p.x, p.y, (p.y / 1000) + 0.001f); // just behind player
         trap.transform.position = position;
-        neededCount = Trapper.trapCountToReveal;
+        /*neededCount = Trapper.trapCountToReveal;*/
 
         var trapRenderer = trap.AddComponent<SpriteRenderer>();
         trapRenderer.sprite = getTrapSprite();
         trap.SetActive(false);
-        if (CachedPlayer.LocalPlayer.PlayerId == Trapper.trapper.PlayerId) trap.SetActive(true);
+        if (LocalPlayer.Is<Trapper>()) trap.SetActive(true);
         instanceId = ++instanceCounter;
         traps.Add(this);
         arrow.Update(position);
@@ -81,45 +80,47 @@ internal class Trap
     public static void triggerTrap(byte playerId, byte trapId)
     {
         var t = traps.FirstOrDefault(x => x.instanceId == trapId);
-        var player = Helpers.playerById(playerId);
-        if (Trapper.trapper == null || t == null || player == null) return;
-        var localIsTrapper = CachedPlayer.LocalPlayer.PlayerId == Trapper.trapper.PlayerId;
-        if (!trapPlayerIdMap.ContainsKey(playerId)) trapPlayerIdMap.Add(playerId, t);
-        t.usedCount++;
-        t.triggerable = false;
-        if (playerId == CachedPlayer.LocalPlayer.PlayerId || playerId == Trapper.trapper.PlayerId)
+        var player = playerId.GetCachePlayer();
+        var localIsTrapper = LocalPlayer.Is<Trapper>();;
+        trapPlayerIdMap.TryAdd(playerId, t);
+        if (t == null) return;
         {
-            t.trap.SetActive(true);
-            SoundEffectsManager.play("trapperTrap");
-        }
-
-        player.moveable = false;
-        player.NetTransform.Halt();
-        Trapper.playersOnMap.Add(player);
-        if (localIsTrapper) t.arrow.arrow.SetActive(true);
-
-        FastDestroyableSingleton<HudManager>.Instance.StartCoroutine(Effects.Lerp(Trapper.trapDuration,
-            new Action<float>(p =>
+            t.usedCount++;
+            t.triggerable = false;
+            if (playerId == LocalPlayer.PlayerId || playerId.Is<Trapper>())
             {
-                if (p == 1f)
+                t.trap.SetActive(true);
+                SoundEffectsManager.play("trapperTrap");
+            }
+
+            player.Control.moveable = false;
+            player.NetTransform.Halt();
+            /*Trapper.playersOnMap.Add(player);*/
+            if (localIsTrapper) t.arrow.arrow.SetActive(true);
+
+            /*FastDestroyableSingleton<HudManager>.Instance.StartCoroutine(Effects.Lerp(Trapper.trapDuration,
+                new Action<float>(p =>
                 {
-                    player.moveable = true;
-                    Trapper.playersOnMap.RemoveAll(x => x == player);
-                    if (trapPlayerIdMap.ContainsKey(playerId)) trapPlayerIdMap.Remove(playerId);
-                    t.arrow.arrow.SetActive(false);
-                }
-            })));
+                    if (p == 1f)
+                    {
+                        player.Control.moveable = true;
+                        /*Trapper.playersOnMap.RemoveAll(x => x == player);#1#
+                        if (trapPlayerIdMap.ContainsKey(playerId)) trapPlayerIdMap.Remove(playerId);
+                        t.arrow.arrow.SetActive(false);
+                    }
+                })));*/
 
-        if (t.usedCount == t.neededCount) t.revealed = true;
+            /*if (t.usedCount == t.neededCount) t.revealed = true;*/
 
-        t.trappedPlayer.Add(player);
-        t.triggerable = true;
+            t.trappedPlayer.Add(player);
+            t.triggerable = true;
+        }
     }
 
     public static void Update()
     {
-        if (Trapper.trapper == null) return;
-        var player = CachedPlayer.LocalPlayer;
+        /*if (Trapper.trapper == null) return;*/
+        var player = LocalPlayer;
         var vent = MapUtilities.CachedShipStatus.AllVents[0];
         var closestDistance = float.MaxValue;
 
@@ -139,20 +140,19 @@ internal class Trap
             }
         }
 
-        if (target != null && player.PlayerId != Trapper.trapper.PlayerId && !player.Data.IsDead)
+        /*if (target != null && player.PlayerId != Trapper.trapper.PlayerId && !player.Data.IsDead)
         {
-            var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+            var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                 (byte)CustomRPC.TriggerTrap, SendOption.Reliable);
             writer.Write(player.PlayerId);
             writer.Write(target.instanceId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
             RPCProcedure.triggerTrap(player.PlayerId, (byte)target.instanceId);
-        }
+        }*/
 
 
-        if (!player.Data.IsDead || player.PlayerId == Trapper.trapper.PlayerId) return;
-        foreach (var trap in traps)
-            if (!trap.trap.active)
-                trap.trap.SetActive(true);
+        if (!player.IsDead || player.PlayerId.Is<Trapper>()) return;
+        foreach (var trap in traps.Where(trap => !trap.trap.active))
+            trap.trap.SetActive(true);
     }
 }

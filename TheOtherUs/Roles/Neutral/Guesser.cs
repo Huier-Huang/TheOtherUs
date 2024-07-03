@@ -10,7 +10,6 @@ public class Guesser : RoleBase
 {
     public bool assassinKillsThroughShield = true;
     public bool assassinMultipleShotsPerMeeting;
-    public Color color = new Color32(255, 255, 0, byte.MaxValue);
 
     //public static PlayerControl evilGuesser;
     public List<PlayerControl> evilGuesser = [];
@@ -25,8 +24,30 @@ public class Guesser : RoleBase
     public int remainingShotsNiceGuesser = 2;
     public bool showInfoInGhostChat = true;
 
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Guesser),
+        RoleClassType = typeof(Guesser),
+        Color= new Color32(255, 255, 0, byte.MaxValue),
+        RoleId = RoleId.Guesser,
+        RoleType = CustomRoleType.Main,
+        RoleTeam = RoleTeam.Neutral,
+        GetRole = Get<Guesser>,
+        IntroInfo = "Guess Unknown",
+        DescriptionText = "Guess Unknown",
+        CreateRoleController = player => new GuesserController(player)
+    };
+    public class GuesserController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Guesser>();
+    }
+    
+    public override CustomRoleOption roleOption { get; set; }
+
+    public override void OptionCreate()
+    {
+        roleOption = new CustomRoleOption(this);
+    }
 
     public bool isGuesser(byte playerId)
     {
@@ -61,15 +82,15 @@ public class Guesser : RoleBase
     {
         niceGuesser = null;
         evilGuesser = [];
-        guesserCantGuessSnitch = CustomOptionHolder.guesserCantGuessSnitchIfTaksDone.getBool();
-        remainingShotsEvilGuesser = Mathf.RoundToInt(CustomOptionHolder.modifierAssassinNumberOfShots.getFloat());
-        remainingShotsNiceGuesser = Mathf.RoundToInt(CustomOptionHolder.guesserNumberOfShots.getFloat());
-        hasMultipleShotsPerMeeting = CustomOptionHolder.guesserHasMultipleShotsPerMeeting.getBool();
-        assassinMultipleShotsPerMeeting = CustomOptionHolder.modifierAssassinMultipleShotsPerMeeting.getBool();
-        showInfoInGhostChat = CustomOptionHolder.guesserShowInfoInGhostChat.getBool();
-        killsThroughShield = CustomOptionHolder.guesserKillsThroughShield.getBool();
-        assassinKillsThroughShield = CustomOptionHolder.modifierAssassinKillsThroughShield.getBool();
-        evilGuesserCanGuessSpy = CustomOptionHolder.guesserEvilCanKillSpy.getBool();
-        evilGuesserCanGuessCrewmate = CustomOptionHolder.guesserEvilCanKillCrewmate.getBool();
+        guesserCantGuessSnitch = CustomOptionHolder.guesserCantGuessSnitchIfTaksDone;
+        remainingShotsEvilGuesser = Mathf.RoundToInt(CustomOptionHolder.modifierAssassinNumberOfShots);
+        remainingShotsNiceGuesser = Mathf.RoundToInt(CustomOptionHolder.guesserNumberOfShots);
+        hasMultipleShotsPerMeeting = CustomOptionHolder.guesserHasMultipleShotsPerMeeting;
+        assassinMultipleShotsPerMeeting = CustomOptionHolder.modifierAssassinMultipleShotsPerMeeting;
+        showInfoInGhostChat = CustomOptionHolder.guesserShowInfoInGhostChat;
+        killsThroughShield = CustomOptionHolder.guesserKillsThroughShield;
+        assassinKillsThroughShield = CustomOptionHolder.modifierAssassinKillsThroughShield;
+        evilGuesserCanGuessSpy = CustomOptionHolder.guesserEvilCanKillSpy;
+        evilGuesserCanGuessCrewmate = CustomOptionHolder.guesserEvilCanKillCrewmate;
     }
 }

@@ -1,8 +1,6 @@
-﻿using System;
+﻿namespace TheOtherUs.Patches;
 
-namespace TheOtherUs.Patches;
-
-[HarmonyPatch]
+/*[HarmonyPatch]
 public static class TransportationToolPatches
 {
     /*
@@ -10,7 +8,7 @@ public static class TransportationToolPatches
      * Save the players anti tp position before using it.
      *
      * Zipline can also break camo, fix that one too.
-     */
+     #1#
 
     public static bool isUsingTransportation(PlayerControl pc)
     {
@@ -22,7 +20,7 @@ public static class TransportationToolPatches
     [HarmonyPatch(typeof(ZiplineBehaviour), nameof(ZiplineBehaviour.Use), [typeof(PlayerControl), typeof(bool)])]
     public static void prefix3(ZiplineBehaviour __instance, PlayerControl player, bool fromTop)
     {
-        AntiTeleport.position = CachedPlayer.LocalPlayer.transform.position;
+        AntiTeleport.position = LocalPlayer.transform.position;
     }
 
     [HarmonyPostfix]
@@ -64,7 +62,7 @@ public static class TransportationToolPatches
     [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.ClimbLadder))]
     public static void prefix()
     {
-        AntiTeleport.position = CachedPlayer.LocalPlayer.transform.position;
+        AntiTeleport.position = LocalPlayer.transform.position;
     }
 
     [HarmonyPostfix]
@@ -86,6 +84,6 @@ public static class TransportationToolPatches
     [HarmonyPatch(typeof(MovingPlatformBehaviour), nameof(MovingPlatformBehaviour.UsePlatform))]
     public static void prefix2()
     {
-        AntiTeleport.position = CachedPlayer.LocalPlayer.transform.position;
+        AntiTeleport.position = LocalPlayer.transform.position;
     }
-}
+}*/

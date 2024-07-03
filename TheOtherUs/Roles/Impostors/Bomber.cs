@@ -1,7 +1,5 @@
-using System;
 using Hazel;
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -17,7 +15,6 @@ public class Bomber : RoleBase
     public CustomButton bomberButton;
 
     private readonly ResourceSprite buttonSprite = new("Bomb_Button_Plant.png");
-    public Color color = Palette.ImpostorRed;
 
     public CustomButton defuseButton;
     public float defuseDuration = 3f;
@@ -27,7 +24,23 @@ public class Bomber : RoleBase
     public bool isActive;
     public bool isPlanted;
 
-    public override RoleInfo RoleInfo { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Bomber),
+        RoleClassType = typeof(Bomber),
+        Color = Palette.ImpostorRed,
+        RoleTeam = RoleTeam.Impostor,
+        RoleType = CustomRoleType.Main,
+        RoleId = RoleId.Bomber,
+        GetRole = Get<Bomber>,
+        DescriptionText = "Bomb all Crewmates",
+        IntroInfo = "Bomb all Crewmates",
+        CreateRoleController = n => new BomberController(n)
+    };
+    public class BomberController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Bomber>();
+    }
     public override CustomRoleOption roleOption { get; set; }
 
     public void clearBomb(bool flag = true)
@@ -51,12 +64,12 @@ public class Bomber : RoleBase
         bomb = null;
         isPlanted = false;
         isActive = false;
-        destructionTime = CustomOptionHolder.bomberBombDestructionTime.getFloat();
-        destructionRange = CustomOptionHolder.bomberBombDestructionRange.getFloat() / 10;
-        hearRange = CustomOptionHolder.bomberBombHearRange.getFloat() / 10;
-        defuseDuration = CustomOptionHolder.bomberDefuseDuration.getFloat();
-        bombCooldown = CustomOptionHolder.bomberBombCooldown.getFloat();
-        bombActiveAfter = CustomOptionHolder.bomberBombActiveAfter.getFloat();
+        destructionTime = CustomOptionHolder.bomberBombDestructionTime;
+        destructionRange = CustomOptionHolder.bomberBombDestructionRange/ 10f;
+        hearRange = CustomOptionHolder.bomberBombHearRange / 10f;
+        defuseDuration = CustomOptionHolder.bomberDefuseDuration;
+        bombCooldown = CustomOptionHolder.bomberBombCooldown;
+        bombActiveAfter = CustomOptionHolder.bomberBombActiveAfter;
         Bomb.clearBackgroundSprite();
     }
 
@@ -66,34 +79,34 @@ public class Bomber : RoleBase
         bomberButton = new CustomButton(
             () =>
             {
-                if (Helpers.checkMuderAttempt(bomber, bomber) != MurderAttemptResult.BlankKill)
+                /*if (Helpers.checkMuderAttempt(bomber, bomber) != MurderAttemptResult.BlankKill)
                 {
-                    var pos = CachedPlayer.LocalPlayer.transform.position;
+                    var pos = LocalPlayer.transform.position;
                     var buff = new byte[sizeof(float) * 2];
                     Buffer.BlockCopy(BitConverter.GetBytes(pos.x), 0, buff, 0 * sizeof(float), sizeof(float));
                     Buffer.BlockCopy(BitConverter.GetBytes(pos.y), 0, buff, 1 * sizeof(float), sizeof(float));
 
-                    var writer = AmongUsClient.Instance.StartRpc(CachedPlayer.LocalPlayer.Control.NetId,
+                    var writer = AmongUsClient.Instance.StartRpc(LocalPlayer.Control.NetId,
                         (byte)CustomRPC.PlaceBomb);
                     writer.WriteBytesAndSize(buff);
                     writer.EndMessage();
                     RPCProcedure.placeBomb(buff);
 
                     SoundEffectsManager.play("trapperTrap");
-                }
+                }*/
 
                 bomberButton.Timer = bomberButton.MaxTimer;
                 isPlanted = true;
             },
             () =>
             {
-                return bomber != null && bomber == CachedPlayer.LocalPlayer.Control &&
-                       !CachedPlayer.LocalPlayer.Data.IsDead;
+                return bomber != null && bomber == LocalPlayer.Control &&
+                       !LocalPlayer.IsDead;
             },
-            () => { return CachedPlayer.LocalPlayer.Control.CanMove && !isPlanted; },
+            () => LocalPlayer.Control.CanMove && !isPlanted,
             () => { bomberButton.Timer = bomberButton.MaxTimer; },
             buttonSprite,
-            CustomButton.ButtonPositions.upperRowLeft,
+            DefButtonPositions.upperRowLeft,
             _hudManager,
             KeyCode.F,
             true,
@@ -109,10 +122,10 @@ public class Bomber : RoleBase
             () => { defuseButton.HasEffect = true; },
             () =>
             {
-                defuseButton.PositionOffset = Get<Shifter>().shifterShiftButton.HasButton()
+                defuseButton.PositionOffset = true /*Get<Shifter>().shifterShiftButton.HasButton()*/
                     ? new Vector3(0f, 2f, 0f)
                     : new Vector3(0f, 1f, 0f);
-                return bomb != null && Bomb.canDefuse && !CachedPlayer.LocalPlayer.Data.IsDead;
+                return bomb != null && Bomb.canDefuse && !LocalPlayer.IsDead;
             },
             () =>
             {
@@ -122,7 +135,7 @@ public class Bomber : RoleBase
                     defuseButton.isEffectActive = false;
                 }
 
-                return CachedPlayer.LocalPlayer.Control.CanMove;
+                return LocalPlayer.Control.CanMove;
             },
             () =>
             {
@@ -137,10 +150,10 @@ public class Bomber : RoleBase
             defuseDuration,
             () =>
             {
-                var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+                var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                     (byte)CustomRPC.DefuseBomb, SendOption.Reliable);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
-                RPCProcedure.defuseBomb();
+                /*RPCProcedure.defuseBomb();*/
 
                 defuseButton.Timer = 0f;
                 Bomb.canDefuse = false;

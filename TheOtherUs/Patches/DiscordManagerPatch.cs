@@ -15,12 +15,12 @@ public static class DiscordManagerPatch
         {
             if (activity.State == "In Menus") return;
             var maxSize = GameOptionsManager.Instance.CurrentGameOptions.MaxPlayers;
-            if (CachedPlayer.GameStates.IsLobby)
+            if (GameStates.IsLobby)
             {
                 var lobbyCode = GameStartManager.Instance.GameRoomNameCode.text;
                 var region = ServerManager.Instance.CurrentRegion.Name;
 
-                details += $"{lobbyCode} {MapOptions.gameMode} {region} {maxSize}";
+                details += $"{lobbyCode} {CustomModeManager.Instance.CurrentMode} {region} {maxSize}";
             }
 
             activity.Details = details;

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace TheOtherUs.Options;
@@ -206,11 +207,24 @@ public class FloatOptionSelection(float Def, float min, float max, float step)
     }
 
     public override void Decrease()
-    {
+    {                                                                                                                                                                                                                                                                                                                                                                                                        
         if (Value <= Min) return;
         Value -= Step;
         base.Decrease();
     }
+}
+
+public class EnumOptionSelection<T>(T defEnum) : StringOptionSelection(Enum.GetNames<T>(), Enum.GetValues<T>().ToList().IndexOf(defEnum)) where T : struct, Enum
+{
+
+    public T Get() => Enum.TryParse<T>(Strings[Value], out var result) ? result : defEnum;
+}
+
+public class TOptionSelection<T>(T[] args, T def) : StringOptionSelection(args.Select(n => n.ToString()).ToArray(), args.ToList().IndexOf(def)) where T : IConvertible
+{
+    public readonly T[] Args = args;
+
+    public T Get() => Args[Selection];
 }
 
 public class IntOptionSelection(int Def, int min, int max, int step)
@@ -220,12 +234,12 @@ public class IntOptionSelection(int Def, int min, int max, int step)
     {
         get
         {
-            if (step == 1)
+            if (base.Selection == 1)
             {
                 return Selection;
             }
 
-            return (Value - Min) / step;
+            return (Value - Min) / base.Selection;
         }
     }
 

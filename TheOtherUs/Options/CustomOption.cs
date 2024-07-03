@@ -5,7 +5,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Hazel;
 using Reactor.Utilities.Extensions;
-using TheOtherUs.CustomGameMode;
 using TheOtherUs.Modules.Components;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -112,6 +111,7 @@ public class CustomOption
     [JsonIgnore] 
     public Color Color { get; set; } = Color.white;
 
+    public void SetSelection(int selection) => OptionSelection.Selection = selection;
     [JsonIgnore] public int Selection => OptionSelection.Selection;
     [JsonIgnore] public TabTypes TabType;
 
@@ -178,8 +178,7 @@ public class CustomOption
 
     public CustomOptionTypes CustomOptionType { get; set; }
 
-    [JsonIgnore] 
-    public OptionEvent optionEvent { get; } = new();
+    [JsonIgnore] public OptionEvent optionEvent { get; set; } = new();
 
     public OptionSelectionBase OptionSelection { get; set; }
     public OptionInfo optionInfo { get; set; }

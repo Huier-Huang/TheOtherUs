@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using UnityEngine;
@@ -104,4 +104,4 @@ internal class GameModeMenuPatch
             __instance.defaultButtonSelected, __instance.controllerSelectable);
         return false;
     }
-}
+}*/

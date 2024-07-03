@@ -1,6 +1,6 @@
 using BepInEx.Configuration;
 
-namespace TheOtherUs;
+namespace TheOtherUs.Configs;
 
 public static class TheOtherUsConfig
 {

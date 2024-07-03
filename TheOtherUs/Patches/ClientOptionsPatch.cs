@@ -1,4 +1,4 @@
-using System;
+/*using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -222,4 +222,4 @@ public static class ClientOptionsPatch
         public Func<bool> OnClick = onClick;
         public string Title = title;
     }
-}
+}*/

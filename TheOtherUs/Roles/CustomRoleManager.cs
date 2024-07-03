@@ -1,5 +1,9 @@
+
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using BepInEx;
 
 namespace TheOtherUs.Roles;
 
@@ -35,16 +39,31 @@ public class CustomRoleManager : ManagerBase<CustomRoleManager>
         RoleAssigner = assign;
     }
 
+
+    public readonly StreamWriter _Writer = new(File.Open(Path.Combine(Paths.GameRootPath, "RoleStrings.NexDat"), FileMode.OpenOrCreate));
+    
     public void Register(RoleBase role)
     {
         _RoleBases.Add(role);
+        if (role.IsVanilla) return;
+        try
+        {
+            var info = role.RoleInfo;
+            _Writer.WriteLine($"{info.InfoStringNode}.Name:{info.ShowName}");
+            _Writer.WriteLine($"{info.InfoStringNode}.Intro:{info.Intro}");
+            _Writer.WriteLine($"{info.InfoStringNode}.Description:{info.Description}");
+        }
+        catch (Exception e)
+        {
+            Error($"[Write Role String Error {role.ClassName}]:{e}");
+        }
     }
 
     public void UnSetRole(RoleBase @base, PlayerControl player)
     {
         PlayerAndRoles[@base].Remove(player);
         UpdateActiveRole();
-        if (player != CachedPlayer.LocalPlayer) return;
+        if (player != LocalPlayer) return;
         var controllerBase = LocalControllerBases.FirstOrDefault(n => n._RoleBase == @base);
         if (controllerBase != null)
         {
@@ -61,7 +80,7 @@ public class CustomRoleManager : ManagerBase<CustomRoleManager>
         var controller = @base.RoleInfo.CreateRoleController(player);
         UpdateActiveRole();
 
-        if (player != CachedPlayer.LocalPlayer) return;
+        if (player != LocalPlayer) return;
         LocalRoleBases.Add(@base);
         LocalControllerBases.Add(controller);
     }

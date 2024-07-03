@@ -38,8 +38,8 @@ public class FootprintHolder : MonoBehaviour
     private static Sprite FootprintSprite => _footprintSprite ??=
         UnityHelper.loadSpriteFromResources("TheOtherUs.Resources.Footprint.png", 600f);
 
-    private static bool AnonymousFootprints => TheOtherUs.Detective.anonymousFootprints;
-    private static float FootprintDuration => TheOtherUs.Detective.footprintDuration;
+    private static bool AnonymousFootprints => Get<Detective>().anonymousFootprints;
+    private static float FootprintDuration => Get<Detective>().footprintDuration;
 
     private void Start()
     {
@@ -82,12 +82,12 @@ public class FootprintHolder : MonoBehaviour
             }
 
             Color color;
-            if (AnonymousFootprints || Camouflager.camouflageTimer > 0 || Helpers.MushroomSabotageActive())
+            /*if (AnonymousFootprints || Camouflager.camouflageTimer > 0 || Helpers.MushroomSabotageActive())
                 color = Palette.PlayerColors[6];
             else if (activeFootprint.Owner == Morphling.morphling && Morphling.morphTimer > 0 &&
                      Morphling.morphTarget && Morphling.morphTarget.Data != null)
                 color = Palette.PlayerColors[Morphling.morphTarget.Data.DefaultOutfit.ColorId];
-            else
+            else*/
                 color = Palette.PlayerColors[activeFootprint.Data.DefaultOutfit.ColorId];
 
             color.a = Math.Clamp(p, 0f, 1f);
@@ -106,7 +106,7 @@ public class FootprintHolder : MonoBehaviour
 
     private class Footprint
     {
-        public GameData.PlayerInfo Data;
+        public NetworkedPlayerInfo Data;
         public readonly GameObject GameObject;
         public float Lifetime;
         public PlayerControl Owner;

@@ -123,7 +123,8 @@ public partial class TheOtherRolesPlugin : BasePlugin
                     .Add<RPCListener>()
                     .Start();
             }, "RegisterAttributes")
-            .StartTask(CosmeticsManager.Instance.DefConfigCreateAndInit, "DefConfigCreate");
+            .StartTask(CosmeticsManager.Instance.DefConfigCreateAndInit, "DefConfigCreate")
+            .StartTask(SoundEffectsManager.Load, "LoadSoundEffect");
         Info("Start Main Task");
     }
 
@@ -133,8 +134,8 @@ public partial class TheOtherRolesPlugin : BasePlugin
             .StartTask(AnnouncementManager.Instance.DownLoadREADME, "DownloadREADME")
             .StartTask(AnnouncementManager.Instance.DownloadAnnouncements, "DownLoadAnnouncements")
             .StartTask(AnnouncementManager.Instance.DownloadMOTDs, "DownLoadMOTDs")
-            .StartTask(LanguageManager.Instance.Load, "LoadLanguage")
-            .StartTask(CustomOptionHolder.Load, "LoadOption");
+            .StartTask(LanguageManager.Instance.Load, "LoadLanguage");
+            /*.StartTask(CustomOptionHolder.Load, "LoadOption");*/
         
         Info("OnTranslationController_Initialized_Load End");
     }
