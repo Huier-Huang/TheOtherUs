@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace TheOtherUs.Helper;
+namespace TheOtherUs.Helper.RPC;
 
 [MeansImplicitUse]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]

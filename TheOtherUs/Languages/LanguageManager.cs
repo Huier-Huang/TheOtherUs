@@ -50,7 +50,7 @@ public class LanguageManager : ManagerBase<LanguageManager>
 
     public LanguageLoaderBase? GetLoader(string extensionName)
     {
-        return _AllLoader.FirstOrDefault(n => n.Filter.Contains(extensionName));
+        return _AllLoader.FirstOrDefault(n => n.Filter.Contains(extensionName) || n.Filter.Contains(extensionName.ToLower()));
     }
 
     private bool TryGetResourceFile(string Path, out Stream? stream)

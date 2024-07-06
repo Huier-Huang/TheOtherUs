@@ -27,6 +27,10 @@ public sealed class RegisterRole(bool isTemplate = false) : RegisterAttribute
                 return !attribute.IsTemplate;
             });
 
-        foreach (var _type in types) _customRoleManager.Register((RoleBase)AccessTools.CreateInstance(_type));
+        foreach (var _type in types)
+        {
+            Info($"Register Role {_type.Name}");
+            _customRoleManager.Register((RoleBase)AccessTools.CreateInstance(_type));
+        }
     }
 }

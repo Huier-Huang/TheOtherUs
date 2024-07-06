@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Hazel;
 using Reactor.Utilities.Extensions;
+using TheOtherUs.Helper.RPC;
 using TheOtherUs.Modules.Components;
 using TMPro;
 using UnityEngine;

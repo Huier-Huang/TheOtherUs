@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
 using Hazel;
+using TheOtherUs.Helper.RPC;
 using UnityEngine;
 
 namespace TheOtherUs.Options;

@@ -14,8 +14,8 @@ public class Crewmate : VanillaRole
         RoleType = CustomRoleType.Main,
         RoleTeam = RoleTeam.Crewmate,
         GetRole = Get<Crewmate>,
-        IntroInfo = StringNames.Crewmate.GetString(),
-        DescriptionText = StringNames.Crewmate.GetString(),
+        IntroInfo = "Crewmate",
+        DescriptionText = "Crewmate",
         CreateRoleController = player => new CrewmateController(player)
     };
     public class CrewmateController(PlayerControl player) : RoleControllerBase(player)

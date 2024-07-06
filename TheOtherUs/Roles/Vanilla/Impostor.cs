@@ -14,8 +14,8 @@ public class Impostor : VanillaRole
         RoleType = CustomRoleType.Main,
         RoleTeam = RoleTeam.Impostor,
         GetRole = Get<Impostor>,
-        IntroInfo = StringNames.Impostor.GetString(),
-        DescriptionText = StringNames.Impostor.GetString(),
+        IntroInfo = "Impostor",
+        DescriptionText = "Impostor",
         CreateRoleController = player => new ImpostorController(player)
     };
     public class ImpostorController(PlayerControl player) : RoleControllerBase(player)

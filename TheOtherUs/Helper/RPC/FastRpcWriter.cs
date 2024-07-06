@@ -4,7 +4,7 @@ using InnerNet;
 using TheOtherUs.Objects;
 using UnityEngine;
 
-namespace TheOtherUs.Helper;
+namespace TheOtherUs.Helper.RPC;
 
 #nullable enable
 public class FastRpcWriter : IDisposable

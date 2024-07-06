@@ -1,4 +1,5 @@
 using System.Linq;
+using TheOtherUs.Helper.RPC;
 using TheOtherUs.Modules.Compatibility;
 using TheOtherUs.Objects;
 using UnityEngine;

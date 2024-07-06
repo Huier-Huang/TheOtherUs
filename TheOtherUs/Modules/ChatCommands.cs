@@ -1,5 +1,6 @@
 using System.Linq;
 using InnerNet;
+using TheOtherUs.Helper.RPC;
 
 namespace TheOtherUs.Modules;
 

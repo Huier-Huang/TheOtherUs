@@ -100,12 +100,11 @@ internal static class LogHelper
             case LogLevel.None:
             case LogLevel.All:
             default:
-                LogFileWriter.WriteLine($"[Level: {errorLevel}] {Message}");
-                goto End;
+                goto Writer;
         }
-        
-        LogFileWriter.WriteLine($"[FastLog, Level: {errorLevel}] {Message}");
-        End: ;
+        Writer:
+        LogFileWriter?.WriteLine($"[FastLog, Level: {errorLevel}] {Message}");
+
     }
 
     public static void LogObject(object @object)
@@ -127,7 +126,7 @@ internal static class LogHelper
         if (!Directory.Exists(LogDir))
             Directory.CreateDirectory(LogDir);
 
-        LogFileWriter = new StreamWriter(File.Open(Path.Combine(LogDir, fileName), FileMode.OpenOrCreate, FileAccess.Write))
+        LogFileWriter = new StreamWriter(File.Open(Path.Combine(LogDir, fileName + Main.ModEx), FileMode.OpenOrCreate, FileAccess.Write))
         {
             AutoFlush = true,
         };

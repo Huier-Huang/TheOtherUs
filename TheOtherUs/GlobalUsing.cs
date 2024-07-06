@@ -5,6 +5,7 @@ global using Il2CppInterop.Runtime.Attributes;
 global using Il2CppInterop.Runtime.Injection;
 global using Il2CppInterop.Runtime.InteropTypes;
 global using Il2CppInterop.Runtime.InteropTypes.Arrays;
+global using TheOtherUs.Helper.RPC;
 global using TheOtherUs.Helper;
 global using TheOtherUs.Utilities;
 global using TheOtherUs.Roles;

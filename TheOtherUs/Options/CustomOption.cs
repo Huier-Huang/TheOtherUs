@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Hazel;
 using Reactor.Utilities.Extensions;
+using TheOtherUs.Helper.RPC;
 using TheOtherUs.Modules.Components;
 using UnityEngine;
 using Object = UnityEngine.Object;

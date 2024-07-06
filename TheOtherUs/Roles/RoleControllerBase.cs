@@ -1,6 +1,7 @@
 using System;
 using Hazel;
 using Il2CppSystem.Collections.Generic;
+using TheOtherUs.Helper.RPC;
 
 namespace TheOtherUs.Roles;
 

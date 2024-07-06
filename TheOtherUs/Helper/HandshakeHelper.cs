@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Hazel;
 using InnerNet;
+using TheOtherUs.Helper.RPC;
 using TheOtherUs.Patches;
 
 namespace TheOtherUs.Helper;

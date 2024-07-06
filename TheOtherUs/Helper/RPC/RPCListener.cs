@@ -6,7 +6,7 @@ using System.Reflection;
 using Hazel;
 using InnerNet;
 
-namespace TheOtherUs.Helper;
+namespace TheOtherUs.Helper.RPC;
 
 [Harmony]
 [MeansImplicitUse]

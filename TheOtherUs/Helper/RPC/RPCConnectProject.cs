@@ -1,6 +1,6 @@
 using System;
 
-namespace TheOtherUs.Helper;
+namespace TheOtherUs.Helper.RPC;
 
 #nullable enable
 public class RPCConnectProject : IDisposable
@@ -27,7 +27,8 @@ public class RPCConnectProject : IDisposable
     public void Update(Action<FastRpcWriter> writer)
     {
         if (!Started) return;
-        writer(_writer);
+        _writer ??= FastRpcWriter.StartNewRpcWriter(rpc);
+        writer.Invoke(_writer);
     }
 
     public void End()

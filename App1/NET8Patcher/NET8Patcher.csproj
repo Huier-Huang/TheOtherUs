@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <DebugType>embedded</DebugType>
+        <VersionPrefix>1.0.0</VersionPrefix>
+        <VersionSuffix>dev</VersionSuffix>
+        <Description>NET8Patcher</Description>
+        <Authors>MengChu</Authors>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.692" Private="false" ExcludeAssets="runtime;native"/>
+        <PackageReference Include="BepInEx.IL2CPP.MSBuild" Version="2.1.0-rc.1" PrivateAssets="all" ExcludeAssets="runtime"/>
+        <PackageReference Include="BepInEx.Preloader.Core" Version="6.0.0-be.692"/>
+    </ItemGroup>
+    
+    <Target Name="CopyCustomContent" AfterTargets="AfterBuild" Condition="Exists('$(AmongUsLatest)/BepInEx/patchers/')">
+        <Message Text="Second occurrence"/>
+        <Copy SourceFiles="$(ProjectDir)\bin\$(Configuration)\net8.0\$(AssemblyName).dll" DestinationFolder="$(AmongUsLatest)/BepInEx/patchers/"/>
+    </Target>
+</Project>

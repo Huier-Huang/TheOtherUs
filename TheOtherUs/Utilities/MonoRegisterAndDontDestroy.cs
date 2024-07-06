@@ -47,9 +47,6 @@ public sealed class MonoRegisterAndDontDestroy : RegisterAttribute
     {
         if (type.BaseType != null)
             RegisterInIl2cpp(type.BaseType);
-
-        if (type == typeof(MonoBehaviour))
-            return;
         
         if (ClassInjector.IsTypeRegisteredInIl2Cpp(type))
             return;

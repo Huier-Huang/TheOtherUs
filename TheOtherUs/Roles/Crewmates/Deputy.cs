@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Hazel;
+using TheOtherUs.Helper.RPC;
 using TheOtherUs.Objects;
 using TMPro;
 using UnityEngine;

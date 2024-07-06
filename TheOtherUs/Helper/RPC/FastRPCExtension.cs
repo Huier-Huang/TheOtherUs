@@ -4,7 +4,7 @@ using System.Linq;
 using Hazel;
 using UnityEngine;
 
-namespace TheOtherUs.Helper;
+namespace TheOtherUs.Helper.RPC;
 
 public static class FastRPCExtension
 {
