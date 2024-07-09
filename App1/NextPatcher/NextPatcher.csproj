@@ -7,6 +7,7 @@
         <VersionSuffix>dev</VersionSuffix>
         <Description>NET8Patcher</Description>
         <Authors>MengChu</Authors>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
