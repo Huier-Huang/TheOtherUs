@@ -10,7 +10,7 @@ using Object = UnityEngine.Object;
 
 namespace TheOtherUs.CustomCosmetics;
 
-internal interface IColorData
+public interface IColorData
 {
     public int Index { get; set; }
     public string Text { get; set; }
@@ -20,8 +20,6 @@ internal interface IColorData
 
 public class DIYColor : IColorData
 {
-    public static int StartIndex { get; private set; } = 18;
-
     public static Color Impostor = Palette.ImpostorRed;
     public static Color Crewmate = Palette.CrewmateBlue;
     public static Color Light = Palette.LightBlue;
@@ -194,8 +192,8 @@ public class DIYColor : IColorData
         )
     ];
 
-    public static List<Color32> sortAllColor = [];
-    public static List<VanillaColor> vanillaColors;
+    public static List<IColorData> sortAllColor = [];
+    public static readonly List<VanillaColor> vanillaColors = [];
     
     public DIYColor(string text, Color32 color, Color32 shadow) : this(text, (Color)color, (Color)shadow)
     {
@@ -214,7 +212,8 @@ public class DIYColor : IColorData
         Text = text;
         Color = color;
         Shadow = shadow;
-        var gValue = (color.r * 0.299) + (color.g * 0.587) + (color.b * 0.114);
+        var color32 = (Color32)color;
+        var gValue = (color32.r * 0.299) + (color32.g * 0.587) + (color32.b * 0.114);
         Lighter = gValue < 125;
         Info($"DIYColor Text:{text} Color:{color} Shadow:{shadow} gValue:{gValue} Lighter:{Lighter}");
     }
@@ -240,42 +239,78 @@ public class DIYColor : IColorData
         SetDIYColors();
     }
 
+    public static Il2Generic.List<Color32> PlayerColor = new();
+    public static Il2Generic.List<Color32> ShadowColor = new();
+    public static Il2Generic.List<StringNames> ColorNames = new();
+    
     public static void SetVanillaColors()
     {
-        for (var i = 0; i < Palette.PlayerColors.Length - 1; i++)
+        var current = 0;
+        foreach (var color in Palette.PlayerColors)
         {
-            var color = Palette.PlayerColors[i];
-            var shadow = Palette.ShadowColors[i];
-            var name = Palette.ColorNames[i];
-            vanillaColors.Add(new VanillaColor(color, shadow, i, name));
+            var shadow = Palette.ShadowColors[current];
+            var name = Palette.ColorNames[current];
+            vanillaColors.Add(new VanillaColor(color, shadow, current, name));
+            current++;
         }
-
-        StartIndex = vanillaColors.Count;
     }
 
     public static void SetDIYColors()
-    {
+    { 
+        PlayerColor = new Il2Generic.List<Color32>(); 
+        ShadowColor = new Il2Generic.List<Color32>(); 
+        ColorNames = new Il2Generic.List<StringNames>();
         var current = 0;
-        foreach (var color in DIYColors)
+        
+        foreach (var color in vanillaColors)
         {
-            color.Index = StartIndex + current;
-            Palette.PlayerColors[color.Index] = color;
-            Palette.ShadowColors[color.Index] = color.Shadow;
+            PlayerColor.Add(color.Color);
+            ShadowColor.Add(color.Shadow);
+            ColorNames.Add(color.Name);
+            color.Index = current;
             current++;
         }
 
-        sortAllColor = Palette.PlayerColors.ToList();
+        foreach (var color in DIYColors)
+        {
+            color.Index = current;
+            PlayerColor.Add(color.Color);
+            ShadowColor.Add(color.Shadow);
+            ColorNames.Add(StringNames.NoTranslation);
+            current++;
+        }
+
+        Palette.PlayerColors = new Il2CppStructArray<Color32>(PlayerColor.ToArray());
+        Palette.ShadowColors = new Il2CppStructArray<Color32>(ShadowColor.ToArray());
+        Palette.ColorNames = new Il2CppStructArray<StringNames>(ColorNames.ToArray());
+        SortColor();
+    }
+
+    public static void SortColor()
+    {
+        sortAllColor =
+        [
+            ..Palette.PlayerColors.Select(p =>
+            {
+                var vColor = vanillaColors.FirstOrDefault(n => n.Color == p);
+                if (vColor != null)
+                    return vColor;
+                var diyColor = DIYColors.FirstOrDefault(n => n.Color == p);
+                return (IColorData)diyColor;
+            })
+        ];
+        
         sortAllColor.Sort((x, y) =>
         {
-            var re = x.r.CompareTo(y.r);
+            var re = x.Color.r.CompareTo(y.Color.r);
             if (re == 0)
-                re = x.g.CompareTo(y.g);
+                re = x.Color.g.CompareTo(y.Color.g);
 
             if (re == 0)
-                re = x.b.CompareTo(y.b);
+                re = x.Color.b.CompareTo(y.Color.b);
 
             if (re == 0)
-                re = x.a.CompareTo(y.a);
+                re = x.Color.a.CompareTo(y.Color.a);
 
             return re;
         });
@@ -290,24 +325,7 @@ public class DIYColor : IColorData
     {
         return color.Color;
     }
-
-    public static int GeyIndex(Color32 color)
-    {
-        var value = vanillaColors.FirstOrDefault(n => Compare(n.Color, color));
-        if (value != null)
-            return value.Index;
-
-        var diy = DIYColors.FirstOrDefault(n => Compare(n.Color, color));
-        if (diy != null)
-            return diy.Index;
-
-        return -1;
-    }
-
-    public static bool Compare(Color32 color1, Color32 color2)
-    {
-        return color1.r == color2.r && color1.g == color2.g && color1.b == color2.g && color1.a == color2.a;
-    }
+    
 
     #nullable enable
     internal static IColorData? GetColor(string name)
@@ -357,6 +375,8 @@ public class DIYColor : IColorData
         public Color Color { get; set; } = Color;
         public Color Shadow { get; set; } = Shadow;
         public int Index { get; set; } = Index;
+
+        public StringNames Name { get; set; } = StringName;
     }
 }
 
@@ -365,19 +385,20 @@ public static class DIYColorPatch
 {
     private static bool needsPatch;
 
-    private static readonly uint pickableColors = (uint)Palette.ColorNames.Length;
-
     [HarmonyPatch(typeof(Palette), nameof(Palette.GetColorName))]
     [HarmonyPrefix]
     private static bool OnGetColorName(int colorId, ref string __result)
     {
-        if (colorId < DIYColor.StartIndex || colorId > DIYColor.StartIndex + DIYColor.DIYColors.Count)
-            return true;
-
-        var color = DIYColor.DIYColors.FirstOrDefault(n => n.Index == colorId);
-        if (color == null) return true;
-        var text = color.TranslateId == string.Empty ? color.Text : color.TranslateId.Translate();
-        __result = text;
+        var vColor = DIYColor.vanillaColors.FirstOrDefault(n => n.Index == colorId);
+        if (vColor != null)
+        {
+            __result = vColor.Text;
+        }
+        var diyColor = DIYColor.DIYColors.FirstOrDefault(n => n.Index == colorId);
+        if (diyColor != null)
+        {
+            __result = diyColor.TranslateId == string.Empty ? diyColor.Text : diyColor.TranslateId.Translate();
+        }
         return false;
     }
 
@@ -394,7 +415,7 @@ public static class DIYColorPatch
     private static void LoadPrePostfix()
     {
         if (!needsPatch) return;
-        LegacySaveManager.colorConfig %= pickableColors;
+        LegacySaveManager.colorConfig %= (uint)DIYColor.vanillaColors.Count;
         needsPatch = false;
     }
 
@@ -420,7 +441,23 @@ public static class DIYColorPatch
         __instance.RpcSetColor((byte)color);
         return false;
     }*/
-    
+
+    [HarmonyPatch(typeof(PlayerTab), nameof(PlayerTab.Update))]
+    [HarmonyPrefix]
+    private static bool PlayerTabOnUpdate(PlayerTab __instance)
+    {
+        __instance.UpdateAvailableColors();
+        for (var i = 0; i < __instance.ColorChips.Count; i++)
+        {
+            var color = DIYColor.sortAllColor[i];
+            var colorChip = __instance.ColorChips.Get(i);
+            colorChip.InUseForeground.SetActive(!__instance.AvailableColors.Contains(color.Index));
+            colorChip.SelectionHighlight.enabled = (__instance.currentColor == color.Index);
+            colorChip.PlayerEquippedForeground.SetActive(__instance.GetCurrentColorId() == color.Index);
+        }
+        return false;
+    }
+
 
     [HarmonyPatch(typeof(PlayerTab), nameof(PlayerTab.OnEnable))]
     [HarmonyPrefix]
@@ -428,6 +465,8 @@ public static class DIYColorPatch
     {
         if (Palette.PlayerColors.Length < DIYColor.vanillaColors.Count + DIYColor.DIYColors.Count)
             DIYColor.SetColors();
+        else
+            DIYColor.SortColor();
         
         __instance.PlayerPreview.gameObject.SetActive(true);
         if (__instance.HasLocalPlayer())
@@ -435,15 +474,16 @@ public static class DIYColorPatch
         else
             __instance.PlayerPreview.UpdateFromDataManager(PlayerMaterial.MaskType.None);
 
-        var num = Palette.PlayerColors.Length / 4f;
+        __instance.XRange.max += 2;
         for (var i = 0; i < DIYColor.sortAllColor.Count - 1; i++)
         {
-            var num2 = __instance.XRange.Lerp(i % 4 / 3f);
-            var num3 = __instance.YStart - ((float)i / 4 * __instance.YOffset);
+            var num2 = __instance.XRange.Lerp(i % 9 / 8f);
+            var num3 = __instance.YStart - ((float)i / 9 * __instance.YOffset);
             var colorChip = Object.Instantiate(__instance.ColorTabPrefab, __instance.ColorTabArea, true);
+            colorChip.transform.localScale *= 0.85f;
             colorChip.transform.localPosition = new Vector3(num2, num3, -1f);
             var color = DIYColor.sortAllColor[i];
-            var id = DIYColor.GeyIndex(color);
+            var id = color.Index;
             if (ActiveInputManager.currentControlType == ActiveInputManager.InputType.Keyboard)
             {
                 colorChip.Button.OnMouseOver.AddListener(() => { __instance.SelectColor(id); });
@@ -459,7 +499,7 @@ public static class DIYColorPatch
                 colorChip.Button.OnClick.AddListener(() => { __instance.SelectColor(id); });
             }
 
-            colorChip.Inner.SpriteColor = color;
+            colorChip.Inner.SpriteColor = color.Color;
             colorChip.Tag = id;
             __instance.ColorChips.Add(colorChip);
         }

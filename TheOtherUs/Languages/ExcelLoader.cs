@@ -19,21 +19,14 @@ public class ExcelLoader : LanguageLoaderBase
         for (var c = worksheet.Columns.StartColumn + 1; c <= worksheet.Columns.EndColumn; c++)
         {
             var lang = worksheet.Cells[worksheet.Rows.StartRow, c].Text.PareNameToLangId();
-            var HasWhite = 0;
             for (var r = worksheet.Rows.StartRow + 1; r < worksheet.Rows.EndRow; r++)
             {
-                if (HasWhite > 5)
-                    break;
-                
                 var key = worksheet.Cells[r, worksheet.Columns.StartColumn].Text;
                 var value = worksheet.Cells[r, c].Text;
                 if (key.IsNullOrWhiteSpace() || value.IsNullOrWhiteSpace())
                 {
-                    HasWhite++;
-                    continue;
+                    break;
                 }
-
-                HasWhite = 0;
                 _manager.AddToMap(lang, key, value, nameof(ExcelLoader));
             }
         }

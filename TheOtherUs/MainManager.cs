@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
+using Reactor.Utilities.Attributes;
 using UnityEngine;
 
 namespace TheOtherUs;
 
-[MonoRegisterAndDontDestroy]
-public class MainManager : MonoBehaviour
+/*[MonoRegisterAndDontDestroy]*/
+[RegisterInIl2Cpp]
+public class MainManager : DestroyableSingleton<MainManager>
 {
-    public static MainManager Instance => MonoRegisterAndDontDestroy.GetRegister<MainManager>();
     private readonly ResourceSprite cursorSprite = new("Cursor.png");
     public readonly Dictionary<MainActionsType, Action<MainManager>> MainActions = [];
 

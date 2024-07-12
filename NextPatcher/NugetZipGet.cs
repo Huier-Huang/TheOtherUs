@@ -12,12 +12,20 @@ namespace NextPatcher;
 public class NugetZipGet(NuGetDownloader downloader)
 {
     public readonly ZipArchive ZipArchive = new(downloader.Download().Result);
+    public XmlDocument? NugetDocument { get; set; }
+
+    public XmlDocument GetOrLoadDocument()
+    {
+        if (NugetDocument != null)
+            return NugetDocument;
+        NugetDocument = new XmlDocument();
+        NugetDocument.LoadXml(GetDocumentText());
+        return NugetDocument;
+    }
 
     public string[] GetFrameworks()
     {
-        var document = new XmlDocument();
-        document.LoadXml(GetDocumentText());
-        var groups = document
+        var groups = GetOrLoadDocument()
             .DocumentElement?
             .FirstChild?
             .FindOneXML("dependencies")
@@ -28,6 +36,21 @@ public class NugetZipGet(NuGetDownloader downloader)
                 : (from XmlElement @group in groups select @group.GetAttribute("targetFramework"))
                 .ToArray();
         
+    }
+
+    public List<DependencyInfo> GetDependency(string Framework)
+    {
+        var list = new List<DependencyInfo>();
+        var group = GetOrLoadDocument()
+            .DocumentElement?
+            .FirstChild?
+            .FindOneXML("dependencies")
+            .FindXMLAttribute("group", "targetFramework", Framework);
+        if (group != null)
+        {
+            list.AddRange(group.FindXML("dependency").Select(dependency => new DependencyInfo() { Id = dependency.GetAttributeValue("id"), Version = dependency.GetAttributeValue("version") }));
+        }
+        return list;
     }
     
     public string GetDocumentText()

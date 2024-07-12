@@ -4,7 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
+using System.Runtime.Versioning;
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Preloader.Core.Patching;
@@ -22,6 +22,13 @@ public class NextPatcher : BasePatcher
     public DirectoryCreator Creator { get; set; }
     
     public NextScriptManager ScriptManager { get; set; } = null!;
+    
+    public static string CurrentFrameworkName => typeof(NextPatcher).Assembly.GetCustomAttribute<TargetFrameworkAttribute>()?.FrameworkDisplayName ?? string.Empty;
+    public static string FrameworkStartName => CurrentFrameworkName.Split(" ")[0];
+    public static string FrameworkVersion => CurrentFrameworkName.Split(" ")[1];
+
+    public static string NugetFrameworkVersionName =>
+        FrameworkStartName.Replace(".", string.Empty).ToLower() + FrameworkVersion;
 
     public NextPatcher()
     {
@@ -30,7 +37,7 @@ public class NextPatcher : BasePatcher
         Creator = new DirectoryCreator(Paths.GameRootPath, "Dependents", "dotnet-8.0.0", "NextScripts");
         Creator.Create();
         DownLoadAndLoadToml();
-        WriteAndSaveDotnet();
+        /*WriteAndSaveDotnet();*/
     }
     
 
@@ -70,7 +77,7 @@ public class NextPatcher : BasePatcher
         foreach (var (name, version, framework) in all)
         {
             var path = Path.Combine(Creator.Get("Dependents"), $"{name}.dll");
-            if (File.Exists(path)) continue;
+            if (File.Exists(path) || AppDomain.CurrentDomain.GetAssemblies().Any(n => n.GetName().Name == name)) continue;
             var dllStream = Download(name, version, framework);
             LogSource.LogInfo($"{name} IsNull{dllStream == Stream.Null}");
             if (dllStream == Stream.Null) continue;
@@ -82,12 +89,19 @@ public class NextPatcher : BasePatcher
         }
     }
     
-    public static Stream Download(string name, string version, string framework = "net8.0")
+    public Stream Download(string name, string version, string framework = "net8.0")
     {
         using var downloader = new NuGetDownloader(name, version);
         var get = new NugetZipGet(downloader);
         var frameworks = get.GetFrameworks();
         var GetFramework = NextPatcher.GetFramework(frameworks, framework);
+        var Dependency = get.GetDependency(GetFramework);
+        if (Dependency.Count != 0)
+            foreach (var d in Dependency)
+            {
+                CheckAndAdd((d.Id, d.Version, framework));
+            }
+        
         LogSource.LogInfo($"{name} GetFramework: " + GetFramework);
         return GetFramework == string.Empty ? Stream.Null : get.GetAssemblyStream(GetPathFramework(GetFramework));
     }
@@ -125,26 +139,9 @@ public class NextPatcher : BasePatcher
         }
     }
     
-    public async void DownLoadAndLoadToml(string version = "0.17.0", string Framework = "net7.0")
+    public void DownLoadAndLoadToml(string version = "0.17.0")
     {
-        try
-        {
-            var path = Path.Combine(Creator.Get("Dependents"), "Tomlyn.dll");
-            if (File.Exists(path))
-                return;
-            using var download = new NuGetDownloader("Tomlyn", version);
-            await using var stream = await download.Download();
-            if (stream == Stream.Null) return;
-            using var file = new ZipArchive(stream, ZipArchiveMode.Read);
-            var entry = file.GetEntry($"lib/{Framework}/Tomlyn.dll");
-            if (entry == null) return;
-            await using var NewStream = File.Create(path);
-            await stream.CopyToAsync(NewStream); 
-        }
-        catch (Exception e)
-        {
-            LogSource.LogError(e);
-        }
+        CheckAndAdd(("Tomlyn", version, NugetFrameworkVersionName));
     }
 
     public static readonly HashSet<string> RootDownloads =
@@ -187,18 +184,19 @@ public class NextPatcher : BasePatcher
     {
         if (args.Name.Contains("Il2CppSystem")) return null;
         var assemblyName = new AssemblyName(args.Name);
-        LogSource.LogInfo($"Resolve {assemblyName.Name} {assemblyName.FullName}");
+        LogSource.LogDebug($"Resolve {assemblyName.Name} {assemblyName.FullName}");
         if (assemblyName.Version?.Major == 8)
         {
             var net8Path = Path.Combine(Instance.Creator.Get("dotnet-8.0.0"), assemblyName.Name + ".dll");
             if (File.Exists(net8Path))
             {
-                LogSource.LogInfo($"is Net8 {assemblyName}");
+                LogSource.LogDebug($"is Net8 {assemblyName}");
                 return Assembly.LoadFile(net8Path);
             }
         }
 
         var path = Path.Combine(Instance.Creator.Get("Dependents"), assemblyName.Name + ".dll");
+        
         return File.Exists(path) ? Assembly.LoadFile(path) : null;
     }
 }

@@ -110,8 +110,6 @@ public partial class TheOtherRolesPlugin : BasePlugin
             (nameof(YamlDotNet), "15.3.0", NugetFrameworkVersionName),
             ("EPPlus", "7.2.0", NugetFrameworkVersionName)
             );
-        DependentDownload.Instance.DownLoadDependentMap("https://raw.githubusercontent.com/TianMengLucky/TheOtherUs-Next/tree/Latest/LoadDependent/", false);
-        DependentDownload.Instance.DownLoadDependentFormMap("Excel");
     }
 
     private static void CheckPath()
@@ -171,11 +169,10 @@ public partial class TheOtherRolesPlugin : BasePlugin
         TaskQueue.GetOrCreate()
             .StartTask(ChatCensorPatch.AddCensorWord, "AddCensorWord")
             .StartTask(DIYColor.LoadDIYColor, "LoadDiskDIYColor");
-        DIYColor.SetColors();
         AttributeManager.Instance
                     .SetInit(MainAssembly)
                     .Add<ManagerBaseLoad>(TaskQueue.GetOrCreate())
-                    .Add<MonoRegisterAndDontDestroy>()
+                    /*.Add<MonoRegisterAndDontDestroy>()*/
                     .Add<RegisterRole>(_RoleManager)
                     .Add<OnEvent>()
                     .Add<RPCMethod>()
@@ -194,7 +191,7 @@ public partial class TheOtherRolesPlugin : BasePlugin
             /*.StartTask(AnnouncementManager.Instance.DownLoadREADME, "DownloadREADME")
             .StartTask(AnnouncementManager.Instance.DownloadAnnouncements, "DownLoadAnnouncements")
             .StartTask(AnnouncementManager.Instance.DownloadMOTDs, "DownLoadMOTDs");*/
-        
+        DIYColor.SetColors();
         Info("OnTranslationController_Initialized_Load End");
     }
 }

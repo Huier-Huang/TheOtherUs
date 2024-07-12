@@ -11,7 +11,7 @@ namespace TheOtherUs.Utilities;
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class MonoRegisterAndDontDestroy : RegisterAttribute
 {
-    public static Dictionary<Type, MonoBehaviour> RegisterObjects = [];
+    public static readonly Dictionary<Type, MonoBehaviour> RegisterObjects = [];
 
     public static T GetRegister<T>() where T : MonoBehaviour
     {
@@ -51,7 +51,7 @@ public sealed class MonoRegisterAndDontDestroy : RegisterAttribute
         if (ClassInjector.IsTypeRegisteredInIl2Cpp(type))
             return;
         
-        ClassInjector.RegisterTypeInIl2Cpp(type);
+        ClassInjector.RegisterTypeInIl2Cpp(type,new RegisterTypeOptions());
     }
 
     public static bool IsMono(Type type)
