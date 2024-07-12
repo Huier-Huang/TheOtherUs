@@ -2,15 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Reflection;
-using System.Threading.Tasks;
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Preloader.Core.Patching;
-using Cpp2IL.Core.Extensions;
 
 
 namespace NextPatcher;
@@ -23,16 +18,19 @@ public class NextPatcher : BasePatcher
     public static NextPatcher Instance = null!;
     
     public DirectoryCreator Creator { get; set; }
+    
+    public NextScriptManager ScriptManager { get; set; } = null!;
 
     public NextPatcher()
     {
         LogSource = Log;
         Instance = this;
-        Creator = new DirectoryCreator(Paths.GameRootPath, "Dependents", "dotnet-8.0.0");
+        Creator = new DirectoryCreator(Paths.GameRootPath, "Dependents", "dotnet-8.0.0", "NextScripts");
         Creator.Create();
         DownLoadAndLoadToml();
         WriteAndSaveDotnet();
     }
+    
 
     public async void WriteAndSaveDotnet()
     {
@@ -59,6 +57,10 @@ public class NextPatcher : BasePatcher
     public override void Initialize()
     {
         AppDomain.CurrentDomain.AssemblyResolve += LocalResolve;
+        ScriptManager = new NextScriptManager();
+        ScriptManager
+            .SetFindDir(Creator.Get("NextScripts"))
+            .BuildAll();
     }
 
     public async void DownLoadAndLoadToml(string version = "0.17.0", string Framework = "net7.0")
@@ -115,7 +117,7 @@ public class NextPatcher : BasePatcher
             _ => string.Empty
         };
         var ex = platform == "win" ? ".zip" : ".tar.gz";
-        return fileRoot == string.Empty ? string.Empty : $"https://dotnetbuilds.azureedge.net/public/{type}/{version}/{fileRoot}-{version}-{platform}-{arch}{ex}";
+        return fileRoot == string.Empty ? string.Empty : $"https://dotnetcli.azureedge.net/dotnet/{type}/{version}/{fileRoot}-{version}-{platform}-{arch}{ex}";
     }
     
     
@@ -136,69 +138,5 @@ public class NextPatcher : BasePatcher
 
         var path = Path.Combine(Instance.Creator.Get("Dependents"), assemblyName.Name + ".dll");
         return File.Exists(path) ? Assembly.LoadFile(path) : null;
-    }
-}
-
-public class DirectoryCreator(string Root, params string[] Dirs)
-{
-    public readonly HashSet<string> Directors = [];
-    private readonly List<string> Creates = Dirs.ToList();
-
-    public DirectoryCreator Add(string dir)
-    {
-        Creates.Add(dir);
-        return this;
-    }
-    
-    public void Create()
-    {
-        foreach (var dir in Creates)
-        {
-            try
-            {
-                var current = Root;
-                foreach (var d in dir.Replace('\\', '/').Split('/'))
-                {
-                    current = Path.Combine(current, d);
-                    if (Directory.Exists(current)) continue;
-                    Directory.CreateDirectory(current);
-                    Directors.Add(current);
-                }
-            }
-            catch (Exception e)
-            {
-                NextPatcher.LogSource.LogError(e);
-            }
-
-            Directors.Add(Path.Combine(Root, dir));
-        }
-    }
-
-    public string Get(string Name)
-    {
-        return Directors.FirstOrDefault(n => n.EndsWith(Name) || n.EndsWith($"{Name}/")) ?? string.Empty;
-    }
-}
-
-public class NuGetDownloader(string Id, string version) : IDisposable
-{
-    public HttpClient? Client = new();
-    public const string ApiRootUrl = "https://api.nuget.org/v3-flatcontainer";
-    public string LowerId => _id.ToLowerInvariant();
-    public string LowerVersion => _Version.ToLowerInvariant();
-    public string _id = Id;
-    public string _Version = version;
-
-    public async Task<Stream> Download()
-    {
-        Client ??= new HttpClient();
-        var url = $"{ApiRootUrl}/{LowerId}/{LowerVersion}/{LowerId}.{LowerVersion}.nupkg";
-        NextPatcher.LogSource.LogInfo(url);
-        return await Client.GetStreamAsync(url);
-    }
-    
-    public void Dispose()
-    {
-        Client?.Dispose();
     }
 }

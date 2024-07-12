@@ -15,6 +15,7 @@ public static class TheOtherUsConfig
     public static BepInConfig<bool> EnableHorseMode { get; private set; }
     public static BepInConfig<bool> ToggleCursor { get; private set; }
     public static BepInConfig<bool> ShowVentsOnMap { get; private set; }
+    public static BepInConfig<bool> EnableVersionIsolation { get; private set; }
     public static BepInConfig<string> Ip { get; private set; }
     public static BepInConfig<ushort> Port { get; private set; }
     public static BepInConfig<string> ShowPopUpVersion { get; private set; }
@@ -33,6 +34,7 @@ public static class TheOtherUsConfig
         EnableHorseMode = new BepInConfig<bool>(Config,  "Enable Horse Mode", false);
         ShowPopUpVersion = new BepInConfig<string>(Config, "Show PopUp", "0");
         ShowVentsOnMap = new BepInConfig<bool>(Config, "Show vent positions on minimap", false);
+        EnableVersionIsolation = new BepInConfig<bool>(Config, "Enable Version Isolation", false);
 
         Ip = new BepInConfig<string>(Config,  "Custom Server IP", "127.0.0.1");
         Port = new BepInConfig<ushort>(Config,  "Custom Server Port", 22023); ;

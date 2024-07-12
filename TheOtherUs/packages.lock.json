@@ -142,6 +142,17 @@
           "SemanticVersioning": "2.0.2"
         }
       },
+      "BepInEx.Preloader.Core": {
+        "type": "Transitive",
+        "resolved": "6.0.0-be.692",
+        "contentHash": "gj6H+LYf1aXXCB5UaG5BDkLiP7TUwCReQzIgH77gcM1MzlnkpZiaY7Lh6VsoLF1JiCcTjI1Chd4Wkm/ezT8Crg==",
+        "dependencies": {
+          "BepInEx.Core": "6.0.0-be.692",
+          "HarmonyX": "2.10.1",
+          "MonoMod.RuntimeDetour": "22.5.1.1",
+          "MonoMod.Utils": "22.5.1.1"
+        }
+      },
       "BepInEx.Unity.Common": {
         "type": "Transitive",
         "resolved": "6.0.0-be.692",
@@ -1069,6 +1080,13 @@
           "Microsoft.NETCore.Platforms": "1.1.0",
           "Microsoft.NETCore.Targets": "1.1.0",
           "System.Runtime": "4.3.0"
+        }
+      },
+      "nextpatcher": {
+        "type": "Project",
+        "dependencies": {
+          "BepInEx.Preloader.Core": "[6.0.0-be.692, )",
+          "BepInEx.Unity.IL2CPP": "[6.0.0-be.692, )"
         }
       }
     }

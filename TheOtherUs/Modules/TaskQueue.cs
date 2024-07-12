@@ -7,23 +7,25 @@ namespace TheOtherUs.Modules;
 
 public class TaskQueue
 {
-    private static List<TaskQueue> queues = [];
-    public static TaskQueue GetOrCreate(int Count)
+    private static readonly List<TaskQueue> queues = [];
+    #nullable enable
+    public static TaskQueue? MainQueue { get; private set; }
+    #nullable disable
+    public static TaskQueue GetOrCreate()
     {
-        if (queues.Count < Count)
-        {
-            queues.Add(new TaskQueue());
-        }
-        return queues[Count - 1];
+        if (MainQueue != null)
+            return MainQueue;
+
+        return MainQueue = new TaskQueue();
     }
     
     
     public Task CurrentTask;
-    public Queue<Task> Tasks = [];
+    public readonly Queue<Task> Tasks = [];
 
     public bool TaskStarting;
 
-    private Dictionary<Task, Action> TaskOnCompleted = new();
+    private readonly Dictionary<Task, Action> TaskOnCompleted = new();
     public TaskQueue StartTask(Action action, string Id, Action OnCompleted = null)
     {
         var task = new Task(() =>
@@ -50,7 +52,7 @@ public class TaskQueue
     
     public void StartNew()
     {
-        if (!Tasks.Any() || TaskStarting) return;
+        if (Tasks.Count == 0 || TaskStarting) return;
         TaskStarting = true;
         Task.Run(() =>
             {
@@ -62,7 +64,7 @@ public class TaskQueue
 
         void Start()
         {
-            if (!Tasks.Any()) return;
+            if (Tasks.Count == 0) return;
             CurrentTask = Tasks.Dequeue();
             CurrentTask.Start();
             CurrentTask.GetAwaiter().OnCompleted(() =>

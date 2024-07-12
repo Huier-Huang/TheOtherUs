@@ -151,7 +151,7 @@ public class CosmeticsManager : ManagerBase<CosmeticsManager>
     {
         ServicePointManager.ServerCertificateValidationCallback += (_, _, _, _) => true;
         AddDefConfig();
-        TaskQueue.GetOrCreate(1)
+        TaskQueue.GetOrCreate()
             .StartTask(() => LoadConfigFormDisk(new DirectoryInfo(ManagerConfigDir)), "LoadConfigFormDisk",
             () =>
             {

@@ -8,23 +8,23 @@ using BepInEx;
 using BepInEx.Unity.IL2CPP;
 using Reactor.Networking;
 using Reactor.Networking.Attributes;
-using TheOtherUs.Chat.Patches;
-using TheOtherUs.CustomCosmetics;
-using TheOtherUs.Helper.RPC;
 using TheOtherUs.Languages;
 using TheOtherUs.Modules.Compatibility;
 using TheOtherUs.Patches;
 
 namespace TheOtherUs;
 
-[BepInAutoPlugin("me.spex.theotherus")]
+[BepInAutoPlugin("TheOtherUs.MengChu.Next")]
 [BepInProcess("Among Us.exe")]
 [ReactorModFlags(ModFlags.RequireOnAllClients)]
 // ReSharper disable once ClassNeverInstantiated.Global
 public partial class TheOtherRolesPlugin : BasePlugin
 {
+    public static readonly Assembly MainAssembly = typeof(Main).Assembly;
     public static readonly Version version = System.Version.Parse(Version);
     public static Main Instance;
+
+    public static NextPatcher.NextPatcher Patcher => NextPatcher.NextPatcher.Instance;
     private static readonly HashSet<(string, string)> CheckPaths = 
         [
             (Paths.GameRootPath, "Data")
@@ -46,7 +46,7 @@ public partial class TheOtherRolesPlugin : BasePlugin
         Info($"Add{region} regions:{regions.Length}");
         serverManager.AddOrUpdateRegion(region);
     }
-
+    
     public override void Load()
     {
         SetConsole();
@@ -77,6 +77,19 @@ public partial class TheOtherRolesPlugin : BasePlugin
         }
 
         AddComponent<ModUpdater>();*/
+    }
+
+    private static void CheckNextPatcher()
+    {
+        var path = Path.Combine(Paths.PatcherPluginPath, "NextPatcher.dll");
+        if (File.Exists(path))
+            return;
+
+        using var stream = ResourceHelper.ResourcePath.AddSplit("NextPatcher.dll").GetResStream();
+        using var NewFile = File.Create(path);
+        stream?.CopyTo(NewFile);
+        Assembly.LoadFile(path);
+        new NextPatcher.NextPatcher().Initialize();
     }
 
     private static void DownLoadDependent()
@@ -140,15 +153,15 @@ public partial class TheOtherRolesPlugin : BasePlugin
     private static void StartMainTask()
     {
         AttributeManager.Instance
-            .SetInit()
-            .Add<ManagerBaseLoad>(TaskQueue.GetOrCreate(1))
+            .SetInit(MainAssembly)
+            .Add<ManagerBaseLoad>(TaskQueue.GetOrCreate())
             /*.Add<MonoRegisterAndDontDestroy>()*/
             .Add<RegisterRole>(_RoleManager)
             .Add<OnEvent>()
             .Add<RPCMethod>()
             .Add<RPCListener>()
             .Start();
-        /*TaskQueue.GetOrCreate(1)
+        /*TaskQueue.GetOrCreate()
             /*.StartTask(ChatCensorPatch.AddCensorWord, "AddCensorWord")
             .StartTask(DIYColor.LoadDIYColor, "LoadDiskDIYColor")
             .StartTask(DIYColor.SetColors, "SetColor")

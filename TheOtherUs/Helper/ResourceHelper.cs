@@ -11,13 +11,13 @@ public static class ResourceHelper
         
     public static string ResourcePath => RootPath.AddSplit("Resources");
 
-    public static readonly string SplitChar = ".";
-    
+    public const string SplitChar = ".";
+
     public static string AddSplit(this string path, string Name) => path + SplitChar + Name;
 
     private static Assembly _assembly => typeof(ResourceHelper).Assembly;
 
-    public static HashSet<string> Exs = [];
+    public static readonly HashSet<string> Exs = [];
 
     public static List<string> ResPaths =>
         _assembly.GetManifestResourceNames().Where(N => N.StartsWith(ResourcePath)).ToList();
