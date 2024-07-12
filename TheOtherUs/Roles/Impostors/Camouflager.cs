@@ -1,8 +1,6 @@
-using System;
 using System.Linq;
 using Hazel;
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Impostors;
@@ -19,18 +17,36 @@ public class Camouflager : RoleBase
 
     public CustomOption camouflagerSpawnRate;
     public float camouflageTimer;
-    public Color color = Palette.ImpostorRed;
 
     public float cooldown = 30f;
     public float duration = 10f;
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Camouflager),
+        RoleClassType = typeof(Camouflager),
+        RoleTeam = RoleTeam.Impostor,
+        RoleId = RoleId.Camouflager,
+        RoleType = CustomRoleType.Main,
+        GetRole = Get<Camouflager>,
+        Color = Palette.ImpostorRed,
+        DescriptionText = "Hide among others",
+        IntroInfo = "Camouflage and kill the Crewmates",
+        CreateRoleController = n => new CamouflagerController(n)
+    };
+    
+    public class CamouflagerController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Camouflager>();
+    }
+    
+    public override CustomRoleOption roleOption { get; set; }
 
     public void resetCamouflage()
     {
-        if (Helpers.isCamoComms()) return;
+        if (ButtonHelper.isCamoComms()) return;
         camouflageTimer = 0f;
-        foreach (var p in CachedPlayer.AllPlayers.Select(n => (PlayerControl)n).Where(p =>
+        foreach (var p in AllPlayers.Where(p =>
                      (!p.Is<Ninja>() || !Get<Ninja>().isInvisble) && (!p.Is<Jackal>() || !Get<Jackal>().isInvisable)))
         {
             p.setDefaultLook();
@@ -44,8 +60,8 @@ public class Camouflager : RoleBase
         camoComms = false;
         camouflager = null;
         camouflageTimer = 0f;
-        cooldown = camouflagerCooldown.getFloat();
-        duration = camouflagerDuration.getFloat();
+        cooldown = camouflagerCooldown;
+        duration = camouflagerDuration;
     }
 
     public override void ButtonCreate(HudManager _hudManager)
@@ -54,20 +70,17 @@ public class Camouflager : RoleBase
         camouflagerButton = new CustomButton(
             () =>
             {
-                var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+                var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                     (byte)CustomRPC.CamouflagerCamouflage, SendOption.Reliable);
                 writer.Write(1);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
-                RPCProcedure.camouflagerCamouflage(1);
+                /*RPCProcedure.camouflagerCamouflage(1);*/
                 SoundEffectsManager.play("morphlingMorph");
             },
-            () =>
-            {
-                return camouflager != null &&
-                       camouflager == CachedPlayer.LocalPlayer.Control &&
-                       !CachedPlayer.LocalPlayer.Data.IsDead;
-            },
-            () => { return !Helpers.isActiveCamoComms() && CachedPlayer.LocalPlayer.Control.CanMove; },
+            () => camouflager != null &&
+                  camouflager == LocalPlayer.Control &&
+                  !LocalPlayer.IsDead,
+            () => !ButtonHelper.isCommsActive() && LocalPlayer.Control.CanMove,
             () =>
             {
                 camouflagerButton.Timer = camouflagerButton.MaxTimer;
@@ -75,7 +88,7 @@ public class Camouflager : RoleBase
                 camouflagerButton.actionButton.cooldownTimerText.color = Palette.EnabledColor;
             },
             buttonSprite,
-            CustomButton.ButtonPositions.upperRowLeft,
+            DefButtonPositions.upperRowLeft,
             _hudManager,
             KeyCode.F,
             true,

@@ -12,7 +12,7 @@ public static class GameWinPatch
             foreach (var Component in __instance.LogicComponents)
                 Component.FixedUpdate();
         
-        if (CachedPlayer.GameStates.IsHost && __instance.ShouldCheckForGameEnd)
+        if (GameStates.IsHost && __instance.ShouldCheckForGameEnd)
             WinManager.Instance.CheckWin();
         
         return false;

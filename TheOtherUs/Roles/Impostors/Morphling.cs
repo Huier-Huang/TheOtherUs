@@ -1,7 +1,5 @@
-using System;
 using Hazel;
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Impostors;
@@ -9,8 +7,6 @@ namespace TheOtherUs.Roles.Impostors;
 [RegisterRole]
 public class Morphling : RoleBase
 {
-    public Color color = Palette.ImpostorRed;
-
     public float cooldown = 30f;
 
     public PlayerControl currentTarget;
@@ -20,8 +16,7 @@ public class Morphling : RoleBase
     private CustomButton morphlingButton;
     public CustomOption morphlingCooldown;
     public CustomOption morphlingDuration;
-
-    public CustomOption morphlingSpawnRate;
+    
     private readonly ResourceSprite morphSprite = new("MorphButton.png");
     public PlayerControl morphTarget;
     public float morphTimer;
@@ -29,15 +24,32 @@ public class Morphling : RoleBase
 
     private readonly ResourceSprite sampleSprite = new("SampleButton.png");
 
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Morphling),
+        RoleClassType = typeof(Morphling),
+        Color = Palette.ImpostorRed,
+        GetRole = Get<Morphling>,
+        RoleId = RoleId.Morphling,
+        RoleTeam = RoleTeam.Impostor,
+        RoleType = CustomRoleType.Main,
+        IntroInfo = "Change your look",
+        DescriptionText = "Change your look to not get caught",
+        CreateRoleController = player => new MorphlingController(player)
+    };
+    
+    public class MorphlingController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Morphling>();
+    }
+    public override CustomRoleOption roleOption { get; set; }
 
     public void resetMorph()
     {
         morphTarget = null;
         morphTimer = 0f;
         if (morphling == null) return;
-        morphling.setDefaultLook();
+        /*morphling.setDefaultLook();*/
     }
 
     public override void ClearAndReload()
@@ -48,15 +60,15 @@ public class Morphling : RoleBase
         sampledTarget = null;
         morphTarget = null;
         morphTimer = 0f;
-        cooldown = morphlingCooldown.getFloat();
-        duration = morphlingDuration.getFloat();
+        cooldown = morphlingCooldown;
+        duration = morphlingDuration;
     }
 
     public override void OptionCreate()
     {
-        morphlingSpawnRate = new CustomOption(20, "Morphling".ColorString(color), CustomOptionHolder.rates, null, true);
-        morphlingCooldown = new CustomOption(21, "Morphling Cooldown", 30f, 10f, 60f, 2.5f, morphlingSpawnRate);
-        morphlingDuration = new CustomOption(22, "Morph Duration", 10f, 1f, 20f, 0.5f, morphlingSpawnRate);
+        roleOption = new CustomRoleOption(this);
+        morphlingCooldown = roleOption.AddChild("Morphling Cooldown", new FloatOptionSelection(30f, 10f, 60f, 2.5f));
+        morphlingDuration = roleOption.AddChild("Morph Duration",  new FloatOptionSelection(10f, 1f, 20f, 0.5f));
     }
 
     public override void ButtonCreate(HudManager _hudManager)
@@ -66,14 +78,14 @@ public class Morphling : RoleBase
             {
                 if (sampledTarget != null)
                 {
-                    if (Helpers.checkAndDoVetKill(currentTarget)) return;
-                    Helpers.checkWatchFlash(currentTarget);
+                    /*if (Helpers.checkAndDoVetKill(currentTarget)) return;
+                    Helpers.checkWatchFlash(currentTarget);*/
                     var writer = AmongUsClient.Instance.StartRpcImmediately(
-                        CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.MorphlingMorph,
+                        LocalPlayer.Control.NetId, (byte)CustomRPC.MorphlingMorph,
                         SendOption.Reliable);
                     writer.Write(sampledTarget.PlayerId);
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
-                    RPCProcedure.morphlingMorph(sampledTarget.PlayerId);
+                    /*RPCProcedure.morphlingMorph(sampledTarget.PlayerId);*/
                     sampledTarget = null;
                     morphlingButton.EffectDuration = duration;
                     SoundEffectsManager.play("morphlingMorph");
@@ -89,14 +101,14 @@ public class Morphling : RoleBase
                     ButtonHelper.setButtonTargetDisplay(sampledTarget, morphlingButton);
                 }
             },
-            () => morphling != null && morphling == CachedPlayer.LocalPlayer.Control &&
-                  !CachedPlayer.LocalPlayer.Data.IsDead,
+            () => morphling != null && morphling == LocalPlayer.Control &&
+                  !LocalPlayer.IsDead,
             () =>
             {
                 if (sampledTarget == null)
                     ButtonHelper.showTargetNameOnButton(currentTarget, morphlingButton, "SAMPLE");
-                return (currentTarget || sampledTarget) && !Helpers.isActiveCamoComms() &&
-                       CachedPlayer.LocalPlayer.Control.CanMove && !Helpers.MushroomSabotageActive();
+                return (currentTarget || sampledTarget) && !ButtonHelper.isCommsActive() &&
+                       LocalPlayer.Control.CanMove && !ButtonHelper.MushroomSabotageActive();
             },
             () =>
             {
@@ -108,7 +120,7 @@ public class Morphling : RoleBase
                 ButtonHelper.setButtonTargetDisplay(null);
             },
             sampleSprite,
-            CustomButton.ButtonPositions.upperRowLeft,
+            DefButtonPositions.upperRowLeft,
             _hudManager,
             KeyCode.F,
             true,

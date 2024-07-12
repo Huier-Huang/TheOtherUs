@@ -8,7 +8,7 @@ namespace TheOtherUs.Patches;
 public static class CredentialsPatch
 {
     public static string fullCredentialsVersion =
-        $@"<size=130%><color=#ff351f>TheOtherUs</color></size> v{TheOtherRolesPlugin.Version}";
+        $@"<size=130%><color=#ff351f>TheOtherUs</color></size> v{Main.Version}";
 
     public static string fullCredentials =
         @"<size=60%>Modified by <color=#FCCE03FF>Spex</color>
@@ -25,26 +25,25 @@ Design by <color=#FCCE03FF>Bavari</color>";
     [HarmonyPatch(typeof(PingTracker), nameof(PingTracker.Update))]
     internal static class PingTrackerPatch
     {
-        public static GameObject modStamp;
-
         private static void Postfix(PingTracker __instance)
         {
             __instance.text.alignment = TextAlignmentOptions.TopRight;
             if (AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Started)
             {
-                var gameModeText = MapOptions.gameMode switch
+                var gameModeText = CustomModeManager.Instance.CurrentMode switch
                 {
                     CustomGameModes.Guesser => "Guesser",
                     CustomGameModes.HideNSeek => "Hide 'N Seek",
                     CustomGameModes.PropHunt => "Prop Hunt",
-                    _ => ""
+                    _ => string.Empty
                 };
-                if (gameModeText != "") 
-                    gameModeText = Helpers.cs(Color.yellow, gameModeText) + "\n";
+                if (gameModeText != string.Empty) 
+                    gameModeText  += "\n";
                 __instance.text.text =
                     $"<size=130%><color=#ff351f>TheOtherUs</color></size> v{Main.Version}\n{gameModeText}" +
                     __instance.text.text;
-                if (CachedPlayer.LocalPlayer.Data.IsDead || CachedPlayer.LocalPlayer.Control.Is<Lovers>())
+                
+                if (LocalPlayer.IsDead || LocalPlayer.Control.Is<Lover>())
                 {
                     var transform = __instance.transform;
                     var localPosition = transform.localPosition;
@@ -61,14 +60,15 @@ Design by <color=#FCCE03FF>Bavari</color>";
             }
             else
             {
-                var gameModeText = MapOptions.gameMode switch
+                var gameModeText = CustomModeManager.Instance.CurrentMode switch
                 {
                     CustomGameModes.HideNSeek => "Hide 'N Seek",
                     CustomGameModes.Guesser => "Guesser",
                     CustomGameModes.PropHunt => "Prop Hunt",
                     _ => string.Empty
                 };
-                if (gameModeText != "") gameModeText = Helpers.cs(Color.yellow, gameModeText) + "\n";
+                if (gameModeText != string.Empty) 
+                    gameModeText  += "\n";
 
                 __instance.text.text =
                     $"{fullCredentialsVersion}\n  {gameModeText + fullCredentials}\n {__instance.text.text}";
@@ -108,7 +108,7 @@ Design by <color=#FCCE03FF>Bavari</color>";
             var credentialObject = new GameObject("credentialsTOR");
             var credentials = credentialObject.AddComponent<TextMeshPro>();
             credentials.SetText(
-                $"v{TheOtherRolesPlugin.Version}\n<size=30f%>\n</size>{mainMenuCredentials}\n<size=30%>\n</size>{contributorsCredentials}");
+                $"v{Main.Version}\n<size=30f%>\n</size>{mainMenuCredentials}\n<size=30%>\n</size>{contributorsCredentials}");
             credentials.alignment = TextAlignmentOptions.Center;
             credentials.fontSize *= 0.05f;
 

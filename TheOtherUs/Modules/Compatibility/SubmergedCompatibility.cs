@@ -12,6 +12,9 @@ namespace TheOtherUs.Modules.Compatibility;
 
 public sealed class SubmergedCompatibility : ICompatibility
 {
+    public static SubmergedCompatibility Instance =>
+        CompatibilityManager.Instance.GetCompatibility<SubmergedCompatibility>();
+    
     public const ShipStatus.MapType SUBMERGED_MAP_TYPE = (ShipStatus.MapType)6;
 
     private Type SubmarineStatusType;
@@ -40,6 +43,7 @@ public sealed class SubmergedCompatibility : ICompatibility
     public MonoBehaviour SubmarineStatus { get; private set; }
 
     public bool IsSubmerged { get; private set; }
+    
 
 
     public void SetupMap(ShipStatus map)
@@ -115,7 +119,7 @@ public sealed class SubmergedCompatibility : ICompatibility
     public void ChangeFloor(bool toUpper)
     {
         var _floorHandler = ((Component)GetFloorHandlerMethod.Invoke(null, [
-            CachedPlayer.LocalPlayer.Control
+            LocalPlayer.Control
         ])).TryCast(FloorHandlerType) as MonoBehaviour;
         RpcRequestChangeFloorMethod.Invoke(_floorHandler, [toUpper]);
     }
@@ -129,9 +133,9 @@ public sealed class SubmergedCompatibility : ICompatibility
     {
         try
         {
-            ShipStatus.Instance.RpcRepairSystem((SystemTypes)130, 64);
+            ShipStatus.Instance.RpcUpdateSystem((SystemTypes)130, 64);
             RepairDamageMethod.Invoke(SubmarineOxygenSystemInstanceField.Invoke(null, Array.Empty<object>()),
-                [CachedPlayer.LocalPlayer.Control, 64]);
+                [LocalPlayer.Control, 64]);
         }
         catch (NullReferenceException)
         {

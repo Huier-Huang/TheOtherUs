@@ -90,7 +90,7 @@ public static class ListHelper
 
     public static System.Collections.Generic.List<T> OfTypeList<T>(this IEnumerable enumerable)
     {
-        
+
         return enumerable.OfType<T>().ToList();
     }
 
@@ -100,7 +100,8 @@ public static class ListHelper
         return enumerable.Cast<T>().ToList();
     }
 
-    public static bool TryGet<T>(this System.Collections.Generic.List<T> list, Func<T, bool> isValue, [MaybeNullWhen(false)] out T Get)
+    public static bool TryGet<T>(this System.Collections.Generic.List<T> list, Func<T, bool> isValue,
+        [MaybeNullWhen(false)] out T Get)
     {
         var value = list.Where(isValue).FirstOrDefault();
         Get = value;

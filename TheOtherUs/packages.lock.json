@@ -63,15 +63,6 @@
         "resolved": "2024.2.0-eap1",
         "contentHash": "Lo1vPRhwSNKz8ZN4lLiLEl7oEiojvS3/q/eSLHl6Av/CVEgfbhoDE8CjHZ9W3xSrM2Dv6gY3RprrX5fVQfz1cA=="
       },
-      "Reactor": {
-        "type": "Direct",
-        "requested": "[2.2.0, )",
-        "resolved": "2.2.0",
-        "contentHash": "foMHya01tmr//3tw+kO7FmY1ojnR0m+ShMU6sxogbnWeO85lmX3QM8aSIsYeAhtJSThf6Ben6iTM4O0KgVcmqw==",
-        "dependencies": {
-          "BepInEx.Unity.IL2CPP": "6.0.0-be.670"
-        }
-      },
       "Tomlyn": {
         "type": "Direct",
         "requested": "[0.17.0, )",
@@ -140,6 +131,17 @@
           "HarmonyX": "2.10.1",
           "MonoMod.Utils": "22.5.1.1",
           "SemanticVersioning": "2.0.2"
+        }
+      },
+      "BepInEx.Preloader.Core": {
+        "type": "Transitive",
+        "resolved": "6.0.0-be.692",
+        "contentHash": "gj6H+LYf1aXXCB5UaG5BDkLiP7TUwCReQzIgH77gcM1MzlnkpZiaY7Lh6VsoLF1JiCcTjI1Chd4Wkm/ezT8Crg==",
+        "dependencies": {
+          "BepInEx.Core": "6.0.0-be.692",
+          "HarmonyX": "2.10.1",
+          "MonoMod.RuntimeDetour": "22.5.1.1",
+          "MonoMod.Utils": "22.5.1.1"
         }
       },
       "BepInEx.Unity.Common": {
@@ -1084,6 +1086,13 @@
           "Microsoft.NETCore.Platforms": "1.1.0",
           "Microsoft.NETCore.Targets": "1.1.0",
           "System.Runtime": "4.3.0"
+        }
+      },
+      "nextpatcher": {
+        "type": "Project",
+        "dependencies": {
+          "BepInEx.Preloader.Core": "[6.0.0-be.692, )",
+          "BepInEx.Unity.IL2CPP": "[6.0.0-be.692, )"
         }
       }
     }

@@ -1,16 +1,5 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using AmongUs.GameOptions;
-using Hazel;
 using InnerNet;
-using Reactor.Utilities.Extensions;
-using TheOtherUs.Modules.Compatibility;
-using TheOtherUs.Objects;
-using TheOtherUs.Patches;
 using UnityEngine;
 
 namespace TheOtherUs.Helper;
@@ -82,29 +71,9 @@ public static class Helpers
         if (!bit) return true;
         return false;
     }
+    
 
-    public static void enableCursor(bool initalSetCursor)
-    {
-        
-        if (initalSetCursor)
-        {
-            var sprite = loadSpriteFromResources("TheOtherUs.Resources.Cursor.png", 115f);
-            Cursor.SetCursor(sprite.texture, Vector2.zero, CursorMode.Auto);
-            return;
-        }
-
-        if (TheOtherRolesPlugin.ToggleCursor.Value)
-        {
-            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
-        }
-        else
-        {
-            var sprite = loadSpriteFromResources("TheOtherUs.Resources.Cursor.png", 115f);
-            Cursor.SetCursor(sprite.texture, Vector2.zero, CursorMode.Auto);
-        }
-    }
-
-    public static PlayerControl getCultistPartner(this PlayerControl player)
+    /*public static PlayerControl getCultistPartner(this PlayerControl player)
     {
         if (player == null) return null;
         if (Cultist.cultist == player) return Follower.follower;
@@ -123,48 +92,9 @@ public static class Helpers
         return roleCouldUse;
     }
 
-    public static SabatageTypes getActiveSabo()
-    {
-        foreach (var task in CachedPlayer.LocalPlayer.Control.myTasks.GetFastEnumerator())
-            if (task.TaskType == TaskTypes.FixLights)
-                return SabatageTypes.Lights;
-            else if (task.TaskType == TaskTypes.RestoreOxy)
-                return SabatageTypes.O2;
-            else if (task.TaskType == TaskTypes.ResetReactor || task.TaskType == TaskTypes.StopCharles ||
-                     task.TaskType == TaskTypes.StopCharles)
-                return SabatageTypes.Reactor;
-            else if (task.TaskType == TaskTypes.FixComms)
-                return SabatageTypes.Comms;
-            else if (SubmergedCompatibility.IsSubmerged && task.TaskType == SubmergedCompatibility.RetrieveOxygenMask)
-                return SabatageTypes.OxyMask;
-        return SabatageTypes.None;
-    }
-
-    public static bool isLightsActive()
-    {
-        return getActiveSabo() == SabatageTypes.Lights;
-    }
-
-    public static bool isCommsActive()
-    {
-        return getActiveSabo() == SabatageTypes.Comms;
-    }
 
 
-    public static bool isCamoComms()
-    {
-        return isCommsActive() && MapOptions.camoComms;
-    }
 
-    public static bool isActiveCamoComms()
-    {
-        return isCamoComms() && Camouflager.camoComms;
-    }
-
-    public static bool wasActiveCamoComms()
-    {
-        return !isCamoComms() && Camouflager.camoComms;
-    }
 
     public static void camoReset()
     {
@@ -288,40 +218,6 @@ public static class Helpers
     }
     
 
-    public static AudioClip loadAudioClipFromResources(string path, string clipName = "UNNAMED_TOR_AUDIO_CLIP")
-    {
-        // must be "raw (headerless) 2-channel signed 32 bit pcm (le)" (can e.g. use Audacity® to export)
-        try
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            var stream = assembly.GetManifestResourceStream(path);
-            var byteAudio = stream!.ReadFully();
-            var samples = new float[byteAudio.Length / 4]; // 4 bytes per sample
-            for (var i = 0; i < samples.Length; i++)
-            {
-                var offset = i * 4;
-                samples[i] = (float)BitConverter.ToInt32(byteAudio, offset) / int.MaxValue;
-            }
-
-            const int channels = 2;
-            const int sampleRate = 48000;
-            var audioClip = AudioClip.Create(clipName, samples.Length / 2, channels, sampleRate, false);
-            audioClip.hideFlags |= HideFlags.HideAndDontSave | HideFlags.DontSaveInEditor;
-            audioClip.SetData(samples, 0);
-            return audioClip;
-        }
-        catch
-        {
-            Error("loading AudioClip from resources: " + path);
-        }
-
-        return null;
-
-        /* Usage example:
-        AudioClip exampleClip = Helpers.loadAudioClipFromResources("TheOtherUs.Resources.exampleClip.raw");
-        if (Constants.ShouldPlaySfx()) SoundManager.Instance.PlaySound(exampleClip, false, 0.8f);
-        */
-    }
 
     public static string readTextFromResources(string path)
     {
@@ -338,13 +234,6 @@ public static class Helpers
         return textStreamReader.ReadToEnd();
     }
 
-    public static PlayerControl playerById(byte id)
-    {
-        foreach (PlayerControl player in CachedPlayer.AllPlayers)
-            if (player.PlayerId == id)
-                return player;
-        return null;
-    }
 
     public static Dictionary<byte, PlayerControl> allPlayersById()
     {
@@ -503,11 +392,6 @@ public static class Helpers
     }
     
 
-    public static bool MushroomSabotageActive()
-    {
-        return CachedPlayer.LocalPlayer.Control.myTasks.ToArray()
-            .Any(x => x.TaskType == TaskTypes.MushroomMixupSabotage);
-    }
 
     public static void setSemiTransparent(this PoolablePlayer player, bool value, float alpha = 0.25f)
     {
@@ -574,7 +458,7 @@ public static class Helpers
                 return true;
             }
         }
-        #1#
+        #2#
         if (!MapOptions.hidePlayerNames) return false; // All names are visible
         if (source == null || target == null) return true;
         if (source == target) return false; // Player sees his own name
@@ -593,7 +477,7 @@ public static class Helpers
             (target == Sheriff.sheriff || target == Deputy.deputy))
             return false; // Sheriff & Deputy see the names of each other
         return true;
-    }*/
+    }#1#
 
     public static void setDefaultLook(this PlayerControl target, bool enforceNightVisionUpdate = true)
     {
@@ -769,167 +653,6 @@ public static class Helpers
         return roleCouldUse;
     }
 
-    public static MurderAttemptResult checkMuderAttempt(PlayerControl killer, PlayerControl target,
-        bool blockRewind = false, bool ignoreBlank = false, bool ignoreIfKillerIsDead = false)
-    {
-        var targetRole = RoleInfo.getRoleInfoForPlayer(target, false).FirstOrDefault();
-
-        // Modified vanilla checks
-        if (AmongUsClient.Instance.IsGameOver) return MurderAttemptResult.SuppressKill;
-        if (killer == null || killer.Data == null || (killer.Data.IsDead && !ignoreIfKillerIsDead) ||
-            killer.Data.Disconnected)
-            return MurderAttemptResult.SuppressKill; // Allow non Impostor kills compared to vanilla code
-        if (target == null || target.Data == null || target.Data.IsDead || target.Data.Disconnected)
-            return MurderAttemptResult.SuppressKill; // Allow killing players in vents compared to vanilla code
-        if (GameOptionsManager.Instance.currentGameOptions.GameMode == GameModes.HideNSeek || PropHunt.isPropHuntGM)
-            return MurderAttemptResult.PerformKill;
-
-        // Handle first kill attempt
-        if (MapOptions.shieldFirstKill && MapOptions.firstKillPlayer == target)
-            return MurderAttemptResult.SuppressKill;
-
-        // Handle blank shot
-        if (!ignoreBlank && Pursuer.blankedList.Any(x => x.PlayerId == killer.PlayerId))
-        {
-            var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
-                (byte)CustomRPC.SetBlanked, SendOption.Reliable);
-            writer.Write(killer.PlayerId);
-            writer.Write((byte)0);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-            RPCProcedure.setBlanked(killer.PlayerId, 0);
-
-            return MurderAttemptResult.BlankKill;
-        }
-
-        // Kill the killer if the Veteren is on alert
-
-        if (Veteren.veteren != null && target == Veteren.veteren && Veteren.alertActive)
-        {
-            if (Medic.shielded != null && Medic.shielded == target)
-            {
-                var writer = AmongUsClient.Instance.StartRpcImmediately(killer.NetId,
-                    (byte)CustomRPC.ShieldedMurderAttempt, SendOption.Reliable);
-                writer.Write(target.PlayerId);
-                AmongUsClient.Instance.FinishRpcImmediately(writer);
-                RPCProcedure.shieldedMurderAttempt(killer.PlayerId);
-            }
-
-            return MurderAttemptResult.ReverseKill;
-        } // Kill the killer if the Veteren is on alert
-
-        // Kill the Body Guard and the killer if the target is guarded
-
-        
-        if (RoleIsAlive<BodyGuard>() && target.Is<BodyGuard>() && PlayerIsAlive<BodyGuard>())
-        {
-            if (Get<Medic>().shielded == null || Get<Medic>().shielded != target) 
-                return MurderAttemptResult.BodyGuardKill;
-            FastRpcWriter.StartNewRpcWriter(CustomRPC.ShieldedMurderAttempt, targetObjectId: killer.NetId)
-                .Write(target.PlayerId)
-                .RPCSend();
-            RPCProcedure.shieldedMurderAttempt(killer.PlayerId);
-
-            return MurderAttemptResult.BodyGuardKill;
-        }
-
-        // Block impostor shielded kill
-        if (!Medic.unbreakableShield && Medic.shielded != null && Medic.shielded == target)
-        {
-            var write = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
-                (byte)CustomRPC.SetBlanked, SendOption.Reliable);
-            write.Write(killer.PlayerId);
-            write.Write((byte)0);
-            AmongUsClient.Instance.FinishRpcImmediately(write);
-            RPCProcedure.setBlanked(killer.PlayerId, 0);
-            Medic.shielded = null;
-
-            return MurderAttemptResult.BlankKill;
-        }
-
-        if (Medic.shielded != null && Medic.shielded == target)
-        {
-            var writer = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)CustomRPC.ShieldedMurderAttempt,
-                SendOption.Reliable);
-            writer.Write(killer.PlayerId);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-            RPCProcedure.shieldedMurderAttempt(killer.PlayerId);
-            SoundEffectsManager.play("fail");
-            return MurderAttemptResult.SuppressKill;
-        }
-
-        // Block impostor not fully grown mini kill
-
-        if (Mini.mini != null && target == Mini.mini && !Mini.isGrownUp()) return MurderAttemptResult.SuppressKill;
-        // Block Time Master with time shield kill
-        if (TimeMaster.shieldActive && TimeMaster.timeMaster != null && TimeMaster.timeMaster == target)
-        {
-            if (!blockRewind)
-            {
-                // Only rewind the attempt was not called because a meeting startet 
-                var writer = AmongUsClient.Instance.StartRpcImmediately(killer.NetId,
-                    (byte)CustomRPC.TimeMasterRewindTime, SendOption.Reliable);
-                AmongUsClient.Instance.FinishRpcImmediately(writer);
-                RPCProcedure.timeMasterRewindTime();
-            }
-
-            return MurderAttemptResult.SuppressKill;
-        }
-
-        if (Cursed.cursed != null && Cursed.cursed == target && killer.Data.Role.IsImpostor)
-        {
-            var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
-                (byte)CustomRPC.SetBlanked, SendOption.Reliable);
-            writer.Write(killer.PlayerId);
-            writer.Write((byte)0);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-            RPCProcedure.setBlanked(killer.PlayerId, 0);
-
-            turnToImpostorRPC(target);
-
-            return MurderAttemptResult.BlankKill;
-        }
-
-        if (Cultist.cultist != null && !target.Data.Role.IsImpostor && killer == Cultist.cultist)
-        {
-            var writer3 = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
-                (byte)CustomRPC.ShowCultistFlash, SendOption.Reliable);
-            AmongUsClient.Instance.FinishRpcImmediately(writer3);
-            RPCProcedure.showCultistFlash();
-        }
-
-        else if (Follower.follower != null && !target.Data.Role.IsImpostor && killer == Follower.follower)
-        {
-            var writer3 = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
-                (byte)CustomRPC.ShowFollowerFlash, SendOption.Reliable);
-            AmongUsClient.Instance.FinishRpcImmediately(writer3);
-            RPCProcedure.showFollowerFlash();
-        }
-
-        // Thief if hit crew only kill if setting says so, but also kill the thief.
-        else if (Thief.isFailedThiefKill(target, killer, targetRole))
-        {
-            Thief.suicideFlag = true;
-            return MurderAttemptResult.SuppressKill;
-        }
-
-        // Block hunted with time shield kill
-        else if (Hunted.timeshieldActive.Contains(target.PlayerId))
-        {
-            var writer = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)CustomRPC.HuntedRewindTime,
-                SendOption.Reliable);
-            writer.Write(target.PlayerId);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-            RPCProcedure.huntedRewindTime(target.PlayerId);
-
-            return MurderAttemptResult.SuppressKill;
-        }
-
-        if (TransportationToolPatches.isUsingTransportation(target) && !blockRewind && killer == Vampire.vampire)
-            return MurderAttemptResult.DelayVampireKill;
-        if (TransportationToolPatches.isUsingTransportation(target))
-            return MurderAttemptResult.SuppressKill;
-        return MurderAttemptResult.PerformKill;
-    }
 
     public static void MurderPlayer(PlayerControl killer, PlayerControl target, bool showAnimation)
     {
@@ -1024,20 +747,6 @@ public static class Helpers
         return murder;
     }
 
-    public static bool checkAndDoVetKill(PlayerControl target)
-    {
-        var shouldVetKill = Veteren.veteren == target && Veteren.alertActive;
-        if (shouldVetKill)
-        {
-            var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
-                (byte)CustomRPC.VeterenKill, SendOption.Reliable);
-            writer.Write(CachedPlayer.LocalPlayer.Control.PlayerId);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-            RPCProcedure.veterenKill(CachedPlayer.LocalPlayer.Control.PlayerId);
-        }
-
-        return shouldVetKill;
-    }
 
     public static List<PlayerControl> getKillerTeamMembers(PlayerControl player)
     {
@@ -1153,7 +862,7 @@ public static class Helpers
         if (!Follower.chatTarget2) return player.getPartner();
 
         return null;
-    }
+    }*/
     
 
     private static long GetBuiltInTicks()

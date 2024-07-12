@@ -1,7 +1,5 @@
-using System;
 using Hazel;
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Impostors;
@@ -11,7 +9,6 @@ public class Undertaker : RoleBase
 {
     private readonly ResourceSprite buttonSprite = new("UndertakerDragButton.png");
     public bool canDragAndVent;
-    public Color color = Palette.ImpostorRed;
     public DeadBody deadBodyDraged;
 
     public float dragingDelaiAfterKill;
@@ -23,10 +20,25 @@ public class Undertaker : RoleBase
     public CustomButton undertakerDragButton;
     public CustomOption undertakerDragingDelaiAfterKill;
 
-    public CustomOption undertakerSpawnRate;
-
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; } = typeof(Undertaker);
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Undertaker),
+        RoleClassType = typeof(Undertaker),
+        RoleTeam = RoleTeam.Impostor,
+        RoleType = CustomRoleType.Main,
+        RoleId = RoleId.Undertaker,
+        Color = Palette.ImpostorRed,
+        GetRole = Get<Undertaker>,
+        IntroInfo = "Kill everyone and leave no traces",
+        DescriptionText = "Drag up dead bodies to hide them",
+        CreateRoleController = player => new UndertakerController(player)
+    };
+    
+    public class UndertakerController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Undertaker>();
+    }
+    public override CustomRoleOption roleOption { get; set; }
 
     public override void ButtonCreate(HudManager _hudManager)
     {
@@ -36,27 +48,27 @@ public class Undertaker : RoleBase
                 if (deadBodyDraged == null)
                 {
                     foreach (var collider2D in Physics2D.OverlapCircleAll(
-                                 CachedPlayer.LocalPlayer.Control.GetTruePosition(),
-                                 CachedPlayer.LocalPlayer.Control.MaxReportDistance, Constants.PlayersOnlyMask))
+                                 LocalPlayer.Control.GetTruePosition(),
+                                 LocalPlayer.Control.MaxReportDistance, Constants.PlayersOnlyMask))
                         if (collider2D.tag == "DeadBody")
                         {
                             var deadBody = collider2D.GetComponent<DeadBody>();
                             if (deadBody && !deadBody.Reported)
                             {
-                                var playerPosition = CachedPlayer.LocalPlayer.Control.GetTruePosition();
+                                var playerPosition = LocalPlayer.Control.GetTruePosition();
                                 var deadBodyPosition = deadBody.TruePosition;
                                 if (!(Vector2.Distance(deadBodyPosition, playerPosition) <=
-                                      CachedPlayer.LocalPlayer.Control.MaxReportDistance) ||
-                                    !CachedPlayer.LocalPlayer.Control.CanMove ||
+                                      LocalPlayer.Control.MaxReportDistance) ||
+                                    !LocalPlayer.Control.CanMove ||
                                     PhysicsHelpers.AnythingBetween(playerPosition, deadBodyPosition,
                                         Constants.ShipAndObjectsMask, false) || isDraging) continue;
                                 var playerInfo = GameData.Instance.GetPlayerById(deadBody.ParentId);
                                 var writer = AmongUsClient.Instance.StartRpcImmediately(
-                                    CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.DragBody,
+                                    LocalPlayer.Control.NetId, (byte)CustomRPC.DragBody,
                                     SendOption.Reliable);
                                 writer.Write(playerInfo.PlayerId);
                                 AmongUsClient.Instance.FinishRpcImmediately(writer);
-                                RPCProcedure.dragBody(playerInfo.PlayerId);
+                                /*RPCProcedure.dragBody(playerInfo.PlayerId);*/
                                 deadBodyDraged = deadBody;
                                 break;
                             }
@@ -65,33 +77,30 @@ public class Undertaker : RoleBase
                 else
                 {
                     var writer = AmongUsClient.Instance.StartRpcImmediately(
-                        CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.DropBody, SendOption.Reliable);
-                    writer.Write(CachedPlayer.LocalPlayer.PlayerId);
+                        LocalPlayer.Control.NetId, (byte)CustomRPC.DropBody, SendOption.Reliable);
+                    writer.Write(LocalPlayer.PlayerId);
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
                     deadBodyDraged = null;
                 }
             },
-            () =>
-            {
-                return undertaker != null &&
-                       undertaker == CachedPlayer.LocalPlayer.Control &&
-                       !CachedPlayer.LocalPlayer.Data.IsDead;
-            },
+            () => undertaker != null &&
+                  undertaker == LocalPlayer.Control &&
+                  !LocalPlayer.IsDead,
             () =>
             {
                 if (deadBodyDraged != null) return true;
 
                 foreach (var collider2D in Physics2D.OverlapCircleAll(
-                             CachedPlayer.LocalPlayer.Control.GetTruePosition(),
-                             CachedPlayer.LocalPlayer.Control.MaxReportDistance, Constants.PlayersOnlyMask))
+                             LocalPlayer.Control.GetTruePosition(),
+                             LocalPlayer.Control.MaxReportDistance, Constants.PlayersOnlyMask))
                     if (collider2D.tag == "DeadBody")
                     {
                         var deadBody = collider2D.GetComponent<DeadBody>();
                         var deadBodyPosition = deadBody.TruePosition;
                         deadBodyPosition.x -= 0.2f;
                         deadBodyPosition.y -= 0.2f;
-                        return CachedPlayer.LocalPlayer.Control.CanMove &&
-                               Vector2.Distance(CachedPlayer.LocalPlayer.Control.GetTruePosition(),
+                        return LocalPlayer.Control.CanMove &&
+                               Vector2.Distance(LocalPlayer.Control.GetTruePosition(),
                                    deadBodyPosition) < 0.80f;
                     }
 
@@ -100,7 +109,7 @@ public class Undertaker : RoleBase
             //() => { return ((__instance.ReportButton.renderer.color == Palette.EnabledColor && CachedPlayer.LocalPlayer.Control.CanMove) || Undertaker.deadBodyDraged != null); },
             () => { },
             buttonSprite,
-            CustomButton.ButtonPositions.upperRowLeft, //brb
+            DefButtonPositions.upperRowLeft, //brb
             _hudManager,
             KeyCode.F,
             true,
@@ -113,19 +122,18 @@ public class Undertaker : RoleBase
     {
         undertaker = null;
         isDraging = false;
-        canDragAndVent = undertakerCanDragAndVent.getBool();
+        canDragAndVent = undertakerCanDragAndVent;
         deadBodyDraged = null;
-        dragingDelaiAfterKill = undertakerDragingDelaiAfterKill.getFloat();
+        dragingDelaiAfterKill = undertakerDragingDelaiAfterKill;
     }
 
     public override void OptionCreate()
     {
-        undertakerSpawnRate =
-            new CustomOption(1201, "Undertaker".ColorString(color), CustomOptionHolder.rates, null, true);
-        undertakerDragingDelaiAfterKill = new CustomOption(1202, "Draging Delay After Kill", 0f, 0f,
-            15, 1f, undertakerSpawnRate);
+        roleOption = new CustomRoleOption(this);
+        undertakerDragingDelaiAfterKill = roleOption.AddChild("Draging Delay After Kill", new FloatOptionSelection(0f, 0f,
+            15, 1f));
         undertakerCanDragAndVent =
-            new CustomOption(1203, "Can Vent While Dragging", true, undertakerSpawnRate);
+            roleOption.AddChild( "Can Vent While Dragging", new BoolOptionSelection());
     }
 
     public override void ResetCustomButton()

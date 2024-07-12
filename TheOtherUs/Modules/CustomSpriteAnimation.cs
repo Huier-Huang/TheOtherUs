@@ -14,7 +14,6 @@ public class CustomSpriteAnimation : MonoBehaviour
     public int EndIndex { get; set; }
 
     private bool Starting;
-    private bool Readed;
     
     public SpriteRenderer renderer;
     public List<Sprite> _sprites;
@@ -34,7 +33,6 @@ public class CustomSpriteAnimation : MonoBehaviour
             }
             current++;
         }
-        Readed = true;
     }
 
     public void Create(string resDirPath , string resRootName, int startIndex , int endIndex)

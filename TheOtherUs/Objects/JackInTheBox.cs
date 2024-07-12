@@ -25,7 +25,7 @@ public class JackInTheBox
         gameObject = new GameObject("JackInTheBox") { layer = 11 };
         gameObject.AddSubmergedComponent(SubmergedCompatibility.Classes.ElevatorMover);
         var position = new Vector3(p.x, p.y, (p.y / 1000f) + 0.01f);
-        position += (Vector3)CachedPlayer.LocalPlayer.Control.Collider
+        position += (Vector3)LocalPlayer.Control.Collider
             .offset; // Add collider offset that DoMove moves the player up at a valid position
         // Create the marker
         gameObject.transform.position = position;
@@ -47,7 +47,7 @@ public class JackInTheBox
         vent.GetComponent<SpriteAnim>()?.Stop();
         vent.Id = MapUtilities.CachedShipStatus.AllVents.Select(x => x.Id).Max() + 1; // Make sure we have a unique id
         ventRenderer = vent.GetComponent<SpriteRenderer>();
-        if (Helpers.isFungle())
+        if (MapData.MapIs(Maps.Fungle))
         {
             ventRenderer = vent.transform.GetChild(3).GetComponent<SpriteRenderer>();
             var animator = vent.transform.GetChild(3).GetComponent<SpriteAnim>();
@@ -64,7 +64,7 @@ public class JackInTheBox
         vent.name = "JackInTheBoxVent_" + vent.Id;
 
         // Only render the box for the Trickster and for Ghosts
-        var showBoxToLocalPlayer = CachedPlayer.LocalPlayer.Control == Trickster.trickster ||
+        var showBoxToLocalPlayer = LocalPlayer.Is<Trickster>() ||
                                    PlayerControl.LocalPlayer.Data.IsDead;
         gameObject.SetActive(showBoxToLocalPlayer);
 
@@ -89,11 +89,9 @@ public class JackInTheBox
 
         FastDestroyableSingleton<HudManager>.Instance.StartCoroutine(Effects.Lerp(0.6f, new Action<float>(p =>
         {
-            if (box.boxRenderer != null)
-            {
-                box.boxRenderer.sprite = getBoxAnimationSprite((int)(p * boxAnimationSprites.Length));
-                if (p == 1f) box.boxRenderer.sprite = getBoxAnimationSprite(0);
-            }
+            if (box.boxRenderer == null) return;
+            box.boxRenderer.sprite = getBoxAnimationSprite((int)(p * boxAnimationSprites.Length));
+            if ((int)p == 1) box.boxRenderer.sprite = getBoxAnimationSprite(0);
         })));
     }
 
@@ -102,7 +100,7 @@ public class JackInTheBox
         if (boxesConvertedToVents) return;
         foreach (var box in AllJackInTheBoxes)
         {
-            var showBoxToLocalPlayer = CachedPlayer.LocalPlayer.Control == Trickster.trickster ||
+            var showBoxToLocalPlayer = LocalPlayer.Is<Trickster>() ||
                                        PlayerControl.LocalPlayer.Data.IsDead;
             box.gameObject.SetActive(showBoxToLocalPlayer);
         }

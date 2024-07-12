@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Il2CppSystem;
+using TheOtherUs.Modules.Compatibility;
 
 namespace TheOtherUs.Utilities;
 
@@ -39,7 +40,6 @@ public static class MapUtilities
     }
 }
 
-/*
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Awake))]
 public static class ShipStatus_Awake_Patch
 {
@@ -48,7 +48,7 @@ public static class ShipStatus_Awake_Patch
     public static void Postfix(ShipStatus __instance)
     {
         MapUtilities.CachedShipStatus = __instance;
-        SubmergedCompatibility.SetupMap(__instance);
+        CompatibilityManager.Instance.GetCompatibility<SubmergedCompatibility>().SetupMap(__instance);
     }
 }
 
@@ -61,6 +61,6 @@ public static class ShipStatus_OnDestroy_Patch
     {
         MapUtilities.CachedShipStatus = null;
         MapUtilities.MapDestroyed();
-        SubmergedCompatibility.SetupMap(null);
+        CompatibilityManager.Instance.GetCompatibility<SubmergedCompatibility>().SetupMap(null);
     }
-}*/
+}

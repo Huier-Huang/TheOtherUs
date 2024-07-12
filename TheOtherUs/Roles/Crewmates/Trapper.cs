@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,7 +8,6 @@ public class Trapper : RoleBase
 {
     public bool anonymousMap;
     public int charges = 1;
-    public Color color = new Color32(110, 57, 105, byte.MaxValue);
 
     public float cooldown = 30f;
     public int infoType; // 0 = Role, 1 = Good/Evil, 2 = Name
@@ -23,21 +21,38 @@ public class Trapper : RoleBase
     public float trapDuration = 5f;
     public PlayerControl trapper;
 
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Trapper),
+        RoleClassType = typeof(Trapper),
+        GetRole = Get<Trapper>,
+        Color = new Color32(110, 57, 105, byte.MaxValue),
+        DescriptionText = "Place traps",
+        IntroInfo = "Place traps to find the Impostors",
+        RoleId = RoleId.Trapper,
+        RoleTeam = RoleTeam.Crewmate,
+        RoleType = CustomRoleType.Main,
+        CreateRoleController = n => new TrapperController(n)
+    };
+    
+    public class TrapperController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Trapper>();
+    }
+    public override CustomRoleOption roleOption { get; set; }
 
     public override void ClearAndReload()
     {
         trapper = null;
-        cooldown = CustomOptionHolder.trapperCooldown.getFloat();
-        maxCharges = Mathf.RoundToInt(CustomOptionHolder.trapperMaxCharges.getFloat());
-        rechargeTasksNumber = Mathf.RoundToInt(CustomOptionHolder.trapperRechargeTasksNumber.getFloat());
-        rechargedTasks = Mathf.RoundToInt(CustomOptionHolder.trapperRechargeTasksNumber.getFloat());
-        charges = Mathf.RoundToInt(CustomOptionHolder.trapperMaxCharges.getFloat()) / 2;
-        trapCountToReveal = Mathf.RoundToInt(CustomOptionHolder.trapperTrapNeededTriggerToReveal.getFloat());
+        cooldown = CustomOptionHolder.trapperCooldown;
+        maxCharges = Mathf.RoundToInt(CustomOptionHolder.trapperMaxCharges);
+        rechargeTasksNumber = Mathf.RoundToInt(CustomOptionHolder.trapperRechargeTasksNumber);
+        rechargedTasks = Mathf.RoundToInt(CustomOptionHolder.trapperRechargeTasksNumber);
+        charges = Mathf.RoundToInt(CustomOptionHolder.trapperMaxCharges) / 2;
+        trapCountToReveal = Mathf.RoundToInt(CustomOptionHolder.trapperTrapNeededTriggerToReveal);
         playersOnMap = [];
-        anonymousMap = CustomOptionHolder.trapperAnonymousMap.getBool();
-        infoType = CustomOptionHolder.trapperInfoType.getSelection();
-        trapDuration = CustomOptionHolder.trapperTrapDuration.getFloat();
+        anonymousMap = CustomOptionHolder.trapperAnonymousMap;
+        infoType = CustomOptionHolder.trapperInfoType;
+        trapDuration = CustomOptionHolder.trapperTrapDuration;
     }
 }

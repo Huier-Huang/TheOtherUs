@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using TheOtherUs.Options;
 
 namespace TheOtherUs.Roles;
 
@@ -8,6 +7,8 @@ public abstract class RoleBase : IDisposable
 {
     
     public int RoleIndex => CustomRoleManager.Instance._RoleBases.IndexOf(this);
+
+    public string ReadmeText = string.Empty;
 
     public abstract RoleInfo RoleInfo { get; protected set; }
     public abstract CustomRoleOption roleOption { get; set; }
@@ -19,6 +20,7 @@ public abstract class RoleBase : IDisposable
 
     public CustomRoleType CustomRoleType => RoleInfo.RoleType;
 
+    public virtual bool CanUseVent { get; set; } = false;
     public virtual bool EnableAssign { get; set; } = true;
     public virtual bool IsVanilla { get; set; } = false;
     public virtual bool HasImpostorVision { get; set; } = false;
@@ -60,6 +62,8 @@ public abstract class RoleBase : IDisposable
 public abstract class VanillaRole : RoleBase
 {
     public override bool IsVanilla { get; set; } = true;
+    public virtual Type? RoleType { get; set; }
+    public RoleBehaviour? RoleBehaviour { get; set; }
 }
 
 public interface Invisable

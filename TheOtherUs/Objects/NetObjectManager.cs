@@ -16,7 +16,7 @@ public class NetObjectManager : ManagerBase<NetObjectManager>
         set => AmongUsClient.Instance.NetIdCnt = value;
     }
 
-    [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.Awake)), HarmonyPostfix]
+    /*[HarmonyPatch(typeof(InnerNetClient), nameof(AmongUsClient.Awake)), HarmonyPostfix]
     public static void AmongUsAwake(AmongUsClient __instance)
     {
         __instance.NonAddressableSpawnableObjects[__instance.NonAddressableSpawnableObjects.Length] = RPCNetObject.Instance;
@@ -25,7 +25,7 @@ public class NetObjectManager : ManagerBase<NetObjectManager>
             __instance.AddNetObject(RPCNetObject.Instance);
             __instance.Spawn(RPCNetObject.Instance, -3);
         }
-    }
+    }*/
 }
 
 [RegisterInIl2Cpp]

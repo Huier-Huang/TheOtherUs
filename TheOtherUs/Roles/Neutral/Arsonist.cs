@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Hazel;
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Neutral;
@@ -17,9 +16,6 @@ public class Arsonist : RoleBase
     public CustomOption arsonistCooldown;
     public CustomOption arsonistDuration;
 
-    public CustomOption arsonistSpawnRate;
-    public Color color = new Color32(238, 112, 46, byte.MaxValue);
-
     public float cooldown = 30f;
 
     public PlayerControl currentTarget;
@@ -30,14 +26,38 @@ public class Arsonist : RoleBase
     public float duration = 3f;
     private readonly ResourceSprite igniteSprite = new("IgniteButton.png");
     public bool triggerArsonistWin;
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Arsonist),
+        RoleClassType = typeof(Arsonist),
+        Color = new Color32(238, 112, 46, byte.MaxValue),
+        RoleId = RoleId.Arsonist,
+        RoleType = CustomRoleType.Main,
+        RoleTeam = RoleTeam.Neutral,
+        GetRole = Get<Arsonist>,
+        IntroInfo = "Let them burn",
+        DescriptionText = "Let them burn",
+        CreateRoleController = player => new ArsonistController(player)
+    };
+    public class ArsonistController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Arsonist>();
+    }
+    
+    public override CustomRoleOption roleOption { get; set; }
+
+    public override void OptionCreate()
+    {
+        roleOption = new CustomRoleOption(this);
+        arsonistCooldown = roleOption.AddChild("Arsonist Cooldown", new FloatOptionSelection(12.5f, 2.5f, 60f, 2.5f));
+        arsonistDuration = roleOption.AddChild("Arsonist Douse Duration", new FloatOptionSelection(3f, 1f, 10f, 1f));
+    }
 
     public bool dousedEveryoneAlive()
     {
-        return CachedPlayer.AllPlayers.All(x =>
+        return AllPlayers.All(x =>
         {
-            return x.PlayerControl == arsonist || x.Data.IsDead || x.Data.Disconnected ||
+            return x.Is<Arsonist>() || x.IsDead || x.Disconnected ||
                    dousedPlayers.Any(y => y.PlayerId == x.PlayerId);
         });
     }
@@ -49,17 +69,10 @@ public class Arsonist : RoleBase
         douseTarget = null;
         triggerArsonistWin = false;
         dousedPlayers = [];
-        foreach (var p in MapOptions.playerIcons.Values.Where(p => p != null && p.gameObject != null))
-            p.gameObject.SetActive(false);
-        cooldown = arsonistCooldown.getFloat();
-        duration = arsonistDuration.getFloat();
-    }
-
-    public override void OptionCreate()
-    {
-        arsonistSpawnRate = new CustomOption(290, "Arsonist".ColorString(color), CustomOptionHolder.rates, null, true);
-        arsonistCooldown = new CustomOption(291, "Arsonist Cooldown", 12.5f, 2.5f, 60f, 2.5f, arsonistSpawnRate);
-        arsonistDuration = new CustomOption(292, "Arsonist Douse Duration", 3f, 1f, 10f, 1f, arsonistSpawnRate);
+        /*foreach (var p in MapOptions.playerIcons.Values.Where(p => p != null && p.gameObject != null))
+            p.gameObject.SetActive(false);*/
+        cooldown = arsonistCooldown;
+        duration = arsonistDuration;
     }
 
     public override void ButtonCreate(HudManager _hudManager)
@@ -72,25 +85,22 @@ public class Arsonist : RoleBase
                 if (dousedEveryoneAlive())
                 {
                     var winWriter = AmongUsClient.Instance.StartRpcImmediately(
-                        CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.ArsonistWin, SendOption.Reliable);
+                        LocalPlayer.Control.NetId, (byte)CustomRPC.ArsonistWin, SendOption.Reliable);
                     AmongUsClient.Instance.FinishRpcImmediately(winWriter);
-                    RPCProcedure.arsonistWin();
+                    /*RPCProcedure.arsonistWin();*/
                     arsonistButton.HasEffect = false;
                 }
                 else if (currentTarget != null)
                 {
-                    if (Helpers.checkAndDoVetKill(currentTarget)) return;
-                    Helpers.checkWatchFlash(currentTarget);
+                    /*if (Helpers.checkAndDoVetKill(currentTarget)) return;
+                    Helpers.checkWatchFlash(currentTarget);*/
                     douseTarget = currentTarget;
                     arsonistButton.HasEffect = true;
                     SoundEffectsManager.play("arsonistDouse");
                 }
             },
-            () =>
-            {
-                return arsonist != null && arsonist == CachedPlayer.LocalPlayer.Control &&
-                       !CachedPlayer.LocalPlayer.Data.IsDead;
-            },
+            () => arsonist != null && arsonist == LocalPlayer.Control &&
+                  !LocalPlayer.IsDead,
             () =>
             {
                 //var dousedEveryoneAlive = dousedEveryoneAlive();
@@ -99,13 +109,13 @@ public class Arsonist : RoleBase
                 if (dousedEveryoneAlive()) arsonistButton.actionButton.graphic.sprite = igniteSprite;
 
                 if (!arsonistButton.isEffectActive || douseTarget == currentTarget)
-                    return CachedPlayer.LocalPlayer.Control.CanMove &&
+                    return LocalPlayer.Control.CanMove &&
                            (dousedEveryoneAlive() || currentTarget != null);
                 douseTarget = null;
                 arsonistButton.Timer = 0f;
                 arsonistButton.isEffectActive = false;
 
-                return CachedPlayer.LocalPlayer.Control.CanMove &&
+                return LocalPlayer.Control.CanMove &&
                        (dousedEveryoneAlive() || currentTarget != null);
             },
             () =>
@@ -115,7 +125,7 @@ public class Arsonist : RoleBase
                 douseTarget = null;
             },
             douseSprite,
-            CustomButton.ButtonPositions.lowerRowRight,
+            DefButtonPositions.lowerRowRight,
             _hudManager,
             KeyCode.F,
             true,
@@ -126,15 +136,15 @@ public class Arsonist : RoleBase
 
                 arsonistButton.Timer = dousedEveryoneAlive() ? 0 : arsonistButton.MaxTimer;
 
-                foreach (var p in dousedPlayers)
+                /*foreach (var p in dousedPlayers)
                     if (MapOptions.playerIcons.ContainsKey(p.PlayerId))
-                        MapOptions.playerIcons[p.PlayerId].setSemiTransparent(false);
+                        MapOptions.playerIcons[p.PlayerId].setSemiTransparent(false);*/
 
                 // Ghost Info
-                var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+                var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                     (byte)CustomRPC.ShareGhostInfo, SendOption.Reliable);
-                writer.Write(CachedPlayer.LocalPlayer.PlayerId);
-                writer.Write((byte)RPCProcedure.GhostInfoTypes.ArsonistDouse);
+                writer.Write(LocalPlayer.PlayerId);
+                /*writer.Write((byte)RPCProcedure.GhostInfoTypes.ArsonistDouse);*/
                 writer.Write(douseTarget.PlayerId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
 

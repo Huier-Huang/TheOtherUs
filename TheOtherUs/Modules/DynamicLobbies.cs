@@ -26,7 +26,7 @@ public static class DynamicLobbies
                         handled = true;
                         if (!int.TryParse(text.Substring(6), out LobbyLimit))
                         {
-                            __instance.AddChat(CachedPlayer.LocalPlayer.Control, "Invalid Size\nUsage: /size {amount}");
+                            __instance.AddChat(LocalPlayer.Control, "Invalid Size\nUsage: /size {amount}");
                         }
                         else
                         {
@@ -35,16 +35,16 @@ public static class DynamicLobbies
                             {
                                 GameOptionsManager.Instance.currentNormalGameOptions.MaxPlayers = LobbyLimit;
                                 FastDestroyableSingleton<GameStartManager>.Instance.LastPlayerCount = LobbyLimit;
-                                CachedPlayer.LocalPlayer.Control.RpcSyncSettings(
+                                LocalPlayer.Control.RpcSyncSettings(
                                     GameOptionsManager.Instance.gameOptionsFactory.ToBytes(
                                         GameOptionsManager.Instance.currentGameOptions,
                                         false)); // TODO Maybe simpler?? 
-                                __instance.AddChat(CachedPlayer.LocalPlayer.Control,
+                                __instance.AddChat(LocalPlayer.Control,
                                     $"Lobby Size changed to {LobbyLimit} players");
                             }
                             else
                             {
-                                __instance.AddChat(CachedPlayer.LocalPlayer.Control,
+                                __instance.AddChat(LocalPlayer.Control,
                                     $"Lobby Size is already {LobbyLimit}");
                             }
                         }

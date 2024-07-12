@@ -1,6 +1,5 @@
-using System;
+using TheOtherUs.Helper.RPC;
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Crewmates;
@@ -12,13 +11,20 @@ public class Sheriff : RoleBase
     {
         Name = nameof(sheriff),
         Color = new Color32(248, 205, 70, byte.MaxValue),
-        Description = "Shoot the Impostors",
+        DescriptionText = "Shoot the Impostors",
         IntroInfo = "Shoot the <color=#FF1919FF>Impostors</color>",
         RoleId = RoleId.Sheriff,
         RoleTeam = RoleTeam.Crewmate,
         RoleType = CustomRoleType.Main,
-        GetRole = Get<Sheriff>
+        GetRole = Get<Sheriff>,
+        RoleClassType = typeof(Sheriff),
+        CreateRoleController = n => new SheriffController(n)
     };
+    
+    public class SheriffController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Sheriff>();
+    }
 
     public bool canKillAmnesiac;
     public bool canKillArsonist;
@@ -52,12 +58,9 @@ public class Sheriff : RoleBase
     public CustomButton sheriffKillButton;
     public CustomOption sheriffMisfireKills;
 
-
-    public CustomOption sheriffSpawnRate;
     public bool spyCanDieToSheriff;
 
     public override RoleInfo RoleInfo { get; protected set; } = roleInfo;
-    public override Type RoleType { get; protected set; } = typeof(Sheriff);
     public override CustomRoleOption roleOption { get; set; }
     
 
@@ -67,7 +70,7 @@ public class Sheriff : RoleBase
         currentTarget = null;
         formerDeputy = null;
         formerSheriff = null;
-        misfireKills = sheriffMisfireKills.getSelection();
+        misfireKills = sheriffMisfireKills;
         cooldown = sheriffCooldown;
         canKillNeutrals = sheriffCanKillNeutrals;
         canKillArsonist = sheriffCanKillArsonist;
@@ -83,30 +86,27 @@ public class Sheriff : RoleBase
 
     public override void OptionCreate()
     {
-        sheriffSpawnRate = new CustomOption(100, "Sheriff".ColorString(roleInfo.Color), CustomOptionHolder.rates, null,
-            true);
-        sheriffCooldown =
-            new CustomOption(101, "Sheriff Cooldown", 30f, 10f, 60f, 2.5f, sheriffSpawnRate);
-        sheriffMisfireKills = new CustomOption(2101, "Misfire Kills",
-            new[] { "Self", "Target", "Both" }, sheriffSpawnRate);
-        sheriffCanKillNeutrals =
-            new CustomOption(102, "Sheriff Can Kill Neutrals", false, sheriffSpawnRate);
-        sheriffCanKillJester = new CustomOption(2104,
-            "Sheriff Can Kill " + "Jester".ColorString(GetColor<Jester>()), false, sheriffCanKillNeutrals);
-        sheriffCanKillProsecutor = new CustomOption(2105,
-            "Sheriff Can Kill " + "Prosecutor".ColorString(GetColor<Jester>()), false, sheriffCanKillNeutrals);
-        sheriffCanKillAmnesiac = new CustomOption(210278,
-            "Sheriff Can Kill " + "Amnesiac".ColorString(GetColor<Amnisiac>()), false, sheriffCanKillNeutrals);
-        sheriffCanKillArsonist = new CustomOption(2102,
-            "Sheriff Can Kill " + "Arsonist".ColorString(GetColor<Arsonist>()), false, sheriffCanKillNeutrals);
-        sheriffCanKillVulture = new CustomOption(2107,
-            "Sheriff Can Kill " + "Vulture".ColorString(GetColor<Vulture>()), false, sheriffCanKillNeutrals);
-        sheriffCanKillLawyer = new CustomOption(2103,
-            "Sheriff Can Kill " + "Lawyer".ColorString(GetColor<Lawyer>()), false, sheriffCanKillNeutrals);
-        sheriffCanKillThief = new CustomOption(210277,
-            "Sheriff Can Kill " + "Thief".ColorString(GetColor<Thief>()), false, sheriffCanKillNeutrals);
-        sheriffCanKillPursuer = new CustomOption(2106,
-            "Sheriff Can Kill " + "Pursuer".ColorString(GetColor<Pursuer>()), false, sheriffCanKillNeutrals);
+        roleOption = new CustomRoleOption(this);
+        sheriffCooldown = roleOption.AddChild("Sheriff Cooldown",   new FloatOptionSelection(30f, 10f, 60f, 2.5f));
+        sheriffMisfireKills = roleOption.AddChild("Misfire Kills",
+            new StringOptionSelection(["Self", "Target", "Both"]));
+        sheriffCanKillNeutrals = roleOption.AddChild("Sheriff Can Kill Neutrals", new BoolOptionSelection(false));
+        sheriffCanKillJester = sheriffCanKillNeutrals.AddChild(
+            "Sheriff Can Kill " + "Jester".ColorString(GetColor<Jester>()), new BoolOptionSelection(false));
+        sheriffCanKillProsecutor = sheriffCanKillNeutrals.AddChild(
+            "Sheriff Can Kill " + "Prosecutor".ColorString(GetColor<Jester>()), new BoolOptionSelection(false));
+        sheriffCanKillAmnesiac = sheriffCanKillNeutrals.AddChild(
+            "Sheriff Can Kill " + "Amnesiac".ColorString(GetColor<Amnisiac>()), new BoolOptionSelection(false));
+        sheriffCanKillArsonist = sheriffCanKillNeutrals.AddChild(
+            "Sheriff Can Kill " + "Arsonist".ColorString(GetColor<Arsonist>()), new BoolOptionSelection(false));
+        sheriffCanKillVulture = sheriffCanKillNeutrals.AddChild(
+            "Sheriff Can Kill " + "Vulture".ColorString(GetColor<Vulture>()), new BoolOptionSelection(false));
+        sheriffCanKillLawyer = sheriffCanKillNeutrals.AddChild(
+            "Sheriff Can Kill " + "Lawyer".ColorString(GetColor<Lawyer>()), new BoolOptionSelection(false));
+        sheriffCanKillThief = sheriffCanKillNeutrals.AddChild(
+            "Sheriff Can Kill " + "Thief".ColorString(GetColor<Thief>()), new BoolOptionSelection(false));
+        sheriffCanKillPursuer = sheriffCanKillNeutrals.AddChild(
+            "Sheriff Can Kill " + "Pursuer".ColorString(GetColor<Pursuer>()), new BoolOptionSelection(false));
     }
 
     public override void ButtonCreate(HudManager _hudManager)
@@ -114,8 +114,8 @@ public class Sheriff : RoleBase
         sheriffKillButton = new CustomButton(
             () =>
             {
-                if (Helpers.checkAndDoVetKill(currentTarget)) return;
-                var murderAttemptResult = Helpers.checkMuderAttempt(sheriff, currentTarget);
+                if (ButtonHelper.checkAndDoVetKill(currentTarget)) return;
+                var murderAttemptResult = MurderAttemptResult.PerformKill;/*ButtonHelper.checkMuderAttempt(sheriff, currentTarget);*/
                 switch (murderAttemptResult)
                 {
                     case MurderAttemptResult.SuppressKill:
@@ -153,7 +153,7 @@ public class Sheriff : RoleBase
                             switch (misfireKills)
                             {
                                 case 0:
-                                    targetId = CachedPlayer.LocalPlayer.PlayerId;
+                                    targetId = LocalPlayer.PlayerId;
                                     break;
                                 case 1:
                                     targetId = currentTarget.PlayerId;
@@ -164,11 +164,11 @@ public class Sheriff : RoleBase
 
                                     var killWriter2 = FastRpcWriter.StartNewRpcWriter(CustomRPC.UncheckedMurderPlayer)
                                         .Write(sheriff.Data.PlayerId)
-                                        .Write(CachedPlayer.LocalPlayer.PlayerId)
+                                        .Write(LocalPlayer.PlayerId)
                                         .Write(byte.MaxValue);
                                     killWriter2.RPCSend();
-                                    RPCProcedure.uncheckedMurderPlayer(sheriff.Data.PlayerId,
-                                        CachedPlayer.LocalPlayer.PlayerId, byte.MaxValue);
+                                    /*RPCProcedure.uncheckedMurderPlayer(sheriff.Data.PlayerId,
+                                        CachedPlayer.LocalPlayer.PlayerId, byte.MaxValue);*/
                                     break;
                                 }
                             }
@@ -178,27 +178,27 @@ public class Sheriff : RoleBase
                             .Write(targetId)
                             .Write(byte.MaxValue);
                         killWriter.RPCSend();
-                        RPCProcedure.uncheckedMurderPlayer(sheriff.Data.PlayerId, targetId, byte.MaxValue);
+                        /*RPCProcedure.uncheckedMurderPlayer(sheriff.Data.PlayerId, targetId, byte.MaxValue);*/
                         break;
                     }
                     case MurderAttemptResult.BodyGuardKill:
-                        Helpers.checkMuderAttemptAndKill(sheriff, currentTarget);
+                        /*Helpers.checkMuderAttemptAndKill(sheriff, currentTarget);*/
                         break;
                 }
 
                 sheriffKillButton.Timer = sheriffKillButton.MaxTimer;
                 currentTarget = null;
             },
-            () => sheriff != null && CachedPlayer.LocalPlayer.Control.Is<Sheriff>() &&
-                  !CachedPlayer.LocalPlayer.Data.IsDead,
+            () => sheriff != null && LocalPlayer.Control.Is<Sheriff>() &&
+                  !LocalPlayer.NetPlayerInfo.IsDead,
             () =>
             {
                 ButtonHelper.showTargetNameOnButton(currentTarget, sheriffKillButton, "KILL");
-                return currentTarget && CachedPlayer.LocalPlayer.Control.CanMove;
+                return currentTarget && LocalPlayer.Control.CanMove;
             },
             () => { sheriffKillButton.Timer = sheriffKillButton.MaxTimer; },
             _hudManager.KillButton.graphic.sprite,
-            CustomButton.ButtonPositions.upperRowRight,
+            DefButtonPositions.upperRowRight,
             _hudManager,
             KeyCode.Q
         );

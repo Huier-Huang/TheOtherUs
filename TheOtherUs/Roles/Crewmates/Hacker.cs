@@ -1,4 +1,3 @@
-using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Crewmates;
@@ -10,13 +9,13 @@ public class Hacker : RoleBase
     {
         var fastUseSettings = FastDestroyableSingleton<HudManager>.Instance.UseButton
             .fastUseSettings;
-        var imageName = (MapData.Maps)MapData.MapId switch
+        var imageName = MapData.CurrentMap switch
         {
-            MapData.Maps.Skeld => ImageNames.AdminMapButton,
-            MapData.Maps.Mira => ImageNames.MIRAAdminButton,
-            MapData.Maps.Polus => ImageNames.PolusAdminButton,
-            MapData.Maps.Fungle => ImageNames.AdminMapButton,
-            MapData.Maps.Airship => ImageNames.AirshipAdminButton,
+            Maps.Skeld => ImageNames.AdminMapButton,
+            Maps.Mira => ImageNames.MIRAAdminButton,
+            Maps.Polus => ImageNames.PolusAdminButton,
+            Maps.Fungle => ImageNames.AdminMapButton,
+            Maps.Airship => ImageNames.AirshipAdminButton,
             _ => ImageNames.PolusAdminButton
         };
         var button = fastUseSettings[imageName];

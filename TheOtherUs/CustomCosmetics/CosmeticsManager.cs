@@ -151,7 +151,7 @@ public class CosmeticsManager : ManagerBase<CosmeticsManager>
     {
         ServicePointManager.ServerCertificateValidationCallback += (_, _, _, _) => true;
         AddDefConfig();
-        TaskQueue.GetOrCreate(1)
+        TaskQueue.GetOrCreate()
             .StartTask(() => LoadConfigFormDisk(new DirectoryInfo(ManagerConfigDir)), "LoadConfigFormDisk",
             () =>
             {
@@ -365,7 +365,7 @@ public class CosmeticsManager : ManagerBase<CosmeticsManager>
                     CustomCosmetics.Add(namePlate);
                 }
             }
-            StartDownloadTask().Start();
+            StartDownloadTask();
         }
         catch (Exception ex)
         {
@@ -386,25 +386,26 @@ public class CosmeticsManager : ManagerBase<CosmeticsManager>
     }
 
     public readonly ConcurrentQueue<DownloadInfo> DownloadInfos = [];
-
-    private bool Runing;
-    public async Task StartDownloadTask()
+    
+    public void StartDownloadTask()
     {
-        Runing = true;
-        Info("StartDownloadTask");
-        dep:
-        if (DownloadInfos.TryDequeue(out var downloadInfo))
+        TaskQueue.GetOrCreate().StartTask(DownloadTask, "StartDownloadTask");
+        return;
+
+        async void DownloadTask()
         {
-            if (downloadInfo.CustomCosmetic.HasLoad)
-                goto dep;
+            dep:
+            if (DownloadInfos.TryDequeue(out var downloadInfo))
+            {
+                if (downloadInfo.CustomCosmetic.HasLoad)
+                    goto dep;
             
-            Info($"StartDownload{downloadInfo}");
-            await DownLoadSprite(downloadInfo.CustomCosmetic, downloadInfo.RootUrl, downloadInfo.DownloadDir);
-            NoLoad.Enqueue(downloadInfo.CustomCosmetic);
-            goto dep;
+                Info($"StartDownload{downloadInfo}");
+                await DownLoadSprite(downloadInfo.CustomCosmetic, downloadInfo.RootUrl, downloadInfo.DownloadDir);
+                NoLoad.Enqueue(downloadInfo.CustomCosmetic);
+                goto dep;
+            }
         }
-        
-        Runing = false;
     }
 }
 

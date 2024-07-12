@@ -1,4 +1,3 @@
-using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Crewmates;
@@ -12,15 +11,14 @@ public class PortalMaker : RoleBase
     public bool logOnlyHasColors;
     public bool logShowsTime;
 
-    private ResourceSprite logSprite = new()
+    private ResourceSprite logSprite = new(onGetSprite: n =>
     {
-        ReturnSprite = FastDestroyableSingleton<HudManager>.Instance.UseButton
+        n.ReturnSprite = FastDestroyableSingleton<HudManager>.Instance.UseButton
             .fastUseSettings[ImageNames.DoorLogsButton]
-            .Image
-    };
+            .Image;
+    });
 
     private ResourceSprite placePortalButtonSprite = new("PlacePortalButton.png");
-    public PlayerControl portalmaker;
     private ResourceSprite usePortalButtonSprite = new("UsePortalButton.png");
     public float usePortalCooldown;
     private readonly ResourceSprite usePortalSpecialButtonSprite1 = new("UsePortalSpecialButton1.png");
@@ -54,7 +52,6 @@ public class PortalMaker : RoleBase
 
     public override void ClearAndReload()
     {
-        portalmaker = null;
         cooldown = CustomOptionHolder.portalmakerCooldown;
         usePortalCooldown = CustomOptionHolder.portalmakerUsePortalCooldown;
         logOnlyHasColors = CustomOptionHolder.portalmakerLogOnlyColorType;

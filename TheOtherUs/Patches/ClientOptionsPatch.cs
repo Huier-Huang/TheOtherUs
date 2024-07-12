@@ -1,4 +1,4 @@
-using System;
+/*using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -14,29 +14,29 @@ public static class ClientOptionsPatch
     private static readonly SelectionBehaviour[] AllOptions =
     [
         new SelectionBehaviour("Ghosts See Tasks & Other Info",
-            () => MapOptions.ghostsSeeInformation = TheOtherRolesPlugin.GhostsSeeInformation.Value =
-                !TheOtherRolesPlugin.GhostsSeeInformation.Value, TheOtherRolesPlugin.GhostsSeeInformation.Value),
+            () => MapOptions.ghostsSeeInformation = Main.GhostsSeeInformation.Value =
+                !Main.GhostsSeeInformation.Value, Main.GhostsSeeInformation.Value),
         new SelectionBehaviour("Ghosts Can See Votes",
             () => MapOptions.ghostsSeeVotes =
-                TheOtherRolesPlugin.GhostsSeeVotes.Value = !TheOtherRolesPlugin.GhostsSeeVotes.Value,
-            TheOtherRolesPlugin.GhostsSeeVotes.Value),
+                Main.GhostsSeeVotes.Value = !Main.GhostsSeeVotes.Value,
+            Main.GhostsSeeVotes.Value),
         new SelectionBehaviour("Ghosts Can See Roles",
             () => MapOptions.ghostsSeeRoles =
-                TheOtherRolesPlugin.GhostsSeeRoles.Value = !TheOtherRolesPlugin.GhostsSeeRoles.Value,
-            TheOtherRolesPlugin.GhostsSeeRoles.Value),
+                Main.GhostsSeeRoles.Value = !Main.GhostsSeeRoles.Value,
+            Main.GhostsSeeRoles.Value),
         new SelectionBehaviour("Ghosts Can Additionally See Modifier",
-            () => MapOptions.ghostsSeeModifier = TheOtherRolesPlugin.GhostsSeeModifier.Value =
-                !TheOtherRolesPlugin.GhostsSeeModifier.Value, TheOtherRolesPlugin.GhostsSeeModifier.Value),
+            () => MapOptions.ghostsSeeModifier = Main.GhostsSeeModifier.Value =
+                !Main.GhostsSeeModifier.Value, Main.GhostsSeeModifier.Value),
         new SelectionBehaviour("Show Role Summary",
             () => MapOptions.showRoleSummary =
-                TheOtherRolesPlugin.ShowRoleSummary.Value = !TheOtherRolesPlugin.ShowRoleSummary.Value,
-            TheOtherRolesPlugin.ShowRoleSummary.Value),
+                Main.ShowRoleSummary.Value = !Main.ShowRoleSummary.Value,
+            Main.ShowRoleSummary.Value),
         new SelectionBehaviour("Show Lighter / Darker",
-            () => MapOptions.showLighterDarker = TheOtherRolesPlugin.ShowLighterDarker.Value =
-                !TheOtherRolesPlugin.ShowLighterDarker.Value, TheOtherRolesPlugin.ShowLighterDarker.Value),
+            () => MapOptions.showLighterDarker = Main.ShowLighterDarker.Value =
+                !Main.ShowLighterDarker.Value, Main.ShowLighterDarker.Value),
         new SelectionBehaviour("Enable Sound Effects",
-            () => MapOptions.enableSoundEffects = TheOtherRolesPlugin.EnableSoundEffects.Value =
-                !TheOtherRolesPlugin.EnableSoundEffects.Value, TheOtherRolesPlugin.EnableSoundEffects.Value),
+            () => MapOptions.enableSoundEffects = Main.EnableSoundEffects.Value =
+                !Main.EnableSoundEffects.Value, Main.EnableSoundEffects.Value),
     ];
 
     private static GameObject popUp;
@@ -222,4 +222,4 @@ public static class ClientOptionsPatch
         public Func<bool> OnClick = onClick;
         public string Title = title;
     }
-}
+}*/

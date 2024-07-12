@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using InnerNet;
 using Reactor.Utilities.Extensions;
+using TheOtherUs.Helper.RPC;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -89,7 +90,7 @@ public class GameStartManagerPatch
             // Display message to the host
             if (AmongUsClient.Instance.AmHost)
             {
-                if (versionMismatch)
+                /*if (versionMismatch)
                 {
                     __instance.StartButton.color = __instance.startLabelText.color = Palette.DisabledClear;
                     __instance.GameStartText.text = message;
@@ -103,7 +104,7 @@ public class GameStartManagerPatch
                             ? Palette.EnabledColor
                             : Palette.DisabledClear;
                     __instance.GameStartText.transform.localPosition = __instance.StartButton.transform.localPosition;
-                }
+                }*/
 
                 if (__instance.startState != GameStartManager.StartingStates.Countdown)
                     copiedStartButton.Destroy();
@@ -112,7 +113,7 @@ public class GameStartManagerPatch
                 if (startingTimer <= 0 && __instance.startState == GameStartManager.StartingStates.Countdown)
                 {
                     FastRpcWriter.StartNewRpcWriter(CustomRPC.SetGameStarting).RPCSend();
-                    RPCProcedure.setGameStarting();
+                    /*RPCProcedure.setGameStarting();*/
 
                     // Activate Stop-Button
                     var gameObject = __instance.StartButton.gameObject;
@@ -149,7 +150,7 @@ public class GameStartManagerPatch
             else
             {
                 if (!HandshakeHelper.playerVersions.ContainsKey(AmongUsClient.Instance.HostId) ||
-                    TheOtherRolesPlugin.version.CompareTo(HandshakeHelper.playerVersions[AmongUsClient.Instance.HostId].version) != 0)
+                    Main.version.CompareTo(HandshakeHelper.playerVersions[AmongUsClient.Instance.HostId].version) != 0)
                 {
                     kickingTimer += Time.deltaTime;
                     if (kickingTimer > 10)
@@ -178,10 +179,10 @@ public class GameStartManagerPatch
                         __instance.GameStartText.text = string.Empty;
                 }
 
-                if (!IsStart(__instance) || !CustomOptionHolder.anyPlayerCanStopStart.getBool())
+                if (!IsStart(__instance) || !CustomOptionHolder.anyPlayerCanStopStart)
                     copiedStartButton.Destroy();
 
-                if (CustomOptionHolder.anyPlayerCanStopStart.getBool() && copiedStartButton == null &&
+                if (CustomOptionHolder.anyPlayerCanStopStart && copiedStartButton == null &&
                     IsStart(__instance))
                 {
                     // Activate Stop-Button
@@ -213,7 +214,7 @@ public class GameStartManagerPatch
                         new Action<float>(p => { startButtonText.text = "STOP"; })));
                 }
 
-                if (IsStart(__instance) && CustomOptionHolder.anyPlayerCanStopStart.getBool())
+                if (IsStart(__instance) && CustomOptionHolder.anyPlayerCanStopStart)
                     __instance.GameStartText.transform.localPosition =
                         __instance.StartButton.transform.localPosition + (Vector3.up * 0.6f);
             }
@@ -245,22 +246,19 @@ public class GameStartManagerPatch
             if (!AmongUsClient.Instance.AmHost) return true;
             var continueStart = !HandshakeHelper.CurrentMismatch;
 
-            if (continueStart &&
-                (MapOptions.gameMode == CustomGameModes.HideNSeek ||
-                 MapOptions.gameMode == CustomGameModes.PropHunt) &&
-                GameOptionsManager.Instance.CurrentGameOptions.MapId != 6)
+            if (continueStart && ((CustomModeManager.ModeIs(CustomGameModes.HideNSeek) || CustomModeManager.ModeIs(CustomGameModes.PropHunt)) && GameOptionsManager.Instance.CurrentGameOptions.MapId != 6))
             {
-                byte mapId = MapOptions.gameMode switch
+                byte mapId = CustomModeManager.Instance.CurrentMode switch
                 {
-                    CustomGameModes.HideNSeek => (byte)CustomOptionHolder.hideNSeekMap.getSelection(),
-                    CustomGameModes.PropHunt => (byte)CustomOptionHolder.propHuntMap.getSelection(),
+                    CustomGameModes.HideNSeek => (byte)CustomOptionHolder.hideNSeekMap.Selection,
+                    CustomGameModes.PropHunt => (byte)CustomOptionHolder.propHuntMap.Selection,
                     _ => 0
                 };
                 if (mapId >= 3) mapId++;
                 FastRpcWriter.StartNewRpcWriter(CustomRPC.DynamicMapOption).Write(mapId).RPCSend();
-                RPCProcedure.dynamicMapOption(mapId);
+                /*RPCProcedure.dynamicMapOption(mapId);*/
             }
-            else if (CustomOptionHolder.dynamicMap.getBool() && continueStart)
+            else if (CustomOptionHolder.dynamicMap && continueStart)
             {
                 // 0 = Skeld
                 // 1 = Mira HQ
@@ -269,13 +267,15 @@ public class GameStartManagerPatch
                 // 4 = Airship
                 // 5 = Submerged
                 byte chosenMapId = 0;
-                var probabilities = new List<float>();
-                probabilities.Add(CustomOptionHolder.dynamicMapEnableSkeld.getSelection() / 10f);
-                probabilities.Add(CustomOptionHolder.dynamicMapEnableMira.getSelection() / 10f);
-                probabilities.Add(CustomOptionHolder.dynamicMapEnablePolus.getSelection() / 10f);
-                probabilities.Add(CustomOptionHolder.dynamicMapEnableAirShip.getSelection() / 10f);
-                probabilities.Add(CustomOptionHolder.dynamicMapEnableFungle.getSelection() / 10f);
-                probabilities.Add(CustomOptionHolder.dynamicMapEnableSubmerged.getSelection() / 10f);
+                var probabilities = new List<float>
+                {
+                    CustomOptionHolder.dynamicMapEnableSkeld.Selection / 10f,
+                    CustomOptionHolder.dynamicMapEnableMira.Selection / 10f,
+                    CustomOptionHolder.dynamicMapEnablePolus.Selection / 10f,
+                    CustomOptionHolder.dynamicMapEnableAirShip.Selection / 10f,
+                    CustomOptionHolder.dynamicMapEnableFungle.Selection / 10f,
+                    CustomOptionHolder.dynamicMapEnableSubmerged.Selection / 10f
+                };
 
                 // if any map is at 100%, remove all maps that are not!
                 if (probabilities.Contains(1.0f))
@@ -287,7 +287,7 @@ public class GameStartManagerPatch
                 if (sum == 0) return true; // All maps set to 0, why are you doing this???
                 for (var i = 0; i < probabilities.Count; i++) // Normalize to [0,1]
                     probabilities[i] /= sum;
-                var selection = (float)TheOtherUs.rnd.NextDouble();
+                var selection = (float)ListHelper.rnd.NextDouble();
                 float cumsum = 0;
                 for (byte i = 0; i < probabilities.Count; i++)
                 {
@@ -298,11 +298,11 @@ public class GameStartManagerPatch
                 }
 
                 // Translate chosen map to presets page and use that maps random map preset page
-                if (CustomOptionHolder.dynamicMapSeparateSettings.getBool())
-                    CustomOptionHolder.presetSelection.updateSelection(chosenMapId + 2);
+                if (CustomOptionHolder.dynamicMapSeparateSettings)
+                    CustomOptionHolder.presetSelection.SetSelection(chosenMapId + 2);
                 if (chosenMapId >= 3) chosenMapId++; // Skip dlekS
                 FastRpcWriter.StartNewRpcWriter(CustomRPC.DynamicMapOption).Write(chosenMapId).RPCSend();
-                RPCProcedure.dynamicMapOption(chosenMapId);
+                /*RPCProcedure.dynamicMapOption(chosenMapId);*/
             }
 
             return continueStart;

@@ -1,6 +1,5 @@
 using Hazel;
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Crewmates;
@@ -66,20 +65,20 @@ public class BodyGuard : RoleBase
         bodyGuardGuardButton = new CustomButton(
             () =>
             {
-                if (Helpers.checkAndDoVetKill(currentTarget)) return;
-                Helpers.checkWatchFlash(currentTarget);
-                var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+                /*if (Helpers.checkAndDoVetKill(currentTarget)) return;
+                Helpers.checkWatchFlash(currentTarget);*/
+                var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                     (byte)CustomRPC.BodyGuardGuardPlayer, SendOption.Reliable);
                 writer.Write(currentTarget.PlayerId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
-                RPCProcedure.bodyGuardGuardPlayer(currentTarget.PlayerId);
+                /*RPCProcedure.bodyGuardGuardPlayer(currentTarget.PlayerId);*/
             },
             RoleIsAlive<BodyGuard>,
             () =>
             {
                 if (!usedGuard)
                     ButtonHelper.showTargetNameOnButton(currentTarget, bodyGuardGuardButton, "Guard");
-                return CachedPlayer.LocalPlayer.Control.CanMove && currentTarget != null &&
+                return LocalPlayer.Control.CanMove && currentTarget != null &&
                        !usedGuard;
             },
             () =>

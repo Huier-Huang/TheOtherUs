@@ -15,7 +15,7 @@ public class Dev : IDev
     public string PUID { get; set; }
     public string FriendId { get; set; }
     public string Name { get; set; }
-    public string Password { get; set; }
+    public string Password { get; set; } = string.Empty;
 
     public virtual bool Is(PlayerControl player)
     {

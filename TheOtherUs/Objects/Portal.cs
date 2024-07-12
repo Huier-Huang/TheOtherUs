@@ -44,7 +44,7 @@ public class Portal
         animationFgRenderer.material = FastDestroyableSingleton<HatManager>.Instance.PlayerMaterial;
 
         // Only render the inactive portals for the Portalmaker
-        var playerIsPortalmaker = CachedPlayer.LocalPlayer.Control == TheOtherUs.Portalmaker.portalmaker;
+        var playerIsPortalmaker = LocalPlayer.Is<PortalMaker>();
         portalGameObject.SetActive(playerIsPortalmaker);
         portalFgAnimationGameObject.SetActive(true);
 
@@ -73,27 +73,27 @@ public class Portal
         isTeleporting = true;
 
         // Generate log info
-        var playerControl = Helpers.playerById(playerId);
-        var flip = playerControl.cosmetics.currentBodySprite.BodySprite
+        var playerControl = playerId.GetCachePlayer();
+        var flip = playerControl.cosmeticsLayer.currentBodySprite.BodySprite
             .flipX; // use the original player control here, not the morhpTarget.
         firstPortal.animationFgRenderer.flipX = flip;
         secondPortal.animationFgRenderer.flipX = flip;
-        if (Morphling.morphling != null && Morphling.morphTimer > 0)
+        /*if (Morphling.morphling != null && Morphling.morphTimer > 0)
             playerControl = Morphling.morphTarget; // Will output info of morph-target instead
         var playerNameDisplay = PortalMaker.logOnlyHasColors
             ? "A player (" + (Helpers.isLighterColor(playerControl) ? "L" : "D") + ")"
-            : playerControl.Data.PlayerName;
+            : playerControl.Data.PlayerName;*/
 
-        var colorId = playerControl.Data.DefaultOutfit.ColorId;
+        /*var colorId = playerControl.Data.DefaultOutfit.ColorId;
 
         if (Camouflager.camouflageTimer > 0 || Helpers.MushroomSabotageActive())
         {
             playerNameDisplay = "A camouflaged player";
             colorId = 6;
-        }
+        }*/
 
-        if (!playerControl.Data.IsDead)
-            teleportedPlayers.Add(new tpLogEntry(playerId, playerNameDisplay, DateTime.UtcNow));
+        if (!playerControl.IsDead)
+            /*teleportedPlayers.Add(new tpLogEntry(playerId, playerNameDisplay, DateTime.UtcNow));*/
 
         FastDestroyableSingleton<HudManager>.Instance.StartCoroutine(Effects.Lerp(teleportDuration,
             new Action<float>(p =>
@@ -107,14 +107,12 @@ public class Portal
                     if (exit == 0 || exit == 2)
                         secondPortal.animationFgRenderer.sprite =
                             getFgAnimationSprite((int)(p * portalFgAnimationSprites.Length));
-                    playerControl.SetPlayerMaterialColors(firstPortal.animationFgRenderer);
-                    playerControl.SetPlayerMaterialColors(secondPortal.animationFgRenderer);
-                    if (p == 1f)
-                    {
-                        firstPortal.animationFgRenderer.sprite = null;
-                        secondPortal.animationFgRenderer.sprite = null;
-                        isTeleporting = false;
-                    }
+                    playerControl.Control.SetPlayerMaterialColors(firstPortal.animationFgRenderer);
+                    playerControl.Control.SetPlayerMaterialColors(secondPortal.animationFgRenderer);
+                    if ((int)p != 1) return;
+                    firstPortal.animationFgRenderer.sprite = null;
+                    secondPortal.animationFgRenderer.sprite = null;
+                    isTeleporting = false;
                 }
             })));
     }
@@ -156,7 +154,7 @@ public class Portal
             firstPortal.portalGameObject.SetActive(true);
             secondPortal.portalGameObject.SetActive(true);
             bothPlacedAndEnabled = true;
-            HudManagerStartPatch.portalmakerButtonText2.text = "2. " + secondPortal.room;
+            /*HudManagerStartPatch.portalmakerButtonText2.text = "2. " + secondPortal.room;*/
         }
 
         // reset teleported players
@@ -179,17 +177,10 @@ public class Portal
         teleportedPlayers = [];
     }
 
-    public struct tpLogEntry
+    public struct tpLogEntry(byte playerId, string name, DateTime time)
     {
-        public byte playerId;
-        public string name;
-        public DateTime time;
-
-        public tpLogEntry(byte playerId, string name, DateTime time)
-        {
-            this.playerId = playerId;
-            this.time = time;
-            this.name = name;
-        }
+        public byte playerId = playerId;
+        public string name = name;
+        public DateTime time = time;
     }
 }

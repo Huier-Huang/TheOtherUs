@@ -10,6 +10,19 @@ public static class RoleHelper
 {
     public static readonly CustomRoleManager _RoleManager = CustomRoleManager.Instance;
 
+    public static bool CanUseVent(this CachedPlayer player) => CanUseVent(player.Control);
+    
+    public static bool CanUseVent(this PlayerControl player)
+    {
+        return player.GetRoles().Any(n => n.CanUseVent);
+    }
+    
+    public static bool isAlive(this PlayerControl player)
+    {
+        var ca = AllPlayers.FirstOrDefault(n => n.Control == player);
+        if (ca == null) return false;
+        return !ca.IsDead;
+    }
     public static bool PlayerIsAlive<T>() where T : RoleBase
     {
         return GetPlayer<T>().isAlive();
@@ -25,6 +38,8 @@ public static class RoleHelper
         return player.GetMainRole().RoleInfo.RoleTeam == team;
     }
 
+    public static bool Is<T>(this CachedPlayer player) where T : RoleBase => player.Control.Is<T>();
+    
     public static bool Is<T>(this PlayerControl player) where T : RoleBase
     {
         return _RoleManager.PlayerAndRoles[Get<T>()].Contains(player);
@@ -35,7 +50,7 @@ public static class RoleHelper
         return Is<T>(playerId.GetPlayer());
     }
 
-    public static bool Is<T>(this GameData.PlayerInfo playerInfo) where T : RoleBase
+    public static bool Is<T>(this NetworkedPlayerInfo playerInfo) where T : RoleBase
     {
         return Is<T>(playerInfo.PlayerId);
     }
@@ -45,7 +60,7 @@ public static class RoleHelper
         return player.GetRoles().Any(n => n.RoleInfo.RoleTeam == team);
     }
     
-    public static bool hasImpVision(GameData.PlayerInfo player)
+    public static bool hasImpVision(NetworkedPlayerInfo player)
     {
         return player.GetRoles().Any(n => n.HasImpostorVision);
     }
@@ -60,7 +75,7 @@ public static class RoleHelper
         return _RoleManager.PlayerAndRoles[Get<T>()].First();
     }
     
-    public static RoleBase GetRole(this GameData.PlayerInfo info)
+    public static RoleBase GetRole(this NetworkedPlayerInfo info)
     {
         return info.PlayerId.GetRole();
     }
@@ -92,7 +107,7 @@ public static class RoleHelper
                roles.FirstOrDefault(n => n.RoleInfo.RoleType == CustomRoleType.MainAndModifier);
     }
 
-    public static IEnumerable<RoleBase> GetRoles(this GameData.PlayerInfo player)
+    public static IEnumerable<RoleBase> GetRoles(this NetworkedPlayerInfo player)
     {
         return player.PlayerId.GetPlayer().GetRoles();
     }
@@ -101,6 +116,8 @@ public static class RoleHelper
     {
         return _RoleManager.PlayerAndRoles.Where(n => n.Value.Contains(player)).Select(n => n.Key).ToList();
     }
+
+    public static IEnumerable<RoleBase> GetRoles(this CachedPlayer player) => GetRoles(player.Control);
 
     public static T Get<T>() where T : RoleBase
     {
@@ -128,7 +145,7 @@ public static class RoleHelper
 
     public static PlayerControl GetPlayer(this byte playerId)
     {
-        return CachedPlayer.AllPlayers.FirstOrDefault(n => n.PlayerId == playerId);
+        return AllPlayers.FirstOrDefault(n => n.PlayerId == playerId);
     }
 
     public static List<PlayerControl> GetTeamPlayers(RoleTeam team)

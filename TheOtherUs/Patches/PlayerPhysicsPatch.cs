@@ -1,9 +1,8 @@
-using InnerNet;
 using UnityEngine;
 
 namespace TheOtherUs.Patches;
 
-[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.FixedUpdate))]
+/*[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.FixedUpdate))]
 public static class PlayerPhysicsFixedUpdatePatch
 {
     public static void Postfix(PlayerPhysics __instance)
@@ -14,12 +13,12 @@ public static class PlayerPhysicsFixedUpdatePatch
 
     private static void updateUndertakerMoveSpeed(PlayerPhysics playerPhysics)
     {
-        if (Undertaker.undertaker == null || Undertaker.undertaker != CachedPlayer.LocalPlayer.Control) return;
+        if (Undertaker.undertaker == null || Undertaker.undertaker != LocalPlayer.Control) return;
         if (Undertaker.deadBodyDraged != null)
             if (playerPhysics.AmOwner && GameData.Instance && playerPhysics.myPlayer.CanMove)
                 playerPhysics.body.velocity *= Undertaker.velocity;
     }
-}
+}*/
 
 [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.Awake))]
 public static class PlayerPhysiscs_Awake_Patch

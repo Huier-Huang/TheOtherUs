@@ -1,6 +1,7 @@
 using System;
 using Hazel;
 using Il2CppSystem.Collections.Generic;
+using TheOtherUs.Helper.RPC;
 
 namespace TheOtherUs.Roles;
 
@@ -38,8 +39,8 @@ public abstract class RoleControllerBase : IDisposable
 
     public FastRpcWriter startRpc()
     {
-        var rpcWrite = FastRpcWriter.StartNewRpcWriter(CustomRPC.RoleRPC, targetObjectId:CachedPlayer.LocalPlayer.Control.NetId);
-        rpcWrite.Write(CachedPlayer.LocalPlayer.PlayerId);
+        var rpcWrite = FastRpcWriter.StartNewRpcWriter(CustomRPC.RoleRPC, targetObjectId:LocalPlayer.Control.NetId);
+        rpcWrite.Write(LocalPlayer.PlayerId);
         rpcWrite.Write(_RoleBase.ClassName);
         return rpcWrite;
     }

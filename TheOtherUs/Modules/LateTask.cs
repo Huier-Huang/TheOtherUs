@@ -19,7 +19,7 @@ public class LateTask(float time, Action? action = null, IEnumerator? enumerator
     
     public Coroutine? coroutine { get; private set; }
 
-    private void Update(LateTaskUpdate lateTaskUpdate)
+    private void Update(MonoBehaviour lateTaskUpdate)
     {
         try
         {
@@ -51,20 +51,23 @@ public class LateTask(float time, Action? action = null, IEnumerator? enumerator
         _lateTasks.Remove(this);
         OnEnd?.Invoke();
     }
-    
-    [MonoRegisterAndDontDestroy]
-    internal sealed class LateTaskUpdate : MonoBehaviour
+
+    public static readonly bool Started;
+    static LateTask()
     {
-        public void LateUpdate()
+        if (Started) return;
+        MainManager.Instance.RegisterAction(MainManager.MainActionsType.LateUpdate, manager =>
         {
             foreach (var task in _lateTasks)
             {
                 task.Time -= 0.1f;
 
                 if (!(task.Time <= 0)) continue;
-                task.Update(this);
+                task.Update(manager);
                 task.UnRegister();
             }
-        }
-    } 
+        });
+        Started = true;
+    }
+    
 }

@@ -1,16 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Reactor.Utilities.Extensions;
-using TheOtherUs.Modules.Compatibility;
-using TheOtherUs.Objects;
-using UnityEngine;
-using Object = UnityEngine.Object;
+﻿namespace TheOtherUs.Patches;
 
-
-namespace TheOtherUs.Patches;
-
-[HarmonyPatch(typeof(MapBehaviour))]
+/*[HarmonyPatch(typeof(MapBehaviour))]
 internal static class MapBehaviourPatch
 {
     public static Dictionary<PlayerControl, SpriteRenderer> herePoints = new();
@@ -34,7 +24,7 @@ internal static class MapBehaviourPatch
     private static void Postfix(MapBehaviour __instance)
     {
         __instance.HerePoint.transform.SetLocalZ(-2.1f);
-        if (Trapper.trapper != null && CachedPlayer.LocalPlayer.PlayerId == Trapper.trapper.PlayerId)
+        if (Trapper.trapper != null && LocalPlayer.PlayerId == Trapper.trapper.PlayerId)
         {
             foreach (PlayerControl player in Trapper.playersOnMap)
             {
@@ -66,7 +56,7 @@ internal static class MapBehaviourPatch
                                                        PlayerControl.LocalPlayer.Data.IsDead))
                 continue; //for trickster vents
 
-            if (!TheOtherRolesPlugin.ShowVentsOnMap.Value)
+            if (!Main.ShowVentsOnMap.Value)
             {
                 if (mapIcons.Count > 0)
                 {
@@ -183,4 +173,4 @@ internal static class MapBehaviourPatch
             VentNetworks.Add(vents.ToList());
         }
     }
-}
+}*/

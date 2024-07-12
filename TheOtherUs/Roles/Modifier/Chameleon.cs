@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using AmongUs.Data;
 using UnityEngine;
@@ -15,16 +14,38 @@ public class Chameleon : RoleBase
     public Dictionary<byte, float> lastMoved;
     public float minVisibility = 0.2f;
 
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Chameleon),
+        RoleClassType = typeof(Chameleon),
+        Color= Palette.CrewmateBlue,
+        RoleId = RoleId.Chameleon,
+        RoleType = CustomRoleType.Modifier,
+        RoleTeam = RoleTeam.Special,
+        GetRole = Get<Chameleon>,
+        IntroInfo = "You're hard to see when not moving",
+        DescriptionText = "You're hard to see when not moving",
+        CreateRoleController = player => new ChameleonController(player)
+    };
+    public class ChameleonController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Chameleon>();
+    }
+    
+    public override CustomRoleOption roleOption { get; set; }
+
+    public override void OptionCreate()
+    {
+        roleOption = new CustomRoleOption(this);
+    }
 
     public override void ClearAndReload()
     {
         chameleon = [];
         lastMoved = new Dictionary<byte, float>();
-        holdDuration = CustomOptionHolder.modifierChameleonHoldDuration.getFloat();
-        fadeDuration = CustomOptionHolder.modifierChameleonFadeDuration.getFloat();
-        minVisibility = CustomOptionHolder.modifierChameleonMinVisibility.getSelection() / 10f;
+        holdDuration = CustomOptionHolder.modifierChameleonHoldDuration;
+        fadeDuration = CustomOptionHolder.modifierChameleonFadeDuration;
+        minVisibility = CustomOptionHolder.modifierChameleonMinVisibility.Selection / 10f;
     }
 
     public float visibility(byte playerId)

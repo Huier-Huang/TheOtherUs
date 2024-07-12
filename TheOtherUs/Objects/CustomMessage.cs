@@ -17,9 +17,8 @@ public class CustomMessage
         var roomTracker = FastDestroyableSingleton<HudManager>.Instance?.roomTracker;
         if (roomTracker != null)
         {
-            var gameObject = Object.Instantiate(roomTracker.gameObject);
+            var gameObject = Object.Instantiate(roomTracker.gameObject, FastDestroyableSingleton<HudManager>.Instance.transform, true);
 
-            gameObject.transform.SetParent(FastDestroyableSingleton<HudManager>.Instance.transform);
             Object.DestroyImmediate(gameObject.GetComponent<RoomTracker>());
             text = gameObject.GetComponent<TMP_Text>();
             text.text = message;

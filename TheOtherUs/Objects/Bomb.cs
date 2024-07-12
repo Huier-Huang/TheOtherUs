@@ -1,5 +1,3 @@
-using System;
-using Hazel;
 using TheOtherUs.Modules.Compatibility;
 using UnityEngine;
 
@@ -29,11 +27,11 @@ public class Bomb
         var bombRenderer = bomb.AddComponent<SpriteRenderer>();
         bombRenderer.sprite = getBombSprite();
         var backgroundRenderer = background.AddComponent<SpriteRenderer>();
-        backgroundRenderer.sprite = getBackgroundSprite();
+        /*backgroundRenderer.sprite = getBackgroundSprite();
 
         bomb.SetActive(false);
         background.SetActive(false);
-        if (CachedPlayer.LocalPlayer.Control == Bomber.bomber) bomb.SetActive(true);
+        if (LocalPlayer.Control == Bomber.bomber) bomb.SetActive(true);
         Bomber.bomb = this;
         var c = Color.white;
         var g = Color.red;
@@ -60,7 +58,7 @@ public class Bomb
                             if (x == 1f && this != null) explode(this);
                         })));
                 }
-            })));
+            })));*/
     }
 
     public static Sprite getBombSprite()
@@ -70,13 +68,13 @@ public class Bomb
         return bombSprite;
     }
 
-    public static Sprite getBackgroundSprite()
+    /*public static Sprite getBackgroundSprite()
     {
         if (backgroundSprite) return backgroundSprite;
         backgroundSprite =
             UnityHelper.loadSpriteFromResources("TheOtherUs.Resources.BombBackground.png", 110f / Bomber.hearRange);
         return backgroundSprite;
-    }
+    }*/
 
     public static Sprite getDefuseSprite()
     {
@@ -87,28 +85,28 @@ public class Bomb
 
     public static void explode(Bomb b)
     {
-        if (b == null) return;
+        /*if (b == null) return;
         if (Bomber.bomber != null)
         {
             var position = b.bomb.transform.position;
             var distance =
                 Vector2.Distance(position,
-                    CachedPlayer.LocalPlayer.transform
+                    LocalPlayer.transform
                         .position); // every player only checks that for their own client (desynct with positions sucks)
-            if (distance < Bomber.destructionRange && !CachedPlayer.LocalPlayer.Data.IsDead)
+            if (distance < Bomber.destructionRange && !LocalPlayer.Data.IsDead)
             {
-                Helpers.checkMurderAttemptAndKill(Bomber.bomber, CachedPlayer.LocalPlayer.Control, false, false, true,
+                Helpers.checkMurderAttemptAndKill(Bomber.bomber, LocalPlayer.Control, false, false, true,
                     true);
 
-                var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+                var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                     (byte)CustomRPC.ShareGhostInfo, SendOption.Reliable);
-                writer.Write(CachedPlayer.LocalPlayer.PlayerId);
+                writer.Write(LocalPlayer.PlayerId);
                 writer.Write((byte)RPCProcedure.GhostInfoTypes.DeathReasonAndKiller);
-                writer.Write(CachedPlayer.LocalPlayer.PlayerId);
+                writer.Write(LocalPlayer.PlayerId);
                 writer.Write((byte)DeadPlayer.CustomDeathReason.Bomb);
                 writer.Write(Bomber.bomber.PlayerId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
-                GameHistory.overrideDeathReasonAndKiller(CachedPlayer.LocalPlayer, DeadPlayer.CustomDeathReason.Bomb,
+                GameHistory.overrideDeathReasonAndKiller(LocalPlayer, DeadPlayer.CustomDeathReason.Bomb,
                     Bomber.bomber);
             }
 
@@ -117,12 +115,12 @@ public class Bomb
 
         Bomber.clearBomb();
         canDefuse = false;
-        Bomber.isActive = false;
+        Bomber.isActive = false;*/
     }
 
     public static void update()
     {
-        if (Bomber.bomb == null || !Bomber.isActive)
+        /*if (Bomber.bomb == null || !Bomber.isActive)
         {
             canDefuse = false;
             return;
@@ -132,9 +130,8 @@ public class Bomb
 
         if (MeetingHud.Instance && Bomber.bomb != null) Bomber.clearBomb();
 
-        if (Vector2.Distance(CachedPlayer.LocalPlayer.Control.GetTruePosition(), Bomber.bomb.bomb.transform.position) >
-            1f) canDefuse = false;
-        else canDefuse = true;
+        canDefuse = !(Vector2.Distance(LocalPlayer.Control.GetTruePosition(), Bomber.bomb.bomb.transform.position) >
+                      1f);*/
     }
 
     public static void clearBackgroundSprite()

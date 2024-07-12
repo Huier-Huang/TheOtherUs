@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Hazel;
 using InnerNet;
-using TheOtherUs.CustomGameMode;
+using TheOtherUs.Helper.RPC;
 using TheOtherUs.Patches;
 
 namespace TheOtherUs.Helper;
@@ -26,14 +26,14 @@ public static class HandshakeHelper
     public static void ShareGameMode(MessageReader reader)
     {
         var mode = reader.ReadByte();
-        RPCProcedure.shareGamemode(mode);
+        CustomModeManager.Instance.CurrentMode = (CustomGameModes)mode;
     }
 
     public static void ShareGameMode()
     {
-        if (CachedPlayer.LocalPlayer == null) return;
-        FastRpcWriter.StartNewRpcWriter(CustomRPC.ShareGamemode)
-            .Write((byte)CustomModeBase.mode)
+        if (LocalPlayer == null) return;
+        FastRpcWriter.StartNewRpcWriter(CustomRPC.ShareGamemode, LobbyBehaviour.Instance)
+            .Write((byte)CustomModeManager.Instance.CurrentMode)
             .RPCSend();
     }
 
@@ -65,7 +65,7 @@ public static class HandshakeHelper
             else
             {
                 var PV = playerVersions[client.Id];
-                var diff = TheOtherRolesPlugin.version.CompareTo(PV.version);
+                var diff = Main.version.CompareTo(PV.version);
                 if (PV.guid == null)
                 {
                     againSend(client.Id, ShareMode.Guid);
@@ -104,11 +104,8 @@ public static class HandshakeHelper
     {
         var writer = FastRpcWriter.StartNewRpcWriter(CustomRPC.VersionHandshake, LobbyBehaviour.Instance)
             .WritePacked(AmongUsClient.Instance.ClientId)
-            .Write(TheOtherRolesPlugin.version.Major)
-            .Write(TheOtherRolesPlugin.version.Minor)
-            .Write(TheOtherRolesPlugin.version.Build)
-            .Write(AmongUsClient.Instance.AmHost ? GameStartManagerPatch.timer : -1f)
-            .Write(TheOtherRolesPlugin.version.Revision);
+            .Write(Main.version)
+            .Write(AmongUsClient.Instance.AmHost ? GameStartManagerPatch.timer : -1f);
         writer.RPCSend();
     }
 
@@ -116,28 +113,19 @@ public static class HandshakeHelper
     public static void Handshake(MessageReader reader)
     {
         var versionOwnerId = reader.ReadPackedInt32();
-        var major = reader.ReadInt32();
-        var minor = reader.ReadInt32();
-        var patch = reader.ReadInt32();
+        var version = reader.ReadVersion();
         var timer = reader.ReadSingle();
         if (!AmongUsClient.Instance.AmHost && timer >= 0f) GameStartManagerPatch.timer = timer;
-        var revision = reader.ReadInt32();
-        versionHandshake(major, minor, patch, revision, versionOwnerId);
-    }
-
-    public static void versionHandshake(int major, int minor, int build, int revision, int clientId)
-    {
-        var ver = revision == -1 ? new Version(major, minor, build) : new Version(major, minor, build, revision);
-        playerVersions[clientId] = new PlayerVersion(ver)
+        playerVersions[versionOwnerId] = new PlayerVersion(version)
         {
-            PlayerId = clientId
+            PlayerId = versionOwnerId
         };
     }
 
     [RPCListener(CustomRPC.VersionHandshakeEx)]
     public static void VersionHandshakeEx(MessageReader reader)
     {
-        if (CachedPlayer.LocalPlayer == null) return;
+        if (LocalPlayer == null) return;
 
         var clientId = reader.ReadPackedInt32();
         switch ((ShareMode)reader.ReadByte())
@@ -237,7 +225,7 @@ public class AgainInfo
     {
         Info($"again send mode:{mode} id:{playerId}");
 
-        if (AmongUsClient.Instance == null || CachedPlayer.LocalPlayer == null) return;
+        if (AmongUsClient.Instance == null || LocalPlayer == null) return;
 
         var writer = FastRpcWriter.StartNewRpcWriter(CustomRPC.VersionHandshakeEx, SendOption.Reliable,
                 RPCSendMode.SendToPlayer, playerId)

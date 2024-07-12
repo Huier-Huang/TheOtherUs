@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using TheOtherUs.Modules.Compatibility;
 using UnityEngine;
 
 namespace TheOtherUs.Utilities;
@@ -224,7 +225,7 @@ public static class MapData
 
     public static void RandomSpawnAllPlayers()
     {
-        RandomSpawnPlayers(CachedPlayer.AllPlayers.Select(n => n.Control));
+        RandomSpawnPlayers(AllPlayers.Select(n => n.Control));
     }
 
     public static void RandomSpawnPlayers(IEnumerable<PlayerControl> spawnPlayers)
@@ -235,9 +236,9 @@ public static class MapData
             RandomSpawnToMap(spawnPlayers);
     }
     
-    public static void RandomSpawnAllPlayersToVent() => RandomSpawnToVent(CachedPlayer.AllPlayers.Select(n => n.Control));
+    public static void RandomSpawnAllPlayersToVent() => RandomSpawnToVent(AllPlayers.Select(n => n.Control));
     
-    public static void RandomSpawnAllPlayersToMap() => RandomSpawnToMap(CachedPlayer.AllPlayers.Select(n => n.Control));
+    public static void RandomSpawnAllPlayersToMap() => RandomSpawnToMap(AllPlayers.Select(n => n.Control));
 
 
     public static void RandomSpawnToMap(IEnumerable<PlayerControl> spawnPlayer)
@@ -270,6 +271,18 @@ public static class MapData
             var defPos = player.transform.position;
             var newPos = newPositions.Any() ? newPositions.Random() - (Vector3)player.Collider.offset : defPos;
             player.NetTransform.RpcSnapTo(newPos);
+        }
+    }
+
+    public static Il2CppReferenceArray<Vent> AllVent => ShipStatus.Instance.AllVents;
+    public static int GetAvailableVentId()
+    {
+        var id = 0;
+        while (true)
+        {
+            if (AllVent.All(v => v.Id != id)) 
+                return id;
+            id++;
         }
     }
 
@@ -501,14 +514,14 @@ public static class MapData
                 cam.orthographicSize =
                     orthographicSize; // The UI is scaled too, else we cant click the buttons. Downside: map is super small.
 
-        if (HudManagerStartPatch.zoomOutButton != null)
+        /*if (HudManagerStartPatch.zoomOutButton != null)
         {
             HudManagerStartPatch.zoomOutButton.Sprite = zoomOutStatus
                 ? UnityHelper.loadSpriteFromResources("TheOtherUs.Resources.PlusButton.png", 75f)
                 : UnityHelper.loadSpriteFromResources("TheOtherUs.Resources.MinusButton.png", 150f);
             HudManagerStartPatch.zoomOutButton.PositionOffset =
                 zoomOutStatus ? new Vector3(0f, 3f, 0) : new Vector3(0.4f, 2.8f, 0);
-        }
+        }*/
 
         ResolutionManager.ResolutionChanged.Invoke((float)Screen.width / Screen.height, Screen.width, Screen.height,
             Screen.fullScreen); // This will move button positions to the correct position.
@@ -573,13 +586,23 @@ public static class MapData
     }
 
     public static byte MapId => GameOptionsManager.Instance.CurrentGameOptions.MapId;
-    
-    public enum Maps : byte
+    public static Maps CurrentMap => (Maps)mapId;
+
+    public static bool MapIs(Maps map)
     {
-        Skeld = 0,
-        Mira = 1,
-        Polus = 2,
-        Fungle = 3,
-        Airship = 4
+        if (map == Maps.Submerged)
+            return CompatibilityManager.Instance.GetCompatibility<SubmergedCompatibility>().IsSubmerged;
+        
+        return CurrentMap == map;
     }
+}
+
+public enum Maps : byte
+{
+    Skeld = 0,
+    Mira = 1,
+    Polus = 2,
+    Fungle = 3,
+    Airship = 4,
+    Submerged = 10
 }

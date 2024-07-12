@@ -1,7 +1,5 @@
-using System;
 using Hazel;
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Impostors;
@@ -10,7 +8,6 @@ namespace TheOtherUs.Roles.Impostors;
 public class Escapist : RoleBase
 {
     public float ChargesOnPlace = 1f;
-    public Color color = Palette.ImpostorRed;
     private readonly ResourceSprite escapeButtonSprite = new("Recall.png");
     public Vector3 escapeLocation;
 
@@ -18,27 +15,40 @@ public class Escapist : RoleBase
     public float EscapeTime = 30f;
 
     public PlayerControl escapist;
-    //public CustomOption escapistChargesGainOnMeeting;
-    //public CustomOption escapistMaxCharges;
 
     private CustomButton escapistButton;
 
-    //public float escapistChargesGainOnMeeting = 2f;
-    //public float escapistMaxCharges = 3f;
     public float escapistCharges = 1f;
     public CustomOption escapistChargesOnPlace;
     public CustomOption escapistEscapeTime;
     public CustomOption escapistResetPlaceAfterMeeting;
-
-    public CustomOption escapistSpawnRate;
+    
     public bool resetPlaceAfterMeeting;
     public bool usedPlace;
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Escapist),
+        RoleClassType = typeof(Escapist),
+        Color = Palette.ImpostorRed,
+        RoleId = RoleId.Escapist,
+        RoleTeam = RoleTeam.Impostor,
+        RoleType = CustomRoleType.Main,
+        GetRole = Get<Escapist>,
+        DescriptionText = "Teleport to get away from bodies",
+        IntroInfo = "Get away from kills with ease",
+        CreateRoleController = player => new EscapistController(player)
+    };
+    
+    public class EscapistController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Escapist>();
+    }
+    public override CustomRoleOption roleOption { get; set; }
 
     public void resetPlaces()
     {
-        escapistCharges = Mathf.RoundToInt(escapistChargesOnPlace.getFloat());
+        escapistCharges = Mathf.RoundToInt(escapistChargesOnPlace);
         escapeLocation = Vector3.zero;
         usedPlace = false;
     }
@@ -50,22 +60,16 @@ public class Escapist : RoleBase
         escapist = null;
         resetPlaceAfterMeeting = true;
         escapistCharges = 1f;
-        EscapeTime = escapistEscapeTime.getFloat();
-        ChargesOnPlace = escapistChargesOnPlace.getFloat();
-        //escapistChargesGainOnMeeting = escapistChargesGainOnMeeting.getFloat();
-        //escapistMaxCharges = escapistMaxCharges.getFloat();
+        EscapeTime = escapistEscapeTime;
+        ChargesOnPlace = escapistChargesOnPlace;
         usedPlace = false;
     }
 
     public override void OptionCreate()
     {
-        escapistSpawnRate =
-            new CustomOption(905000, "Escapist".ColorString(color), CustomOptionHolder.rates, null, true);
-        escapistEscapeTime = new CustomOption(905100, "Mark and Escape Cooldown", 30, 0, 60, 5, escapistSpawnRate);
-        escapistChargesOnPlace = new CustomOption(905200, "Charges On Place", 1, 1, 10, 1, escapistSpawnRate);
-        //escapistResetPlaceAfterMeeting = new CustomOption(9052, "Reset Places After Meeting", true, jumperSpawnRate);
-        //escapistChargesGainOnMeeting = new CustomOption(9053, "Charges Gained After Meeting", 2, 0, 10, 1, jumperSpawnRate);
-        //escapistMaxCharges = new CustomOption(905400, "Maximum Charges", 3, 0, 10, 1, escapistSpawnRate);
+        escapistEscapeTime = roleOption.AddChild("Mark and Escape Cooldown", new IntOptionSelection(30, 0, 60, 5));
+        escapistChargesOnPlace = roleOption.AddChild("Charges On Place", new IntOptionSelection(1, 1, 10, 1));
+
     }
 
     public override void ButtonCreate(HudManager _hudManager)
@@ -123,7 +127,7 @@ public class Escapist : RoleBase
                 if (escapistCharges > 0) escapistButton.Timer = escapistButton.MaxTimer;
             },
             escapeMarkButtonSprite,
-            CustomButton.ButtonPositions.upperRowLeft, //brb
+            DefButtonPositions.upperRowLeft, //brb
             _hudManager,
             KeyCode.F
         );

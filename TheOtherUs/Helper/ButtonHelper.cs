@@ -1,5 +1,7 @@
+using System.Linq;
+using TheOtherUs.Helper.RPC;
+using TheOtherUs.Modules.Compatibility;
 using TheOtherUs.Objects;
-using TheOtherUs.Patches;
 using UnityEngine;
 
 namespace TheOtherUs.Helper;
@@ -19,9 +21,10 @@ public static class ButtonHelper
             goto End;
 
         if (
-            Get<Camouflager>().camouflageTimer >= 0.1f || Helpers.isCamoComms()
+            Get<Camouflager>().camouflageTimer >= 0.1f || 
+                                                       isCamoComms()
                                                        ||
-                                                       Helpers.isLightsActive()
+                                                       isLightsActive()
                                                        ||
                                                        (Get<Trickster>().trickster != null &&
                                                         Get<Trickster>().lightsOutTimer > 0f)
@@ -67,7 +70,7 @@ public static class ButtonHelper
         }
 
         // Add poolable player to the button so that the target outfit is shown
-        button.actionButton.cooldownTimerText.transform.localPosition =
+        /*button.actionButton.cooldownTimerText.transform.localPosition =
             new Vector3(0, 0, -1f); // Before the poolable player
         targetDisplay = Object.Instantiate(IntroCutsceneOnDestroyPatch.playerPrefab, button.actionButton.transform);
         var data = target.Data;
@@ -78,7 +81,108 @@ public static class ButtonHelper
         targetDisplay.transform.localPosition = new Vector3(0f, 0.22f, -0.01f);
         if (offset != null) targetDisplay.transform.localPosition += (Vector3)offset;
         targetDisplay.transform.localScale = Vector3.one * 0.33f;
-        targetDisplay.setSemiTransparent(false);
-        targetDisplay.gameObject.SetActive(true);
+        targetDisplay.gameObject.SetActive(true);*/
+    }
+    
+    public static SabatageTypes getActiveSabo()
+    {
+        foreach (var task in LocalPlayer.Control.myTasks.GetFastEnumerator())
+            switch (task.TaskType)
+            {
+                case TaskTypes.FixLights:
+                    return SabatageTypes.Lights;
+                case TaskTypes.RestoreOxy:
+                    return SabatageTypes.O2;
+                default:
+                {
+                    if (task.TaskType == TaskTypes.ResetReactor || task.TaskType == TaskTypes.StopCharles ||
+                        task.TaskType == TaskTypes.StopCharles)
+                        return SabatageTypes.Reactor;
+                    if (task.TaskType == TaskTypes.FixComms)
+                        return SabatageTypes.Comms;
+
+                    var compatibility = CompatibilityManager.Instance.GetCompatibility<SubmergedCompatibility>();
+                    if (compatibility.IsSubmerged && task.TaskType == compatibility.RetrieveOxygenMask)
+                        return SabatageTypes.OxyMask;
+                    break;
+                }
+            }
+        return SabatageTypes.None;
+    }
+    
+    public static bool isLightsActive()
+    {
+        return getActiveSabo() == SabatageTypes.Lights;
+    }
+
+    public static bool isCommsActive()
+    {
+        return getActiveSabo() == SabatageTypes.Comms;
+    }
+
+
+    public static bool isCamoComms()
+    {
+        return isCommsActive();
+    }
+    
+    public static bool checkAndDoVetKill(PlayerControl target)
+    {
+        var shouldVetKill =  target.Is<Veteren>() && Get<Veteren>().alertActive;
+        if (shouldVetKill)
+        {
+            var writer = FastRpcWriter.StartNewRpcWriter(CustomRPC.VeterenKill);
+            writer.Write(LocalPlayer.Control.PlayerId).RPCSend();
+            /*RPCProcedure.veterenKill(CachedPlayer.LocalPlayer.Control.PlayerId);*/
+        }
+
+        return shouldVetKill;
+    }
+    
+    
+    public static bool hidePlayerName(PlayerControl source, PlayerControl target)
+    {
+        var localPlayer = PlayerControl.LocalPlayer;
+        /*if (Camouflager.camouflageTimer > 0f || MushroomSabotageActive() || isCamoComms())
+            return true; // No names are visible
+        if (SurveillanceMinigamePatch.nightVisionIsActive) return true;
+        if (Ninja.isInvisble && Ninja.ninja == target) return true;
+        if (Jackal.isInvisable && Jackal.jackal == target) return true;*/
+        if (/*MapOptions.hideOutOfSightNametags && gameStarted && !source.Data.IsDead &&*/
+            PhysicsHelpers.AnythingBetween(localPlayer.GetTruePosition(), target.GetTruePosition(),
+                Constants.ShadowMask, false)) return true;
+ 
+        {
+            float num = (isLightsActive() ? 2f : 1.25f);
+            float num2 = Vector3.Distance(source.transform.position, target.transform.position);
+            if (PhysicsHelpers.AnythingBetween(source.GetTruePosition(), target.GetTruePosition(), Constants.ShadowMask, useTriggers: false))
+            {
+                return true;
+            }
+        }
+        /*if (!MapOptions.hidePlayerNames) return false; // All names are visible*/
+        /*if (source == null || target == null) return true;
+        if (source == target) return false; // Player sees his own name
+        if (source.Data.Role.IsImpostor && (target.Data.Role.IsImpostor || target == Spy.spy ||
+                                            (target == Sidekick.sidekick && Sidekick.wasTeamRed) ||
+                                            (target == Jackal.jackal && Jackal.wasTeamRed)))
+            return false; // Members of team Impostors see the names of Impostors/Spies
+        if ((source == Lovers.lover1 || source == Lovers.lover2) &&
+            (target == Lovers.lover1 || target == Lovers.lover2))
+            return false; // Members of team Lovers see the names of each other
+        if ((source == Jackal.jackal || source == Sidekick.sidekick) && (target == Jackal.jackal ||
+                                                                         target == Sidekick.sidekick ||
+                                                                         target == Jackal.fakeSidekick))
+            return false; // Members of team Jackal see the names of each other
+        if (Deputy.knowsSheriff && (source == Sheriff.sheriff || source == Deputy.deputy) &&
+            (target == Sheriff.sheriff || target == Deputy.deputy))
+            return false;*/ // Sheriff & Deputy see the names of each other
+        return true;
+    }
+    
+    public static bool MushroomSabotageActive()
+    {
+        return LocalPlayer.Control.myTasks.ToArray()
+            .Any(x => x.TaskType == TaskTypes.MushroomMixupSabotage);
     }
 }

@@ -1,4 +1,4 @@
-using System;
+/*using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
@@ -46,35 +46,16 @@ public static class RPCProcedure
         JackInTheBox.clearJackInTheBoxes();
         NinjaTrace.clearTraces();
         Portal.clearPortals();
-        Bloodytrail.resetSprites();
+        BloodyTrail.resetSprites();
         Trap.clearTraps();
-        clearAndReloadMapOptions();
         clearGameHistory();
         setCustomButtonCooldowns();
-        reloadPluginOptions();
         Helpers.toggleZoom(true);
         GameStartManagerPatch.GameStartManagerUpdatePatch.startingTimer = 0;
         SurveillanceMinigamePatch.nightVisionOverlays = null;
         MapBehaviourPatch.clearAndReload();
     }
-
-    public static void HandleShareOptions(byte numberOfOptions, MessageReader reader)
-    {
-        try
-        {
-            for (var i = 0; i < numberOfOptions; i++)
-            {
-                var optionId = reader.ReadPackedUInt32();
-                var selection = reader.ReadPackedUInt32();
-                CustomOption option = CustomOption.options.First(option => option.id == (int)optionId);
-                option.updateSelection((int)selection);
-            }
-        }
-        catch (Exception e)
-        {
-            Error("Error while deserializing options: " + e.Message);
-        }
-    }
+    
 
     public static void forceEnd()
     {
@@ -92,10 +73,6 @@ public static class RPCProcedure
             }
     }
 
-    public static void shareGamemode(byte gm)
-    {
-        gameMode = (CustomGameModes)gm;
-    }
 
     public static void stopStart(byte playerId)
     {
@@ -124,88 +101,6 @@ public static class RPCProcedure
         }
     }
     
-
-    public static void setModifier(byte modifierId, byte playerId, byte flag)
-    {
-        var player = Helpers.playerById(playerId);
-        switch ((RoleId)modifierId)
-        {
-            case RoleId.EvilGuesser:
-                Guesser.evilGuesser.Add(player);
-                break;
-            case RoleId.Swooper:
-                Swooper.swooper = player;
-                break;
-            case RoleId.Bait:
-                Bait.bait.Add(player);
-                break;
-            case RoleId.Lover:
-                if (flag == 0) Lovers.lover1 = player;
-                else Lovers.lover2 = player;
-                break;
-            case RoleId.Bloody:
-                Bloody.bloody.Add(player);
-                break;
-            case RoleId.AntiTeleport:
-                AntiTeleport.antiTeleport.Add(player);
-                break;
-            case RoleId.Tiebreaker:
-                Tiebreaker.tiebreaker = player;
-                break;
-            case RoleId.Sunglasses:
-                Sunglasses.sunglasses.Add(player);
-                break;
-            case RoleId.Torch:
-                Torch.torch.Add(player);
-                break;
-            case RoleId.Flash:
-                Flash.flash.Add(player);
-                break;
-            case RoleId.Slueth:
-                Slueth.slueth = player;
-                break;
-
-            case RoleId.Cursed:
-                Cursed.cursed = player;
-                break;
-            case RoleId.Blind:
-                Blind.blind = player;
-                break;
-            case RoleId.Watcher:
-                Watcher.watcher = player;
-                break;
-            case RoleId.Radar:
-                Radar.radar = player;
-                break;
-            case RoleId.Tunneler:
-                Tunneler.tunneler = player;
-                break;
-            case RoleId.Multitasker:
-                Multitasker.multitasker.Add(player);
-                break;
-            case RoleId.Disperser:
-                Disperser.disperser = player;
-                break;
-            case RoleId.Mini:
-                Mini.mini = player;
-                break;
-            case RoleId.Vip:
-                Vip.vip.Add(player);
-                break;
-            case RoleId.Invert:
-                Invert.invert.Add(player);
-                break;
-            case RoleId.Indomitable:
-                Indomitable.indomitable = player;
-                break;
-            case RoleId.Chameleon:
-                Chameleon.chameleon.Add(player);
-                break;
-            case RoleId.Shifter:
-                Shifter.shifter = player;
-                break;
-        }
-    }
 
 
     public static void useUncheckedVent(int ventId, byte playerId, byte isEnter)
@@ -1093,7 +988,7 @@ public static class RPCProcedure
                     player.setLook("", 6, "", "", "", "");
 
             }
-            */
+            #1#
 
     public static void vampireSetBitten(byte targetId, byte performReset)
     {
@@ -1506,7 +1401,7 @@ public static class RPCProcedure
         if (target == null) return;
         Swooper.swooper = Jackal.jackal;
     }
-    */
+    #1#
 
     public static void setInvisibleGen(byte playerId, byte flag)
     {
@@ -1791,7 +1686,7 @@ public static class RPCProcedure
             {
                 MapOptions.restrictAdminTime -= time;
             }
-            */
+            #1#
 
     public static void useCameraTime(float time)
     {
@@ -2203,7 +2098,7 @@ public static class RPCProcedure
         if (Snitch.playerRoomMap.ContainsKey(playerId)) Snitch.playerRoomMap[playerId] = roomId;
         else Snitch.playerRoomMap.Add(playerId, roomId);
     }
-    */
+    #1#
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.HandleRpc))]
@@ -2554,4 +2449,4 @@ internal class RPCHandlerPatch
                 break;
         }
     }
-}
+}*/

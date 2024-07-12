@@ -19,14 +19,11 @@ public class Jackal : RoleBase, Invisable
     public bool canUseVents = true;
     public float chanceSwoop;
 
-    public Color color = new Color32(0, 180, 235, byte.MaxValue);
-
     public float cooldown = 30f;
     public float createSidekickCooldown = 30f;
     public PlayerControl currentTarget;
     public float duration = 5f;
-
-    //public static Color color = new Color32(224, 197, 219, byte.MaxValue);
+    
     public PlayerControl fakeSidekick;
     public List<PlayerControl> formerJackals = [];
     public bool hasImpostorVision;
@@ -39,13 +36,36 @@ public class Jackal : RoleBase, Invisable
     public bool wasSpy;
     public bool wasTeamRed;
 
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Jackal),
+        RoleClassType = typeof(Jackal),
+        Color= new Color32(0, 180, 235, byte.MaxValue),
+        RoleId = RoleId.Jackal,
+        RoleType = CustomRoleType.Main,
+        RoleTeam = RoleTeam.Neutral,
+        GetRole = Get<Jackal>,
+        IntroInfo = "Kill all Crewmates and <color=#FF1919FF>Impostors</color> to win",
+        DescriptionText = "Kill everyone",
+        CreateRoleController = player => new JackalController(player)
+    };
+    public class JackalController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Jackal>();
+    }
+    
+    public override CustomRoleOption roleOption { get; set; }
+
+    public override void OptionCreate()
+    {
+        roleOption = new CustomRoleOption(this);
+    }
+
     public bool isInvisable { get; set; }
 
     public Vector3 getSwooperSwoopVector()
     {
-        return CustomButton.ButtonPositions.upperRowLeft; //brb
+        return DefButtonPositions.upperRowLeft; //brb
     }
 
     public void removeCurrentJackal()
@@ -54,8 +74,8 @@ public class Jackal : RoleBase, Invisable
         jackal = null;
         currentTarget = null;
         fakeSidekick = null;
-        cooldown = CustomOptionHolder.jackalKillCooldown.getFloat();
-        createSidekickCooldown = CustomOptionHolder.jackalCreateSidekickCooldown.getFloat();
+        cooldown = CustomOptionHolder.jackalKillCooldown;
+        createSidekickCooldown = CustomOptionHolder.jackalCreateSidekickCooldown;
     }
 
     public override void ClearAndReload()
@@ -64,21 +84,21 @@ public class Jackal : RoleBase, Invisable
         currentTarget = null;
         fakeSidekick = null;
         isInvisable = false;
-        cooldown = CustomOptionHolder.jackalKillCooldown.getFloat();
-        createSidekickCooldown = CustomOptionHolder.jackalCreateSidekickCooldown.getFloat();
-        canUseVents = CustomOptionHolder.jackalCanUseVents.getBool();
-        canSabotage = CustomOptionHolder.jackalCanUseSabo.getBool();
-        canCreateSidekick = CustomOptionHolder.jackalCanCreateSidekick.getBool();
+        cooldown = CustomOptionHolder.jackalKillCooldown;
+        createSidekickCooldown = CustomOptionHolder.jackalCreateSidekickCooldown;
+        canUseVents = CustomOptionHolder.jackalCanUseVents;
+        canSabotage = CustomOptionHolder.jackalCanUseSabo;
+        canCreateSidekick = CustomOptionHolder.jackalCanCreateSidekick;
         jackalPromotedFromSidekickCanCreateSidekick =
-            CustomOptionHolder.jackalPromotedFromSidekickCanCreateSidekick.getBool();
-        canCreateSidekickFromImpostor = CustomOptionHolder.jackalCanCreateSidekickFromImpostor.getBool();
-        killFakeImpostor = CustomOptionHolder.jackalKillFakeImpostor.getBool();
-        swoopCooldown = CustomOptionHolder.swooperCooldown.getFloat();
-        duration = CustomOptionHolder.swooperDuration.getFloat();
+            CustomOptionHolder.jackalPromotedFromSidekickCanCreateSidekick;
+        canCreateSidekickFromImpostor = CustomOptionHolder.jackalCanCreateSidekickFromImpostor;
+        killFakeImpostor = CustomOptionHolder.jackalKillFakeImpostor;
+        swoopCooldown = CustomOptionHolder.swooperCooldown;
+        duration = CustomOptionHolder.swooperDuration;
         formerJackals.Clear();
-        hasImpostorVision = CustomOptionHolder.jackalAndSidekickHaveImpostorVision.getBool();
+        hasImpostorVision = CustomOptionHolder.jackalAndSidekickHaveImpostorVision;
         wasTeamRed = wasImpostor = wasSpy = false;
-        chanceSwoop = CustomOptionHolder.jackalChanceSwoop.getSelection() / 10f;
+        chanceSwoop = CustomOptionHolder.jackalChanceSwoop.Selection / 10f;
         canSwoop = ListHelper.rnd.NextDouble() < chanceSwoop;
         canSwoop2 = false;
     }

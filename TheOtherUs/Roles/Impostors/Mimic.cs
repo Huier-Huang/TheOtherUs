@@ -1,21 +1,32 @@
-using System;
 using System.Collections.Generic;
-using TheOtherUs.Options;
-using UnityEngine;
 
 namespace TheOtherUs.Roles.Impostors;
 
 [RegisterRole]
 public class Mimic : RoleBase
 {
-    public Color color = Palette.ImpostorRed;
     public bool hasMimic;
     public List<PlayerControl> killed = [];
     public PlayerControl mimic;
 
-    public CustomOption mimicSpawnRate;
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Mimic),
+        RoleClassType = typeof(Mimic),
+        Color = Palette.ImpostorRed,
+        RoleTeam = RoleTeam.Impostor,
+        RoleType = CustomRoleType.Main,
+        RoleId = RoleId.Mimic,
+        DescriptionText = "Pose as a crewmate",
+        IntroInfo = "Pose as a crewmate by killing one",
+        CreateRoleController = player => new MimicController(player)
+    };
+    
+    public class MimicController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Mimic>();
+    }
+    public override CustomRoleOption roleOption { get; set; }
 
 
     public override void ClearAndReload()
@@ -27,6 +38,6 @@ public class Mimic : RoleBase
 
     public override void OptionCreate()
     {
-        mimicSpawnRate = new CustomOption(8835, "Mimic".ColorString(color), CustomOptionHolder.rates, null, true);
+        roleOption = new CustomRoleOption(this);
     }
 }

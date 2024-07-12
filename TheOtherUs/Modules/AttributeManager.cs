@@ -12,7 +12,7 @@ public class AttributeManager : ManagerBase<AttributeManager>
     private readonly Dictionary<Type, MethodInfo> _methodInfos = [];
     private readonly Dictionary<Type, object[]> CreateTargets = [];
     private Assembly? targetAssembly;
-    private Assembly GetAssembly;
+    private Assembly? GetAssembly;
     private List<Type> _types = [];
     private List<MethodInfo> _methods = [];
     private List<ConstructorInfo> _constructors = [];
@@ -31,11 +31,13 @@ public class AttributeManager : ManagerBase<AttributeManager>
         _events = _types.SelectMany(n => n.GetEvents()).ToList();
         _fields = _types.SelectMany(n => n.GetFields()).ToList();
         
+        Info($"types {_types.Count}");
         foreach (var type in _types.Where(n => n.IsSubclassOf(typeof(RegisterAttribute))))
         {
-            foreach (var method in type.GetMethods(BindingFlags.Static)
-                         .Where(n => n.IsDefined(typeof(RegisterAttribute))))
+            Info($"ISSUB {type}");
+            foreach (var method in type.GetMethods().Where(n => n.IsDefined(typeof(RegisterAttribute))))
             {
+                Info($"Add {type} {method}");
                     _methodInfos.Add(type, method);
             }
         }
@@ -45,19 +47,26 @@ public class AttributeManager : ManagerBase<AttributeManager>
 
     public void Start()
     {
-        var isNo = targetAssembly=
         targetAssembly ??= Assembly.GetCallingAssembly();
         foreach (var (type, objects) in CreateTargets)
         {
             try
             {
                 if (!_methodInfos.TryGetValue(type, out var method)) continue;
-                var arguments = method.GetGenericArguments();
+                var arguments = method.GetParameters().Select(n => n.ParameterType).ToList();
+                Info($"Method {method.Name} {arguments}");
+                if (arguments.Count == 0)
+                {
+                    method.Invoke(null, null);
+                    continue;
+                }
+                
                 if (arguments[0] == typeof(Assembly))
                 {
                     var arg = new List<object> { targetAssembly };
                     arg.AddRange(objects);
                     method.Invoke(null, arg.ToArray());
+                    Info($"Invoke {method.Name}");
                 }
 
                 if (targetAssembly != GetAssembly) continue;

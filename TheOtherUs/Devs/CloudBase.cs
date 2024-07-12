@@ -26,6 +26,7 @@ public class HttpCloud(string ip, int port) : CloudBase(ip, port)
 {
     public HttpClient client = new();
 
+    public static implicit operator HttpClient(HttpCloud cloud) => cloud.client;
 }
 
 public class SocketCloud(string ip, int port) : CloudBase(ip, port)
@@ -35,5 +36,6 @@ public class SocketCloud(string ip, int port) : CloudBase(ip, port)
     #nullable disable
 
     public Socket socket => _socket ??= new Socket(Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
+    
+    public static implicit operator Socket(SocketCloud cloud) => cloud.socket;
 }

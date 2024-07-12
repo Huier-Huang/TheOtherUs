@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Reflection;
 using BepInEx;
 using BepInEx.Unity.IL2CPP;
@@ -24,6 +25,12 @@ public sealed class CompatibilityManager : ListManager<CompatibilityManager, ICo
         
         List.Add(new T());
         return this;
+    }
+
+    public T GetCompatibility<T>() where T : class, ICompatibility, new()
+    {
+        Use<T>();
+        return List.First(n => n is T) as T;
     }
 
     public void UnUse<T>() where T : ICompatibility

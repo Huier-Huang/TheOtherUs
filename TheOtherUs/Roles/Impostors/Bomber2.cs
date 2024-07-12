@@ -1,7 +1,5 @@
-using System;
 using Hazel;
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Impostors;
@@ -28,7 +26,6 @@ public class Bomber2 : RoleBase
 
 
     private readonly ResourceSprite buttonSprite = new("Bomber2.png");
-    public Color color = Palette.ImpostorRed;
 
     public float cooldown = 30f;
 
@@ -39,27 +36,43 @@ public class Bomber2 : RoleBase
     public PlayerControl hasBomb;
     public int timeLeft = 0;
 
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Bomber2),
+        RoleClassType = typeof(Bomber2),
+        RoleId = RoleId.Bomber2,
+        RoleTeam = RoleTeam.Impostor,
+        RoleType = CustomRoleType.Main,
+        GetRole = Get<Bomber2>,
+        Color = Palette.ImpostorRed,
+        IntroInfo = "Give bombs to players",
+        DescriptionText = "Bomb Everyone",
+        CreateRoleController = player => new Bomber2Controller(player)
+    };
+    
+    public class Bomber2Controller(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Bomber2>();
+    }
+
+    public override CustomRoleOption roleOption { get; set; }
 
     public override void ClearAndReload()
     {
         bomber2 = null;
         bombActive = false;
-        cooldown = bomber2BombCooldown.getFloat();
-        bombDelay = bomber2Delay.getFloat();
-        bombTimer = bomber2Timer.getFloat();
+        cooldown = bomber2BombCooldown;
+        bombDelay = bomber2Delay;
+        bombTimer = bomber2Timer;
     }
 
     public override void OptionCreate()
     {
-        bomber2SpawnRate =
-            new CustomOption(8840, "Bomber [BETA]".ColorString(color), CustomOptionHolder.rates, null, true);
-        bomber2BombCooldown = new CustomOption(8841, "Bomber2 Cooldown", 30f, 25f, 60f, 2.5f,
-            bomber2SpawnRate);
-        bomber2Delay = new CustomOption(8842, "Bomb Delay", 10f, 1f, 20f, 0.5f, bomber2SpawnRate);
-        bomber2Timer = new CustomOption(8843, "Bomb Timer", 10f, 5f, 30f, 5f, bomber2SpawnRate);
-        //bomber2HotPotatoMode = new CustomOption(2526236, "Hot Potato Mode", false, bomber2SpawnRate);
+        roleOption = new CustomRoleOption(this);
+        bomber2BombCooldown = roleOption.AddChild("Bomber2 Cooldown",  new FloatOptionSelection(30f, 25f, 60f, 2.5f));
+        bomber2Delay = roleOption.AddChild("Bomb Delay", new FloatOptionSelection(10f, 1f, 20f, 0.5f));
+        bomber2Timer = roleOption.AddChild("Bomb Timer", new FloatOptionSelection(10f, 5f, 30f, 5f));
+
     }
 
     public override void ButtonCreate(HudManager _hudManager)
@@ -68,27 +81,19 @@ public class Bomber2 : RoleBase
             () =>
             {
                 /* On Use */
-                if (Helpers.checkAndDoVetKill(currentTarget)) return;
-                Helpers.checkWatchFlash(currentTarget);
+                /*if (Helpers.checkAndDoVetKill(currentTarget)) return;
+                Helpers.checkWatchFlash(currentTarget);*/
                 var bombWriter = AmongUsClient.Instance.StartRpcImmediately(
-                    CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.GiveBomb, SendOption.Reliable);
+                    LocalPlayer.Control.NetId, (byte)CustomRPC.GiveBomb, SendOption.Reliable);
                 bombWriter.Write(currentTarget.PlayerId);
                 AmongUsClient.Instance.FinishRpcImmediately(bombWriter);
-                RPCProcedure.giveBomb(currentTarget.PlayerId);
+                /*RPCProcedure.giveBomb(currentTarget.PlayerId);*/
                 bomber2.killTimer = bombTimer + bombDelay;
                 bomber2BombButton.Timer = bomber2BombButton.MaxTimer;
             },
-            () =>
-            {
-                /* Can See */
-                return bomber2 != null && bomber2 == CachedPlayer.LocalPlayer.Control &&
-                       !CachedPlayer.LocalPlayer.Data.IsDead;
-            },
-            () =>
-            {
-                /* On Click */
-                return currentTarget && CachedPlayer.LocalPlayer.Control.CanMove;
-            },
+            () => bomber2 != null && bomber2 == LocalPlayer.Control &&
+                  !LocalPlayer.IsDead,
+            () => currentTarget && LocalPlayer.Control.CanMove,
             () =>
             {
                 /* On Meeting End */
@@ -98,7 +103,7 @@ public class Bomber2 : RoleBase
                 hasBomb = null;
             },
             buttonSprite,
-            CustomButton.ButtonPositions.upperRowLeft, //brb
+            DefButtonPositions.upperRowLeft, //brb
             _hudManager,
             KeyCode.V
         );
@@ -110,42 +115,34 @@ public class Bomber2 : RoleBase
                 if (currentBombTarget == bomber2)
                 {
                     var killWriter = AmongUsClient.Instance.StartRpcImmediately(
-                        CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.UncheckedMurderPlayer,
+                        LocalPlayer.Control.NetId, (byte)CustomRPC.UncheckedMurderPlayer,
                         SendOption.Reliable);
                     killWriter.Write(bomber2.Data.PlayerId);
                     killWriter.Write(hasBomb.Data.PlayerId);
                     killWriter.Write(0);
                     AmongUsClient.Instance.FinishRpcImmediately(killWriter);
-                    RPCProcedure.uncheckedMurderPlayer(bomber2.Data.PlayerId, hasBomb.Data.PlayerId, 0);
+                    /*RPCProcedure.uncheckedMurderPlayer(bomber2.Data.PlayerId, hasBomb.Data.PlayerId, 0);*/
 
                     var bombWriter1 = AmongUsClient.Instance.StartRpcImmediately(
-                        CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.GiveBomb, SendOption.Reliable);
+                        LocalPlayer.Control.NetId, (byte)CustomRPC.GiveBomb, SendOption.Reliable);
                     bombWriter1.Write(byte.MaxValue);
                     AmongUsClient.Instance.FinishRpcImmediately(bombWriter1);
-                    RPCProcedure.giveBomb(byte.MaxValue);
+                    /*RPCProcedure.giveBomb(byte.MaxValue);*/
                     return;
                 }
 
-                if (Helpers.checkAndDoVetKill(currentBombTarget)) return;
+                /*if (Helpers.checkAndDoVetKill(currentBombTarget)) return;
                 if (Helpers.checkMuderAttemptAndKill(hasBomb, currentBombTarget) ==
-                    MurderAttemptResult.SuppressKill) return;
+                    MurderAttemptResult.SuppressKill) return;*/
                 var bombWriter = AmongUsClient.Instance.StartRpcImmediately(
-                    CachedPlayer.LocalPlayer.Control.NetId, (byte)CustomRPC.GiveBomb, SendOption.Reliable);
+                    LocalPlayer.Control.NetId, (byte)CustomRPC.GiveBomb, SendOption.Reliable);
                 bombWriter.Write(byte.MaxValue);
                 AmongUsClient.Instance.FinishRpcImmediately(bombWriter);
-                RPCProcedure.giveBomb(byte.MaxValue);
+                /*RPCProcedure.giveBomb(byte.MaxValue);*/
             },
-            () =>
-            {
-                /* Can See */
-                return bomber2 != null && hasBomb == CachedPlayer.LocalPlayer.Control &&
-                       bombActive && !CachedPlayer.LocalPlayer.Data.IsDead;
-            },
-            () =>
-            {
-                /* Can Click */
-                return currentBombTarget && CachedPlayer.LocalPlayer.Control.CanMove;
-            },
+            () => bomber2 != null && hasBomb == LocalPlayer.Control &&
+                  bombActive && !LocalPlayer.IsDead,
+            () => currentBombTarget && LocalPlayer.Control.CanMove,
             () =>
             {
                 /* On Meeting End */

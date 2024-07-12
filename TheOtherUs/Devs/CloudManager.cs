@@ -11,6 +11,15 @@ public sealed class CloudManager : ListManager<CloudManager, CloudBase>
         new SocketCloud(info.ip, info.port) { cloudInfo = info }
         );
 
+    public CloudBase Get(string ip, int port, bool isHttp = true)
+    {
+        var cloud = List.FirstOrDefault(n => n.cloudInfo.ip == ip & n.cloudInfo.port == port);
+        var info = isHttp ? "http" : "sokcet";
+        if (cloud == null)
+            StartCloud(new CloudInfo($":{ip}|{port}|{info};", ip, port));
+        return cloud;
+    }
+
     public T Get<T>() where T : CloudBase => (T)List.FirstOrDefault(n => n is T);
     
     private CloudBase Add(CloudBase @base)

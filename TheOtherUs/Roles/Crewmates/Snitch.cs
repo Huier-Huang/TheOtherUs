@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using TheOtherUs.Options;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -23,17 +21,6 @@ public class Snitch : RoleBase
         Killers = 1
     }
 
-    public static readonly RoleInfo roleInfo = new()
-    {
-        Name = nameof(snitch),
-        Color = new Color32(184, 251, 79, byte.MaxValue),
-        Description = "Finish your tasks",
-        IntroInfo = "Finish your tasks to find the <color=#FF1919FF>Impostors</color>",
-        RoleId = RoleId.Snitch,
-        RoleTeam = RoleTeam.Crewmate,
-        GetRole = Get<Snitch>
-    };
-
     public bool isRevealed;
 
     public Mode mode = Mode.Chat;
@@ -44,14 +31,32 @@ public class Snitch : RoleBase
     public CustomOption snitchLeftTasksForReveal;
     public CustomOption snitchMode;
 
-    public CustomOption snitchSpawnRate;
+    
     public CustomOption snitchTargets;
     public Targets targets = Targets.EvilPlayers;
     public int taskCountForReveal = 1;
     public TextMeshPro text;
 
-    public override RoleInfo RoleInfo { get; protected set; } = roleInfo;
-    public override Type RoleType { get; protected set; } = typeof(Snitch);
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(snitch),
+        RoleClassType = typeof(Snitch),
+        RoleType = CustomRoleType.Main,
+        CreateRoleController = n => new SnitchController(n),
+        Color = new Color32(184, 251, 79, byte.MaxValue),
+        DescriptionText = "Finish your tasks",
+        IntroInfo = "Finish your tasks to find the <color=#FF1919FF>Impostors</color>",
+        RoleId = RoleId.Snitch,
+        RoleTeam = RoleTeam.Crewmate,
+        GetRole = Get<Snitch>
+    };
+    
+    public class SnitchController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Snitch>();
+    }
+    
+    public override CustomRoleOption roleOption { get; set; }
 
     public override void ClearAndReload()
     {
@@ -62,19 +67,18 @@ public class Snitch : RoleBase
         if (text != null) Object.Destroy(text);
         text = null;
         needsUpdate = true;
-        mode = (Mode)snitchMode.getSelection();
-        targets = (Targets)snitchTargets.getSelection();
+        mode = snitchMode.CastEnum<Mode>();
+        targets = snitchTargets.CastEnum<Targets>();
     }
 
     public override void OptionCreate()
     {
-        snitchSpawnRate =
-            new CustomOption(210, "Snitch".ColorString(roleInfo.Color), CustomOptionHolder.rates, null, true);
-        snitchLeftTasksForReveal = new CustomOption(219,
-            "Task Count Where The Snitch Will Be Revealed", 5f, 0f, 25f, 1f, snitchSpawnRate);
-        snitchMode = new CustomOption(211, "Information Mode", ["Chat", "Map", "Chat & Map"],
-            snitchSpawnRate);
-        snitchTargets = new CustomOption(212, "Targets",
-            ["All Evil Players", "Killing Players"], snitchSpawnRate);
+        roleOption = new CustomRoleOption(this);
+        snitchLeftTasksForReveal = roleOption.AddChild(
+            "Task Count Where The Snitch Will Be Revealed", new FloatOptionSelection(5f, 0f, 25f, 1f));
+        
+        snitchMode = roleOption.AddChild("Information Mode", new StringOptionSelection(["Chat", "Map", "Chat & Map"]));
+        
+        snitchTargets = roleOption.AddChild("Targets", new StringOptionSelection(["All Evil Players", "Killing Players"]));
     }
 }

@@ -4,7 +4,7 @@ namespace TheOtherUs.Objects;
 
 public class Arrow
 {
-    private static Sprite sprite;
+    private static readonly ResourceSprite ArrowSprite = new ("Arrow.png", 200f);
     public GameObject arrow;
     private readonly ArrowBehaviour arrowBehaviour;
     public SpriteRenderer image;
@@ -14,21 +14,17 @@ public class Arrow
 
     public Arrow(Color color)
     {
-        arrow = new GameObject("Arrow");
-        arrow.layer = 5;
+        arrow = new GameObject("Arrow")
+        {
+            layer = 5
+        };
         image = arrow.AddComponent<SpriteRenderer>();
-        image.sprite = getSprite();
+        image.sprite = ArrowSprite;
         image.color = color;
         arrowBehaviour = arrow.AddComponent<ArrowBehaviour>();
         arrowBehaviour.image = image;
     }
-
-    public static Sprite getSprite()
-    {
-        if (sprite) return sprite;
-        sprite = UnityHelper.loadSpriteFromResources("TheOtherUs.Resources.Arrow.png", 200f);
-        return sprite;
-    }
+    
 
     public void Update()
     {

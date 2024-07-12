@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Hazel;
+using TheOtherUs.Helper.RPC;
 using TheOtherUs.Objects;
-using TheOtherUs.Options;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -63,15 +63,15 @@ public class Deputy : RoleBase
     public void setHandcuffedKnows(bool active = true, byte playerId = byte.MaxValue)
     {
         if (playerId == byte.MaxValue)
-            playerId = CachedPlayer.LocalPlayer.PlayerId;
+            playerId = LocalPlayer.PlayerId;
 
-        if (active && playerId == CachedPlayer.LocalPlayer.PlayerId)
+        if (active && playerId == LocalPlayer.PlayerId)
         {
-            var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+            /*var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                 (byte)CustomRPC.ShareGhostInfo, SendOption.Reliable);
-            writer.Write(CachedPlayer.LocalPlayer.PlayerId);
+            writer.Write(LocalPlayer.PlayerId);
             writer.Write((byte)RPCProcedure.GhostInfoTypes.HandcuffNoticed);
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);*/
         }
 
         if (active)
@@ -80,7 +80,7 @@ public class Deputy : RoleBase
             handcuffedPlayers.RemoveAll(x => x == playerId);
         }
 
-        if (playerId != CachedPlayer.LocalPlayer.PlayerId) return;
+        if (playerId != LocalPlayer.PlayerId) return;
         setAllButtonsHandcuffedStatus(active);
         SoundEffectsManager.play("deputyHandcuff");
     }
@@ -128,36 +128,36 @@ public class Deputy : RoleBase
         deputyHandcuffButton = new CustomButton(
             () =>
             {
-                var target = CachedPlayer.LocalPlayer.Control.Is<Sheriff>()
+                var target = LocalPlayer.Control.Is<Sheriff>()
                     ? Get<Sheriff>().currentTarget
                     : currentTarget; // If the deputy is now the sheriff, sheriffs target, else deputies target
-                Helpers.checkWatchFlash(target);
+                /*Helpers.checkWatchFlash(target);*/
                 var targetId = target.PlayerId;
-                if (Helpers.checkAndDoVetKill(target)) return;
-                var writer = AmongUsClient.Instance.StartRpcImmediately(CachedPlayer.LocalPlayer.Control.NetId,
+                /*if (Helpers.checkAndDoVetKill(target)) return;*/
+                var writer = AmongUsClient.Instance.StartRpcImmediately(LocalPlayer.Control.NetId,
                     (byte)CustomRPC.DeputyUsedHandcuffs, SendOption.Reliable);
                 writer.Write(targetId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
-                RPCProcedure.deputyUsedHandcuffs(targetId);
+                /*RPCProcedure.deputyUsedHandcuffs(targetId);*/
                 currentTarget = null;
                 deputyHandcuffButton.Timer = deputyHandcuffButton.MaxTimer;
 
                 SoundEffectsManager.play("deputyHandcuff");
             },
-            () => ((deputy != null && CachedPlayer.LocalPlayer.Control.Is<Deputy>()) ||
-                   (CachedPlayer.LocalPlayer.Control.Is<Sheriff>() && Get<Sheriff>().formerDeputy.Is<Sheriff>() &&
+            () => ((deputy != null && LocalPlayer.Control.Is<Deputy>()) ||
+                   (LocalPlayer.Control.Is<Sheriff>() && Get<Sheriff>().formerDeputy.Is<Sheriff>() &&
                     keepsHandcuffsOnPromotion)) &&
-                  !CachedPlayer.LocalPlayer.NetPlayerInfo.IsDead,
+                  !LocalPlayer.NetPlayerInfo.IsDead,
             () =>
             {
                 ButtonHelper.showTargetNameOnButton(currentTarget, deputyHandcuffButton, "CUFF");
                 if (deputyButtonHandcuffsText != null) deputyButtonHandcuffsText.text = $"{remainingHandcuffs}";
-                return ((deputy != null && deputy == CachedPlayer.LocalPlayer.Control &&
+                return ((deputy != null && deputy == LocalPlayer.Control &&
                          currentTarget) ||
-                        (CachedPlayer.LocalPlayer.Control.Is<Sheriff>() &&
+                        (LocalPlayer.Control.Is<Sheriff>() &&
                          Get<Sheriff>().formerDeputy.Is<Sheriff>() && Get<Sheriff>().currentTarget)) &&
                        remainingHandcuffs > 0 &&
-                       CachedPlayer.LocalPlayer.Control.CanMove;
+                       LocalPlayer.Control.CanMove;
             },
             () => { deputyHandcuffButton.Timer = deputyHandcuffButton.MaxTimer; },
             buttonSprite,
@@ -193,10 +193,10 @@ public class Deputy : RoleBase
         replacementHandcuffedButton.Timer = replacementHandcuffedButton.EffectDuration;
         replacementHandcuffedButton.actionButton.cooldownTimerText.color = new Color(0F, 0.8F, 0F);
         replacementHandcuffedButton.isEffectActive = true;
-        if (deputyHandcuffedButtons.ContainsKey(CachedPlayer.LocalPlayer.PlayerId))
-            deputyHandcuffedButtons[CachedPlayer.LocalPlayer.PlayerId].Add(replacementHandcuffedButton);
+        if (deputyHandcuffedButtons.ContainsKey(LocalPlayer.PlayerId))
+            deputyHandcuffedButtons[LocalPlayer.PlayerId].Add(replacementHandcuffedButton);
         else
-            deputyHandcuffedButtons.Add(CachedPlayer.LocalPlayer.PlayerId,
+            deputyHandcuffedButtons.Add(LocalPlayer.PlayerId,
                 [replacementHandcuffedButton]);
     }
 
@@ -211,7 +211,7 @@ public class Deputy : RoleBase
 
         switch (handcuffed)
         {
-            case true when !deputyHandcuffedButtons.ContainsKey(CachedPlayer.LocalPlayer.PlayerId):
+            case true when !deputyHandcuffedButtons.ContainsKey(LocalPlayer.PlayerId):
             {
                 var maxI = CustomButton.buttons.Count;
                 for (var i = 0; i < maxI; i++)
@@ -235,13 +235,13 @@ public class Deputy : RoleBase
                         DefButtonPositions.upperRowRight,
                         () => FastDestroyableSingleton<HudManager>.Instance.KillButton.currentTarget != null);
                 // Vent Button if enabled
-                if (CachedPlayer.LocalPlayer.Control.roleCanUseVents())
+                if (LocalPlayer.CanUseVent())
                     addReplacementHandcuffedButton(Get<Arsonist>().arsonistButton,
                         DefButtonPositions.upperRowCenter,
                         () => FastDestroyableSingleton<HudManager>.Instance.ImpostorVentButton.currentTarget != null);
                 // Report Button
                 addReplacementHandcuffedButton(Get<Arsonist>().arsonistButton,
-                    !CachedPlayer.LocalPlayer.NetPlayerInfo.Role.IsImpostor
+                    !LocalPlayer.NetPlayerInfo.Role.IsImpostor
                         ? new Vector3(-1f, -0.06f, 0)
                         : DefButtonPositions.lowerRowRight,
                     () => FastDestroyableSingleton<HudManager>.Instance.ReportButton.graphic.color ==
@@ -250,17 +250,17 @@ public class Deputy : RoleBase
             }
             // Reset to original. Disables the replacements, enables the original buttons.
             case false when
-                deputyHandcuffedButtons.ContainsKey(CachedPlayer.LocalPlayer
+                deputyHandcuffedButtons.ContainsKey(LocalPlayer
                     .PlayerId):
             {
-                foreach (var replacementButton in deputyHandcuffedButtons[CachedPlayer.LocalPlayer.PlayerId])
+                foreach (var replacementButton in deputyHandcuffedButtons[LocalPlayer.PlayerId])
                 {
                     replacementButton.HasButton = () => { return false; };
                     replacementButton.Update(); // To make it disappear properly.
                     CustomButton.buttons.Remove(replacementButton);
                 }
 
-                deputyHandcuffedButtons.Remove(CachedPlayer.LocalPlayer.PlayerId);
+                deputyHandcuffedButtons.Remove(LocalPlayer.PlayerId);
 
                 foreach (var button in CustomButton.buttons) button.isHandcuffed = false;
                 break;

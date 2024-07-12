@@ -11,8 +11,7 @@ namespace TheOtherUs.Modules;
 
 public class DependentDownload : ManagerBase<DependentDownload>
 {
-    public static readonly string DllPath = Path.Combine(Paths.GameRootPath, "Dependent");
-    public static readonly DirectoryInfo DllDir = new(DllPath);
+    public static string DllPath => NextPatcher.NextPatcher.Instance.Creator.Get( "Dependents");
     private readonly HttpClient _client = new();
     private readonly Dictionary<string, List<string>> Map = new();
     private string CurrentUrl;
@@ -23,17 +22,9 @@ public class DependentDownload : ManagerBase<DependentDownload>
         if (!Directory.Exists(DllPath))
             Directory.CreateDirectory(DllPath);
     }
+    
 
-    public void CheckLoad()
-    {
-        foreach (var file in DllDir.GetFiles().Where(n => n.Extension == ".dll").Select(n => n.Name))
-        {
-            CheckDependent(file);
-            Info($"load {file}");
-        }
-    }
-
-    public async void CheckDependent(string fileName, string url = "", bool formDownload = true)
+    public async void CheckDependent(string fileName, string url = "")
     {
         if (AppDomain.CurrentDomain.GetAssemblies().Any(n =>
                 n.GetName().Name == fileName.Replace(Path.GetExtension(fileName), string.Empty)))
@@ -42,17 +33,15 @@ public class DependentDownload : ManagerBase<DependentDownload>
         var filePath = Path.Combine(DllPath, fileName);
 
         if (url == string.Empty || File.Exists(filePath))
-            goto load;
+            goto End;
 
-        var stream = formDownload ? await DownloadDependent(url) : await ReadDependent(fileName);
+        var stream = await DownloadDependent(url);
         var file = File.Open(filePath, FileMode.OpenOrCreate);
         await stream.CopyToAsync(file);
         stream.Close();
         file.Close();
 
-        load:
-        Assembly.LoadFile(filePath);
-        Info($"Loaded File:{fileName} Url:{url}");
+        End: ;
     }
 
     public void DownLoadDependentMap(string mapUrl, bool useFast = true)
@@ -63,7 +52,6 @@ public class DependentDownload : ManagerBase<DependentDownload>
         var mapStream = _client.GetStreamAsync(MapUrl).Result;
         mapStream.StartRead(Read, out _);
     }
-
 
     public void DownLoadDependentFormMap(string option)
     {
@@ -89,12 +77,5 @@ public class DependentDownload : ManagerBase<DependentDownload>
         Info($"Download Url{url}");
         var stream = _client.GetStreamAsync(url).Result;
         return Task.FromResult(stream);
-    }
-
-    public async Task<Stream> ReadDependent(string fileName)
-    {
-        var path = "TheOtherUs.Resources.Dependent." + fileName;
-        var stream = typeof(DependentDownload).Assembly.GetManifestResourceStream(path);
-        return await Task.FromResult(stream);
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace TheOtherUs.Roles.Crewmates;
@@ -10,7 +9,6 @@ public class Swapper : RoleBase
     public bool canFixSabotages;
     public bool canOnlySwapOthers;
     public int charges;
-    public Color color = new Color32(134, 55, 86, byte.MaxValue);
 
     public byte playerId1 = byte.MaxValue;
     public byte playerId2 = byte.MaxValue;
@@ -19,19 +17,36 @@ public class Swapper : RoleBase
     private ResourceSprite spriteCheck = new("SwapperCheck.png", 150f);
     public PlayerControl swapper;
 
-    public override RoleInfo RoleInfo { get; protected set; }
-    public override Type RoleType { get; protected set; }
+    public override RoleInfo RoleInfo { get; protected set; } = new()
+    {
+        Name = nameof(Swapper),
+        Color = new Color32(134, 55, 86, byte.MaxValue),
+        DescriptionText = "Swap votes",
+        IntroInfo = "Swap votes to exile the <color=#FF1919FF>Impostors</color>",
+        GetRole = Get<Swapper>,
+        RoleClassType = typeof(Swapper),
+        RoleId = RoleId.Swapper,
+        RoleTeam = RoleTeam.Crewmate,
+        RoleType = CustomRoleType.Main,
+        CreateRoleController = n => new SwapperController(n)
+    };
+    
+    public class SwapperController(PlayerControl player) : RoleControllerBase(player)
+    {
+        public override RoleBase _RoleBase => Get<Swapper>();
+    }
+    public override CustomRoleOption roleOption { get; set; }
 
     public override void ClearAndReload()
     {
         swapper = null;
         playerId1 = byte.MaxValue;
         playerId2 = byte.MaxValue;
-        canCallEmergency = CustomOptionHolder.swapperCanCallEmergency.getBool();
-        canOnlySwapOthers = CustomOptionHolder.swapperCanOnlySwapOthers.getBool();
-        canFixSabotages = CustomOptionHolder.swapperCanFixSabotages.getBool();
-        charges = Mathf.RoundToInt(CustomOptionHolder.swapperSwapsNumber.getFloat());
-        rechargeTasksNumber = Mathf.RoundToInt(CustomOptionHolder.swapperRechargeTasksNumber.getFloat());
-        rechargedTasks = Mathf.RoundToInt(CustomOptionHolder.swapperRechargeTasksNumber.getFloat());
+        canCallEmergency = CustomOptionHolder.swapperCanCallEmergency;
+        canOnlySwapOthers = CustomOptionHolder.swapperCanOnlySwapOthers;
+        canFixSabotages = CustomOptionHolder.swapperCanFixSabotages;
+        charges = Mathf.RoundToInt(CustomOptionHolder.swapperSwapsNumber);
+        rechargeTasksNumber = Mathf.RoundToInt(CustomOptionHolder.swapperRechargeTasksNumber);
+        rechargedTasks = Mathf.RoundToInt(CustomOptionHolder.swapperRechargeTasksNumber);
     }
 }
