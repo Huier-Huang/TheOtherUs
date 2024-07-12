@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Preloader.Core.Patching;
@@ -63,6 +65,66 @@ public class NextPatcher : BasePatcher
             .BuildAll();
     }
 
+    public void CheckAndAdd(params (string, string, string)[] all)
+    {
+        foreach (var (name, version, framework) in all)
+        {
+            var path = Path.Combine(Creator.Get("Dependents"), $"{name}.dll");
+            if (File.Exists(path)) continue;
+            var dllStream = Download(name, version, framework);
+            LogSource.LogInfo($"{name} IsNull{dllStream == Stream.Null}");
+            if (dllStream == Stream.Null) continue;
+            var file = File.Create(path);
+            dllStream.CopyTo(file);
+            file.Close();
+            dllStream.Close();
+            Assembly.LoadFile(path);
+        }
+    }
+    
+    public static Stream Download(string name, string version, string framework = "net8.0")
+    {
+        using var downloader = new NuGetDownloader(name, version);
+        var get = new NugetZipGet(downloader);
+        var frameworks = get.GetFrameworks();
+        var GetFramework = NextPatcher.GetFramework(frameworks, framework);
+        LogSource.LogInfo($"{name} GetFramework: " + GetFramework);
+        return GetFramework == string.Empty ? Stream.Null : get.GetAssemblyStream(GetPathFramework(GetFramework));
+    }
+
+    public static string GetPathFramework(string framework)
+    {
+        var path = framework.ToLower();
+        return path[0] == '.' ? path.Remove(0) : path;
+    }
+    
+    public static string GetFramework(string[] frameworks, string framework)
+    {
+        if (frameworks.Contains(framework)) return framework;
+        var ver = framework.Substring(framework.LastIndexOf('.') - 1, 3);
+        var versionInt = ToVersionInt(framework);
+        var frameworkName = framework.Replace(ver, string.Empty);
+        var fs = frameworks.Where(n => n.StartsWith(frameworkName)).ToList();
+        if (fs.Any())
+        {
+            foreach (var sf in from sf in fs let sVersionInt = ToVersionInt(sf) where sVersionInt <= versionInt select sf)
+            {
+                return sf;
+            }
+        }
+
+        if (!framework.StartsWith("net")) return string.Empty;
+        var Standards = frameworks.Where(n => n.StartsWith(".NETStandard")).ToList();
+        if (!Standards.Any()) return string.Empty;
+        Standards.Sort((x, y) => ToVersionInt(x).CompareTo(ToVersionInt(y)));
+        return Standards.Last();
+
+        int ToVersionInt(string versionString)
+        {
+            return int.Parse(versionString.Substring(versionString.LastIndexOf('.') - 1, 3).Replace(".", string.Empty));
+        }
+    }
+    
     public async void DownLoadAndLoadToml(string version = "0.17.0", string Framework = "net7.0")
     {
         try

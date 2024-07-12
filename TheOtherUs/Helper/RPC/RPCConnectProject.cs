@@ -10,7 +10,7 @@ public class RPCConnectProject : IDisposable
 
     private FastRpcWriter? _writer;
 
-    public string Id { get; private set; }
+    public string Id { get; private set; } = $"{nameof(RPCConnectProject)} x";
     
     public bool Started { get; private set; }
         

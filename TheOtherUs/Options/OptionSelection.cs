@@ -187,7 +187,8 @@ public abstract class StepOptionSelection<T>(T step, T min, T max, T def)
 public class FloatOptionSelection(float Def, float min, float max, float step)
     : StepOptionSelection<float>(step, min, max, Def)
 {
-    public override int Selection => (int)((Value - Min) / step);
+    private readonly float _step = step;
+    public override int Selection => (int)((Value - Min) / _step);
 
     public override float GetFloat()
     {

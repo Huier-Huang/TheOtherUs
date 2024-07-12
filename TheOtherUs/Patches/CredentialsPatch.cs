@@ -25,8 +25,6 @@ Design by <color=#FCCE03FF>Bavari</color>";
     [HarmonyPatch(typeof(PingTracker), nameof(PingTracker.Update))]
     internal static class PingTrackerPatch
     {
-        public static GameObject modStamp;
-
         private static void Postfix(PingTracker __instance)
         {
             __instance.text.alignment = TextAlignmentOptions.TopRight;

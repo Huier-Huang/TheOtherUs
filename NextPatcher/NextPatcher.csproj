@@ -23,5 +23,6 @@
     <Target Name="CopyCustomContent" AfterTargets="AfterBuild" Condition="Exists('$(AmongUsLatest)/BepInEx/patchers/')">
         <Message Text="Second occurrence"/>
         <Copy SourceFiles="$(ProjectDir)\bin\$(Configuration)\net6.0\$(AssemblyName).dll" DestinationFolder="$(AmongUsLatest)/BepInEx/patchers/"/>
+        <Copy SourceFiles="$(ProjectDir)\bin\$(Configuration)\net6.0\$(AssemblyName).dll" DestinationFolder="$(ProjectDir)../TheOtherUs/Resources/"/>
     </Target>
 </Project>

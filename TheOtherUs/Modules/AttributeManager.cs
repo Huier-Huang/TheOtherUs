@@ -12,7 +12,7 @@ public class AttributeManager : ManagerBase<AttributeManager>
     private readonly Dictionary<Type, MethodInfo> _methodInfos = [];
     private readonly Dictionary<Type, object[]> CreateTargets = [];
     private Assembly? targetAssembly;
-    private Assembly GetAssembly;
+    private Assembly? GetAssembly;
     private List<Type> _types = [];
     private List<MethodInfo> _methods = [];
     private List<ConstructorInfo> _constructors = [];

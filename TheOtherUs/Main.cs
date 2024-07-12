@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Text;
 using BepInEx;
 using BepInEx.Unity.IL2CPP;
 using Reactor.Networking;
 using Reactor.Networking.Attributes;
+using TheOtherUs.Chat.Patches;
+using TheOtherUs.CustomCosmetics;
 using TheOtherUs.Languages;
 using TheOtherUs.Modules.Compatibility;
 using TheOtherUs.Patches;
@@ -35,6 +38,13 @@ public partial class TheOtherRolesPlugin : BasePlugin
     public static readonly string ModEx = ".NexDat";
     public Harmony Harmony { get; private set; }
 
+    public static string CurrentFrameworkName => MainAssembly.GetCustomAttribute<TargetFrameworkAttribute>()?.FrameworkDisplayName;
+    public static string FrameworkStartName => CurrentFrameworkName.Split(" ")[0];
+    public static string FrameworkVersion => CurrentFrameworkName.Split(" ")[1];
+
+    public static string NugetFrameworkVersionName =>
+        FrameworkStartName.Replace(".", string.Empty).ToLower() + FrameworkVersion;
+
     // This is part of the Mini.RegionInstaller, Licensed under GPLv3
     // file="RegionInstallPlugin.cs" company="miniduikboot">
     public static void UpdateRegions()
@@ -50,6 +60,7 @@ public partial class TheOtherRolesPlugin : BasePlugin
     public override void Load()
     {
         SetConsole();
+        CheckNextPatcher();
         CheckPath();
         
         if (!CheckNoLoad())
@@ -94,8 +105,13 @@ public partial class TheOtherRolesPlugin : BasePlugin
 
     private static void DownLoadDependent()
     {
-        DependentDownload.Instance.CheckLoad();
-        DependentDownload.Instance.DownLoadDependentMap("https://raw.githubusercontent.com/SpexGH/TheOtherUs/the-other-us/LoadDependent/");
+        Patcher.CheckAndAdd(
+            (nameof(Csv), "2.0.93", NugetFrameworkVersionName), 
+            (nameof(YamlDotNet), "15.3.0", NugetFrameworkVersionName),
+            ("EPPlus", "7.2.0", NugetFrameworkVersionName)
+            );
+        DependentDownload.Instance.DownLoadDependentMap("https://raw.githubusercontent.com/TianMengLucky/TheOtherUs-Next/tree/Latest/LoadDependent/", false);
+        DependentDownload.Instance.DownLoadDependentFormMap("Excel");
     }
 
     private static void CheckPath()
@@ -152,26 +168,23 @@ public partial class TheOtherRolesPlugin : BasePlugin
 
     private static void StartMainTask()
     {
+        TaskQueue.GetOrCreate()
+            .StartTask(ChatCensorPatch.AddCensorWord, "AddCensorWord")
+            .StartTask(DIYColor.LoadDIYColor, "LoadDiskDIYColor");
+        DIYColor.SetColors();
         AttributeManager.Instance
-            .SetInit(MainAssembly)
-            .Add<ManagerBaseLoad>(TaskQueue.GetOrCreate())
-            /*.Add<MonoRegisterAndDontDestroy>()*/
-            .Add<RegisterRole>(_RoleManager)
-            .Add<OnEvent>()
-            .Add<RPCMethod>()
-            .Add<RPCListener>()
-            .Start();
-        /*TaskQueue.GetOrCreate()
-            /*.StartTask(ChatCensorPatch.AddCensorWord, "AddCensorWord")
-            .StartTask(DIYColor.LoadDIYColor, "LoadDiskDIYColor")
-            .StartTask(DIYColor.SetColors, "SetColor")
-            .StartTask(() => DependentDownload.Instance.DownLoadDependentFormMap("Csv"), "LoadDependentFormMap Csv")
-            .StartTask(() => DependentDownload.Instance.DownLoadDependentFormMap("Excel"), "LoadDependentFormMap Excel")#1#
-            .StartTask(() =>
-            {
-            }, "RegisterAttributes")*/
+                    .SetInit(MainAssembly)
+                    .Add<ManagerBaseLoad>(TaskQueue.GetOrCreate())
+                    .Add<MonoRegisterAndDontDestroy>()
+                    .Add<RegisterRole>(_RoleManager)
+                    .Add<OnEvent>()
+                    .Add<RPCMethod>()
+                    .Add<RPCListener>()
+                    .Start();
+
             /*.StartTask(CosmeticsManager.Instance.DefConfigCreateAndInit, "DefConfigCreate")
-            .StartTask(SoundEffectsManager.Load, "LoadSoundEffect")*/;
+            .StartTask(SoundEffectsManager.Load, "LoadSoundEffect")*/
+            
         Info("Start Main Task");
     }
 
