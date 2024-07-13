@@ -41,8 +41,16 @@ public class NextPatcher : BasePatcher
         await using var file = File.Open(path, FileMode.OpenOrCreate);
         var toml = Toml.Parse(file.ReadBytes());
     }
-    
 
+    public Stream GetFormNetZip(int version, string Name)
+    {
+        var path = Path.Combine(Creator.Get($"dotnet-{version}.0.0"), $"net{version}.0.0-win-x86.zip");
+        if (!File.Exists(path)) return Stream.Null;
+        using var archive = new ZipArchive(File.OpenRead(path), ZipArchiveMode.Read);
+        var entry = archive.Entries.FirstOrDefault(n => n.FullName.EndsWith($"{Name}.dll"));
+        return entry == null ? Stream.Null : entry.Open();
+    }
+    
     public async void WriteAndSaveDotnet(string url, string version)
     {
         var dotnetName = $"dotnet-{version}";
@@ -76,21 +84,25 @@ public class NextPatcher : BasePatcher
     public override void Initialize()
     {
         AppDomain.CurrentDomain.AssemblyResolve += LocalResolve;
-        IL2CPPChainloader.Instance.PluginLoad += OnPluginLoad;
         ScriptManager = new NextScriptManager(Creator.Get("NextScripts"));
         ScriptManager
             .BuildAll();
     }
 
+    public override void Finalizer()
+    {
+        AppDomain.CurrentDomain.AssemblyLoad += OnAssemblyLoad;
+    }
+    
     private static readonly (int, string)[] RuntimeURLs = 
         [
             (7, "https://download.visualstudio.microsoft.com/download/pr/f479b75e-9ecb-42ea-8371-c94f411eda8d/0cd700d75f1d04e9108bc4213f8a41ec/dotnet-runtime-7.0.20-win-x86.zip"),
             (8, "https://download.visualstudio.microsoft.com/download/pr/3e0c1889-b4f7-414c-9ac9-cdc82938563d/daed61ae792654223bcac886ff3725ba/dotnet-runtime-8.0.7-win-x86.zip"),
         ];
 
-    private void OnPluginLoad(PluginInfo _info, Assembly _assembly, BasePlugin _plugin)
+    private void OnAssemblyLoad(object? sender, AssemblyLoadEventArgs args)
     {
-        var version = _assembly.GetFramework().GetFrameworkVersion();
+        var version = args.LoadedAssembly.GetFramework().GetFrameworkVersion();
         foreach (var (ver, url) in RuntimeURLs)
         {
             if (version.StartsWith(ver.ToString()))
@@ -115,13 +127,16 @@ public class NextPatcher : BasePatcher
         }
     }
     
-    public Stream Download(string name, string version, string framework = "net8.0")
+    public Stream Download(string name, string version = "", string framework = "")
     {
+        var getFramework = framework == string.Empty
+            ? Assembly.GetCallingAssembly().GetFramework().GetNugetName()
+            : framework;
         if (name == string.Empty) return Stream.Null;
         using var downloader = new NuGetDownloader(name, version);
         var get = new NugetZipGet(downloader);
         var frameworks = get.GetFrameworks();
-        var GetFramework = NextPatcher.GetFramework(frameworks, framework);
+        var GetFramework = NextPatcher.GetFramework(frameworks, getFramework);
         var Dependency = get.GetDependency(GetFramework);
         if (Dependency.Count != 0)
             foreach (var d in Dependency)
@@ -212,13 +227,30 @@ public class NextPatcher : BasePatcher
         if (args.Name.Contains("Il2CppSystem")) return null;
         var assemblyName = new AssemblyName(args.Name);
         LogSource.LogDebug($"Resolve {assemblyName.Name} {assemblyName.FullName}");
-        if (assemblyName.Version?.Major == 8)
+        if (assemblyName.Version != null 
+            && !assemblyName.Name.IsNullOrWhiteSpace()
+            && (assemblyName.Name?? string.Empty).StartsWith(nameof(System)) 
+            && assemblyName.Version.Major != 6
+            )
         {
-            var net8Path = Path.Combine(Instance.Creator.Get("dotnet-8.0.0"), assemblyName.Name + ".dll");
-            if (File.Exists(net8Path))
+            var netPath = Path.Combine(Instance.Creator.Get($"dotnet-{assemblyName.Version.Major}.0.0"), assemblyName.Name + ".dll");
+            if (File.Exists(netPath))
             {
-                LogSource.LogDebug($"is Net8 {assemblyName}");
-                return Assembly.LoadFile(net8Path);
+                LogSource.LogDebug($"is Net {assemblyName} {assemblyName.Version}");
+                return Assembly.LoadFile(netPath);
+            }
+            else
+            {
+
+                var DLLStream = Instance.GetFormNetZip(assemblyName.Version.Major, assemblyName.Name!);
+                if (DLLStream != Stream.Null)
+                {
+                    var fileStream = File.Create(netPath);
+                    DLLStream.CopyTo(fileStream);
+                    fileStream.Close();
+                    DLLStream.Close();
+                    return Assembly.LoadFile(netPath);
+                }
             }
         }
 

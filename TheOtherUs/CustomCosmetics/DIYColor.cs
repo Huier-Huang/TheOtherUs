@@ -477,8 +477,9 @@ public static class DIYColorPatch
         __instance.XRange.max += 2;
         for (var i = 0; i < DIYColor.sortAllColor.Count - 1; i++)
         {
+            var yCount = i / 9;
             var num2 = __instance.XRange.Lerp(i % 9 / 8f);
-            var num3 = __instance.YStart - ((float)i / 9 * __instance.YOffset);
+            var num3 = __instance.YStart - (yCount * __instance.YOffset);
             var colorChip = Object.Instantiate(__instance.ColorTabPrefab, __instance.ColorTabArea, true);
             colorChip.transform.localScale *= 0.85f;
             colorChip.transform.localPosition = new Vector3(num2, num3, -1f);
