@@ -16,10 +16,6 @@
         <PackageReference Include="BepInEx.Preloader.Core" Version="6.0.0-be.692"/>
     </ItemGroup>
     
-    <ItemGroup>
-        <EmbeddedResource Include="./Resources/**"/>
-    </ItemGroup>
-    
     <Target Name="CopyCustomContent" AfterTargets="AfterBuild" Condition="Exists('$(AmongUsLatest)/BepInEx/patchers/')">
         <Message Text="Second occurrence"/>
         <Copy SourceFiles="$(ProjectDir)\bin\$(Configuration)\net6.0\$(AssemblyName).dll" DestinationFolder="$(AmongUsLatest)/BepInEx/patchers/"/>

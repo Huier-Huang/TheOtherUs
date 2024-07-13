@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Versioning;
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Preloader.Core.Patching;
+using BepInEx.Unity.IL2CPP;
 
 
 namespace NextPatcher;
@@ -22,13 +24,6 @@ public class NextPatcher : BasePatcher
     public DirectoryCreator Creator { get; set; }
     
     public NextScriptManager ScriptManager { get; set; } = null!;
-    
-    public static string CurrentFrameworkName => typeof(NextPatcher).Assembly.GetCustomAttribute<TargetFrameworkAttribute>()?.FrameworkDisplayName ?? string.Empty;
-    public static string FrameworkStartName => CurrentFrameworkName.Split(" ")[0];
-    public static string FrameworkVersion => CurrentFrameworkName.Split(" ")[1];
-
-    public static string NugetFrameworkVersionName =>
-        FrameworkStartName.Replace(".", string.Empty).ToLower() + FrameworkVersion;
 
     public NextPatcher()
     {
@@ -37,23 +32,30 @@ public class NextPatcher : BasePatcher
         Creator = new DirectoryCreator(Paths.GameRootPath, "Dependents", "dotnet-8.0.0", "NextScripts");
         Creator.Create();
         DownLoadAndLoadToml();
-        /*WriteAndSaveDotnet();*/
     }
     
 
-    public async void WriteAndSaveDotnet()
+    public async void WriteAndSaveDotnet(string url, string version)
     {
-        var path = Path.Combine(Creator.Get("dotnet-8.0.0"), "net8.0.0-win-x86.zip");
+        var dotnetName = $"dotnet-{version}";
+        var dir = Creator.Get(dotnetName);
+        if (!Directory.Exists(dir))
+            Creator.Add(dotnetName).Create();
+        
+        var path = Path.Combine(Creator.Get($"dotnet-{version}"), $"net{version}-win-x86.zip");
         if (File.Exists(path))
             return;
-        await using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("NextPatcher.Resources.dotnet-runtime-8.0.0-win-x86.zip");
-        if (stream == null)
+
+        using var client = new HttpClient();
+        await using var stream = await client.GetStreamAsync(url);
+        if (stream == Stream.Null)
             return;
+        
         using var archive = new ZipArchive(stream, ZipArchiveMode.Read);
         foreach (var entry in archive.Entries)
         {
             if (!entry.FullName.EndsWith(".dll") && !entry.FullName.EndsWith(".version")) continue;
-            var NewPath = Path.Combine(Creator.Get("dotnet-8.0.0"), entry.Name);
+            var NewPath = Path.Combine(Creator.Get(dotnetName), entry.Name);
             if (File.Exists(NewPath)) continue;
             await using var file = File.Create(NewPath);
             await entry.Open().CopyToAsync(file);
@@ -66,10 +68,27 @@ public class NextPatcher : BasePatcher
     public override void Initialize()
     {
         AppDomain.CurrentDomain.AssemblyResolve += LocalResolve;
+        IL2CPPChainloader.Instance.PluginLoad += OnPluginLoad;
         ScriptManager = new NextScriptManager();
         ScriptManager
             .SetFindDir(Creator.Get("NextScripts"))
             .BuildAll();
+    }
+
+    private static (int, string)[] RuntimeURLs = 
+        [
+            (7, "https://download.visualstudio.microsoft.com/download/pr/f479b75e-9ecb-42ea-8371-c94f411eda8d/0cd700d75f1d04e9108bc4213f8a41ec/dotnet-runtime-7.0.20-win-x86.zip"),
+            (8, "https://download.visualstudio.microsoft.com/download/pr/3e0c1889-b4f7-414c-9ac9-cdc82938563d/daed61ae792654223bcac886ff3725ba/dotnet-runtime-8.0.7-win-x86.zip"),
+        ];
+
+    private void OnPluginLoad(PluginInfo _info, Assembly _assembly, BasePlugin _plugin)
+    {
+        var version = _assembly.GetFramework().GetFrameworkVersion();
+        foreach (var (ver, url) in RuntimeURLs)
+        {
+            if (version.StartsWith(ver.ToString()))
+                WriteAndSaveDotnet(url, $"{ver}.0.0");
+        }
     }
 
     public void CheckAndAdd(params (string, string, string)[] all)
@@ -141,7 +160,7 @@ public class NextPatcher : BasePatcher
     
     public void DownLoadAndLoadToml(string version = "0.17.0")
     {
-        CheckAndAdd(("Tomlyn", version, NugetFrameworkVersionName));
+        CheckAndAdd(("Tomlyn", version, typeof(NextPatcher).Assembly.GetFramework().GetNugetName()));
     }
 
     public static readonly HashSet<string> RootDownloads =

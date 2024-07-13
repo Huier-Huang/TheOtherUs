@@ -7,6 +7,7 @@ using System.Runtime.Versioning;
 using System.Text;
 using BepInEx;
 using BepInEx.Unity.IL2CPP;
+using NextPatcher;
 using Reactor.Networking;
 using Reactor.Networking.Attributes;
 using TheOtherUs.Chat.Patches;
@@ -37,13 +38,6 @@ public partial class TheOtherRolesPlugin : BasePlugin
 
     public static readonly string ModEx = ".NexDat";
     public Harmony Harmony { get; private set; }
-
-    public static string CurrentFrameworkName => MainAssembly.GetCustomAttribute<TargetFrameworkAttribute>()?.FrameworkDisplayName;
-    public static string FrameworkStartName => CurrentFrameworkName.Split(" ")[0];
-    public static string FrameworkVersion => CurrentFrameworkName.Split(" ")[1];
-
-    public static string NugetFrameworkVersionName =>
-        FrameworkStartName.Replace(".", string.Empty).ToLower() + FrameworkVersion;
 
     // This is part of the Mini.RegionInstaller, Licensed under GPLv3
     // file="RegionInstallPlugin.cs" company="miniduikboot">
@@ -105,10 +99,11 @@ public partial class TheOtherRolesPlugin : BasePlugin
 
     private static void DownLoadDependent()
     {
+        var nugetName = MainAssembly.GetFramework().GetNugetName();
         Patcher.CheckAndAdd(
-            (nameof(Csv), "2.0.93", NugetFrameworkVersionName), 
-            (nameof(YamlDotNet), "15.3.0", NugetFrameworkVersionName),
-            ("EPPlus", "7.2.0", NugetFrameworkVersionName)
+            (nameof(Csv), "2.0.93", nugetName), 
+            (nameof(YamlDotNet), "15.3.0", nugetName),
+            ("EPPlus", "7.2.0", nugetName)
             );
     }
 
