@@ -23,9 +23,9 @@ internal static class LanguageExtension
         LanguageManager.Instance.CurrentLang = lang.languageID;
     }
 
-    internal static string Translate(this string key)
+    internal static string Translate(this string key, bool tag = true)
     {
-        return LanguageManager.Instance.GetString(key);
+        return LanguageManager.Instance.GetString(key, tag);
     }
 
     internal static string GetString(this StringNames name, Object[]? objects = null)

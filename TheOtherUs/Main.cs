@@ -162,8 +162,7 @@ public partial class TheOtherRolesPlugin : BasePlugin
     private static void StartMainTask()
     {
         TaskQueue.GetOrCreate()
-            .StartTask(ChatCensorPatch.AddCensorWord, "AddCensorWord")
-            .StartTask(DIYColor.LoadDIYColor, "LoadDiskDIYColor");
+            .StartTask(ChatCensorPatch.AddCensorWord, "AddCensorWord");
         AttributeManager.Instance
                     .SetInit(MainAssembly)
                     .Add<ManagerBaseLoad>(TaskQueue.GetOrCreate())
@@ -186,6 +185,7 @@ public partial class TheOtherRolesPlugin : BasePlugin
             /*.StartTask(AnnouncementManager.Instance.DownLoadREADME, "DownloadREADME")
             .StartTask(AnnouncementManager.Instance.DownloadAnnouncements, "DownLoadAnnouncements")
             .StartTask(AnnouncementManager.Instance.DownloadMOTDs, "DownLoadMOTDs");*/
+        DIYColor.LoadDIYColor();
         DIYColor.SetColors();
         Info("OnTranslationController_Initialized_Load End");
     }

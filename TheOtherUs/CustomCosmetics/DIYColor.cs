@@ -199,14 +199,6 @@ public class DIYColor : IColorData
     {
     }
 
-    public DIYColor(string text, byte[] colorBytes, byte[] shadowBytes) : this(
-        text,
-        new Color32(colorBytes[0], colorBytes[1], colorBytes[2], colorBytes[3]),
-        new Color32(shadowBytes[0], shadowBytes[1], shadowBytes[2], shadowBytes[3])
-        )
-    {
-    }
-
     public DIYColor(string text, Color color, Color shadow)
     {
         Text = text;
@@ -218,10 +210,15 @@ public class DIYColor : IColorData
         Info($"DIYColor Text:{text} Color:{color} Shadow:{shadow} gValue:{gValue} Lighter:{Lighter}");
     }
 
-    public static bool IsLighter(Color color)
+    public static bool IsLighter(Color32 color)
     {
         var gValue = (color.r * 0.299) + (color.g * 0.587) + (color.b * 0.114);
         return gValue < 125;
+    }
+
+    public static string GetLighterText(Color32 color)
+    {
+        return IsLighter(color) ? "Lighter" : "Dark";
     }
 
     public Color Color { get; set; }
@@ -264,10 +261,10 @@ public class DIYColor : IColorData
         
         foreach (var color in vanillaColors)
         {
+            color.Index = current;
             PlayerColor.Add(color.Color);
             ShadowColor.Add(color.Shadow);
             ColorNames.Add(color.Name);
-            color.Index = current;
             current++;
         }
 
@@ -339,7 +336,7 @@ public class DIYColor : IColorData
     #nullable disable
     
     
-    public static string DIYColorPath => Path.Combine(CosmeticsManager.CosmeticDir, "DIYColors.cs");
+    public static string DIYColorPath => Path.Combine(CosmeticsManager.CosmeticDir, "DIYColors.csv");
     public static void LoadDIYColor()
     {
         if (!File.Exists(DIYColorPath))
@@ -349,18 +346,25 @@ public class DIYColor : IColorData
         }
 
         using var stream = File.OpenRead(DIYColorPath);
-        var options = new CsvOptions
+
+        foreach (var line in CsvReader.ReadFromStream(stream, new CsvOptions
+                 {
+                     HeaderMode = HeaderMode.HeaderAbsent
+                 }))
         {
-            HeaderMode = HeaderMode.HeaderPresent,
-            AllowNewLineInEnclosedFieldValues = false
-        };
-        foreach (var line in CsvReader.ReadFromStream(stream, options))
-        {
+            if (line.Raw.StartsWith("#")) continue;
             try
             {
-                var color1 = line.Values[1].Split(".").Select(byte.Parse).ToArray();
-                var color2 = line.Values[2].Split(".").Select(byte.Parse).ToArray();
-                DIYColors.Add(new DIYColor(line.Values[0], color1, color2));
+                var color1 = line.Values[1].Split(".").Select(byte.Parse).ToList();
+                if (color1.Count < 4)
+                    color1.Add(255);
+                var color2 = line.Values[2].Split(".").Select(byte.Parse).ToList();
+                if (color2.Count < 4)
+                    color2.Add(255);
+                DIYColors.Add(new DIYColor(line.Values[0], 
+                    new Color32(color1[0], color1[1], color1[2], color1[3]), 
+                    new Color32(color2[0], color2[1], color2[2], color2[3])
+                    ));
             }
             catch (Exception ex)
             {
@@ -375,72 +379,51 @@ public class DIYColor : IColorData
         public Color Color { get; set; } = Color;
         public Color Shadow { get; set; } = Shadow;
         public int Index { get; set; } = Index;
-
         public StringNames Name { get; set; } = StringName;
+        
+        public static implicit operator Color32(VanillaColor color)
+        {
+            return color.Color;
+        }
+
+        public static implicit operator Color(VanillaColor color)
+        {
+            return color.Color;
+        }
+
     }
 }
 
 [Harmony]
 public static class DIYColorPatch
 {
-    private static bool needsPatch;
-
     [HarmonyPatch(typeof(Palette), nameof(Palette.GetColorName))]
     [HarmonyPrefix]
     private static bool OnGetColorName(int colorId, ref string __result)
     {
+        
         var vColor = DIYColor.vanillaColors.FirstOrDefault(n => n.Index == colorId);
         if (vColor != null)
         {
             __result = vColor.Text;
+            __result += $"  ({DIYColor.GetLighterText(vColor)})";
+            return false;
         }
+
         var diyColor = DIYColor.DIYColors.FirstOrDefault(n => n.Index == colorId);
         if (diyColor != null)
         {
             __result = diyColor.TranslateId == string.Empty ? diyColor.Text : diyColor.TranslateId.Translate();
+            __result += $"  ({DIYColor.GetLighterText(diyColor)})";
+            return false;
         }
+
+        __result = $"No Find Color {colorId}";
         return false;
     }
 
-    [HarmonyPatch(typeof(LegacySaveManager), nameof(LegacySaveManager.LoadPlayerPrefs))]
-    [HarmonyPrefix]
-    private static void LoadPrePrefix([HarmonyArgument(0)] bool overrideLoad)
-    {
-        if (!LegacySaveManager.loaded || overrideLoad)
-            needsPatch = true;
-    }
 
-    [HarmonyPatch(typeof(LegacySaveManager), nameof(LegacySaveManager.LoadPlayerPrefs))]
-    [HarmonyPostfix]
-    private static void LoadPrePostfix()
-    {
-        if (!needsPatch) return;
-        LegacySaveManager.colorConfig %= (uint)DIYColor.vanillaColors.Count;
-        needsPatch = false;
-    }
-
-    private static bool isTaken(PlayerControl player, uint color)
-    {
-        return GameData.Instance.AllPlayers.GetFastEnumerator().Any(p =>
-            !p.Disconnected && p.PlayerId != player.PlayerId && p.DefaultOutfit.ColorId == color);
-    }
-
-    /*[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckColor))]
-    [HarmonyPrefix]
-    private static bool CheckColorPrefix(PlayerControl __instance, [HarmonyArgument(0)] byte bodyColor)
-    {
-        // Fix incorrect color assignment
-        uint color = bodyColor;
-        if (isTaken(__instance, color) || color >= Palette.PlayerColors.Length)
-        {
-            var num = 0;
-            while (num++ < 50 && (color >= pickableColors || isTaken(__instance, color)))
-                color = (color + 1) % pickableColors;
-        }
-
-        __instance.RpcSetColor((byte)color);
-        return false;
-    }*/
+    
 
     [HarmonyPatch(typeof(PlayerTab), nameof(PlayerTab.Update))]
     [HarmonyPrefix]
@@ -455,6 +438,8 @@ public static class DIYColorPatch
             colorChip.SelectionHighlight.enabled = (__instance.currentColor == color.Index);
             colorChip.PlayerEquippedForeground.SetActive(__instance.GetCurrentColorId() == color.Index);
         }
+        
+        __instance.currentColorIsEquipped = DataManager.Player.Customization.Color == __instance.currentColor;
         return false;
     }
 

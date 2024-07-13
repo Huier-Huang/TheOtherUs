@@ -161,9 +161,12 @@ public static class HatPatches
     [HarmonyPostfix]
     private static void HandleAnimationPostfix(PlayerPhysics __instance)
     {
-        if (__instance.IsDestroyedOrNull()) return;
+        if (__instance == null) return;
+        if (__instance.Animations == null || __instance.Animations.Animator == null) return;
         var currentAnimation = __instance.Animations.Animator.GetCurrentAnimation();
+        if (__instance.myPlayer == null || __instance.myPlayer.cosmetics == null || __instance.myPlayer.cosmetics.hat) return;
         var hatParent = __instance.myPlayer.cosmetics.hat;
+        if (currentAnimation == null || hatParent == null) return;
         if (currentAnimation == __instance.Animations.group.ClimbUpAnim || currentAnimation == __instance.Animations.group.ClimbDownAnim || !CosmeticsManager.Instance.TryGetHat(hatParent.Hat.ProductId, out var hat)) return;
         
         if (hat.FlipSprite)

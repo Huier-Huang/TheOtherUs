@@ -5,19 +5,17 @@ using UnityEngine;
 
 namespace TheOtherUs.Configs;
 
+[Harmony]
 public static class VersionIsolationPatch
 {
-    [HarmonyPatch(typeof(FileIO), nameof(FileIO.GetDataPathTo)), HarmonyPrefix]
-    private static bool FileIoGetDataPathToPatch(string[] directories, ref string __result)
+    [HarmonyPatch(typeof(PlatformPaths), nameof(PlatformPaths.persistentDataPath), MethodType.Getter), HarmonyPrefix]
+    private static bool FileIoGetRootDataPathPatch(ref string __result)
     {
-        if (!TheOtherUsConfig.EnableVersionIsolation) return true;
-
-        var dirPath = Path.Combine(FileIO.GetRootDataPath(), Application.version);
+        var dirPath = Path.Combine(Application.persistentDataPath, Application.version);
         if (!Directory.Exists(dirPath))
             Directory.CreateDirectory(dirPath);
 
-        var path = directories.Where(p => !p.IsNullOrWhiteSpace()).Aggregate(dirPath, Path.Combine);
-         __result = path;
+        __result = dirPath;
         return false;
     }
 }
