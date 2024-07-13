@@ -1092,7 +1092,8 @@
         "type": "Project",
         "dependencies": {
           "BepInEx.Preloader.Core": "[6.0.0-be.692, )",
-          "BepInEx.Unity.IL2CPP": "[6.0.0-be.692, )"
+          "BepInEx.Unity.IL2CPP": "[6.0.0-be.692, )",
+          "Tomlyn": "[0.17.0, )"
         }
       }
     }

@@ -1,8 +1,8 @@
 namespace NextPatcher;
 
-public class NextScriptManager
+public class NextScriptManager(string findDir)
 {
-    public string FindDir { get; set; }
+    public string FindDir { get; set; } = findDir;
 
     public NextScriptManager SetFindDir(string Dir)
     {
@@ -11,7 +11,13 @@ public class NextScriptManager
     }
 
 
-    public void BuildAll()
+    public NextScriptManager BuildAll()
     {
+        return this;
+    }
+
+    public NextScriptManager Run(INextScriptInfo info)
+    {
+        return this;
     }
 }

@@ -5,11 +5,12 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Runtime.Versioning;
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Preloader.Core.Patching;
 using BepInEx.Unity.IL2CPP;
+using Cpp2IL.Core.Extensions;
+using Tomlyn;
 
 
 namespace NextPatcher;
@@ -20,7 +21,7 @@ public class NextPatcher : BasePatcher
     public static ManualLogSource LogSource = null!;
     public const string FileName = "Dependents.toml";
     public static NextPatcher Instance = null!;
-    
+    public static bool UserAutoDownloadNoFind = false;
     public DirectoryCreator Creator { get; set; }
     
     public NextScriptManager ScriptManager { get; set; } = null!;
@@ -32,6 +33,13 @@ public class NextPatcher : BasePatcher
         Creator = new DirectoryCreator(Paths.GameRootPath, "Dependents", "dotnet-8.0.0", "NextScripts");
         Creator.Create();
         DownLoadAndLoadToml();
+    }
+
+    public async void ReadConfigToml()
+    {
+        var path = Path.Combine(Paths.GameRootPath, FileName);
+        await using var file = File.Open(path, FileMode.OpenOrCreate);
+        var toml = Toml.Parse(file.ReadBytes());
     }
     
 
@@ -69,13 +77,12 @@ public class NextPatcher : BasePatcher
     {
         AppDomain.CurrentDomain.AssemblyResolve += LocalResolve;
         IL2CPPChainloader.Instance.PluginLoad += OnPluginLoad;
-        ScriptManager = new NextScriptManager();
+        ScriptManager = new NextScriptManager(Creator.Get("NextScripts"));
         ScriptManager
-            .SetFindDir(Creator.Get("NextScripts"))
             .BuildAll();
     }
 
-    private static (int, string)[] RuntimeURLs = 
+    private static readonly (int, string)[] RuntimeURLs = 
         [
             (7, "https://download.visualstudio.microsoft.com/download/pr/f479b75e-9ecb-42ea-8371-c94f411eda8d/0cd700d75f1d04e9108bc4213f8a41ec/dotnet-runtime-7.0.20-win-x86.zip"),
             (8, "https://download.visualstudio.microsoft.com/download/pr/3e0c1889-b4f7-414c-9ac9-cdc82938563d/daed61ae792654223bcac886ff3725ba/dotnet-runtime-8.0.7-win-x86.zip"),
@@ -110,6 +117,7 @@ public class NextPatcher : BasePatcher
     
     public Stream Download(string name, string version, string framework = "net8.0")
     {
+        if (name == string.Empty) return Stream.Null;
         using var downloader = new NuGetDownloader(name, version);
         var get = new NugetZipGet(downloader);
         var frameworks = get.GetFrameworks();
@@ -215,7 +223,15 @@ public class NextPatcher : BasePatcher
         }
 
         var path = Path.Combine(Instance.Creator.Get("Dependents"), assemblyName.Name + ".dll");
+        if (File.Exists(path))
+            return Assembly.LoadFile(path);
+
+        if (UserAutoDownloadNoFind)
+        {
+            using var NewStream = Instance.Download(assemblyName.Name ?? string.Empty, assemblyName.Version?.ToString() ?? string.Empty,
+                typeof(NextPatcher).Assembly.GetFramework().GetNugetName());
+        }
         
-        return File.Exists(path) ? Assembly.LoadFile(path) : null;
+        return null;
     }
 }
